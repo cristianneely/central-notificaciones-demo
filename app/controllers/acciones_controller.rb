@@ -13,7 +13,7 @@ class AccionesController < ApplicationController
       fallar_a_la_mitad: params[:fallar_a_la_mitad] == "1"
     )
     volver resultado: "Certificado ##{resultado.certificado.id} emitido. " \
-                      "Solicitud #{resultado.solicitud_id.first(8)}."
+                      "Solicitud #{resultado.solicitud_id.first(8)}.", recorrido: true
   rescue Certificados::EmitirCertificado::FallaSimulada
     volver error: "La acción falló a la mitad: no se guardó el certificado ni la notificación."
   end
@@ -39,11 +39,11 @@ class AccionesController < ApplicationController
   end
 
   def ejecutada(solicitud_id)
-    volver resultado: "Acción ejecutada. Solicitud #{solicitud_id.first(8)}."
+    volver resultado: "Acción ejecutada. Solicitud #{solicitud_id.first(8)}.", recorrido: true
   end
 
   # Vuelve a la consola conservando la empresa, la persona y el curso elegidos.
   def volver(mensajes)
-    redirect_to root_path(params.permit(:empresa_id, :usuario_id, :curso).to_h), flash: mensajes
+    redirect_to consola_path(params.permit(:empresa_id, :usuario_id, :curso).to_h), flash: mensajes
   end
 end

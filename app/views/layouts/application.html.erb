@@ -19,19 +19,27 @@
     <%= stylesheet_link_tag :app %>
   </head>
 
-  <body>
-    <%# Aviso fijo: va en el marco de la página para que lo hereden todas las pantallas. %>
-    <div class="aviso-demo">
-      Demo con datos ficticios. No sale ningún correo real.
-      <a href="/acerca">Acerca de esta demo</a>
-    </div>
+  <body class="pagina-<%= content_for(:pagina) || "general" %>">
+    <%# Aviso fijo: va en el marco de la página para que lo hereden todas las pantallas, salvo el
+        inicio, que ya lo dice en su propio texto. %>
+    <% unless content_for(:pagina) == "inicio" %>
+      <div class="aviso-demo">
+        Demo con datos ficticios. No sale ningún correo real.
+        <a href="/acerca">Acerca de esta demo</a>
+      </div>
+    <% end %>
 
     <nav class="menu">
       <strong>Central de notificaciones</strong>
-      <%= link_to "Consola", root_path %>
+      <%= link_to "Inicio", root_path %>
+      <%= link_to "Consola", consola_path %>
       <%= link_to "Catálogo", catalogo_path %>
       <%= link_to "Historial", historial_path %>
       <%= link_to "Acerca", acerca_path %>
+      <span class="externos">
+        <%= link_to "Propuesta", Demo::Declaraciones::PROPUESTA_URL, target: "_blank", rel: "noopener" %>
+        <%= link_to "Código", Demo::Declaraciones::CODIGO_URL, target: "_blank", rel: "noopener" %>
+      </span>
     </nav>
 
     <main>

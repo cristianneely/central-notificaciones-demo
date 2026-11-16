@@ -3,7 +3,7 @@ require "test_helper"
 # Las cuatro pantallas de la demo. Todas llevan el aviso fijo de datos ficticios.
 class PantallasTest < ActionDispatch::IntegrationTest
   AVISO = "Demo con datos ficticios. No sale ningún correo real."
-  PANTALLAS = %w[/ /catalogo /historial /acerca].freeze
+  PANTALLAS = %w[/consola /catalogo /historial /acerca].freeze
 
   test "31: las cuatro pantallas cargan y muestran el aviso" do
     sembrar
@@ -36,6 +36,7 @@ class PantallasTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "El diseño llama <code>send</code> a la operación de envío"
     assert_includes response.body, "puede tardar cerca de un minuto en despertar"
     assert_select "table.requisitos td", text: "R11"
+    assert_select ".bajada a[href='#{Demo::Declaraciones::PROPUESTA_URL}'][target=_blank]", text: "el diseño"
   end
 
   test "las declaraciones cubren los catorce requisitos" do

@@ -2,7 +2,21 @@
 
 <h1>Consola de demo</h1>
 <p class="bajada">Dispara una acción de negocio y sigue la notificación desde que se pide hasta que se
-  entrega. Las listas de abajo se refrescan solas cada 2 segundos.</p>
+  entrega. Las listas de abajo se refrescan solas cada 2 segundos. El ejemplo es una plataforma de
+  capacitación: la notificación principal es el certificado de un curso. También están definidos un
+  recordatorio, una encuesta y un saludo de cumpleaños.</p>
+
+<details class="tarjeta que-probar">
+  <summary>Qué probar (ocho escenarios)</summary>
+  <table>
+    <thead><tr><th>Escenario</th><th>Dónde</th><th>Qué se ve</th></tr></thead>
+    <tbody>
+      <% Demo::Declaraciones::ESCENARIOS.each do |_numero, escenario, donde, que_se_ve| %>
+        <tr><td><%= escenario %></td><td><%= donde %></td><td><%= que_se_ve %></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</details>
 
 <% if @empresa.nil? %>
   <p class="resultado error">La base no tiene datos semilla. Corre <code>bin/rails db:seed</code>.</p>
@@ -18,7 +32,7 @@
 
       <div class="selectores">
         <label>Empresa
-          <select name="empresa_id" onchange="window.location = '/?empresa_id=' + this.value">
+          <select name="empresa_id" onchange="window.location = '/consola?empresa_id=' + this.value">
             <%= options_from_collection_for_select(@empresas, :id, :nombre, @empresa.id) %>
           </select>
         </label>
@@ -58,7 +72,8 @@
     <% if flash[:error] %>
       <div class="resultado error"><%= flash[:error] %></div>
     <% elsif flash[:resultado] %>
-      <div class="resultado"><%= flash[:resultado] %></div>
+      <div class="resultado"><%= flash[:resultado] %>
+        <% if flash[:recorrido] %><a href="#solicitudes">Ver el recorrido</a><% end %></div>
     <% else %>
       <div class="resultado vacio">Aquí aparece el efecto del último botón.</div>
     <% end %>
@@ -71,8 +86,11 @@
     </div>
   </section>
 
+  <div id="vivo-solicitudes"><%= render "solicitudes_y_bandeja" %></div>
+
   <section class="tarjeta">
-    <h2>2. Proveedor de correo (simulado) y políticas</h2>
+    <h2>4. Proveedor de correo (simulado) y políticas</h2>
+    <div id="vivo-estado"><%= render "estado" %></div>
     <div class="dos-columnas">
       <div>
         <p class="nota">Apagado, el proveedor no responde: simula una caída. Al encenderlo no se le avisa
@@ -108,9 +126,7 @@
     </div>
   </section>
 
-  <div id="listas">
-    <%= render "listas" %>
-  </div>
+  <div id="vivo-pendientes"><%= render "pendientes" %></div>
 
   <section class="tarjeta discreta">
     <%= button_to "Reiniciar demo", consola_reiniciar_path,
@@ -119,12 +135,20 @@
   </section>
 
   <script>
-    // Refresco de las listas: cada 2 segundos se vuelve a pedir ese pedazo de la página.
+    // Refresco: cada 2 segundos se piden los tres pedazos que cambian solos, en una sola
+    // petición, y cada uno se reemplaza en su lugar por su id. Lo fijo no se redibuja.
     const urlListas = "/consola/listas?empresa_id=<%= @empresa.id %>";
+    const pedazos = ["vivo-solicitudes", "vivo-estado", "vivo-pendientes"];
     async function refrescarListas() {
       try {
         const respuesta = await fetch(urlListas);
-        if (respuesta.ok) document.getElementById("listas").innerHTML = await respuesta.text();
+        if (!respuesta.ok) return;
+        const recibido = document.createElement("template");
+        recibido.innerHTML = await respuesta.text();
+        pedazos.forEach((id) => {
+          const nuevo = recibido.content.getElementById(id);
+          if (nuevo) document.getElementById(id).replaceWith(nuevo);
+        });
       } catch (error) { /* la app puede estar despertando: se reintenta en el próximo ciclo */ }
     }
     setInterval(refrescarListas, 2000);

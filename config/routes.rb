@@ -9,8 +9,11 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  # Consola de demo: la pantalla principal.
-  root "consola#index"
+  # Página de inicio: qué es la demo, dónde está la propuesta y el código, qué mirar.
+  root "inicio#index"
+
+  # Consola de demo: aquí se disparan las acciones y se ve qué hace la central.
+  get "consola" => "consola#index"
   get "consola/listas" => "consola#listas"                  # las listas solas, para refrescarlas
   post "consola/proveedor" => "consola#proveedor"           # interruptor del proveedor simulado
   post "consola/apagar_critico" => "consola#apagar_critico" # muestra el rechazo de R6

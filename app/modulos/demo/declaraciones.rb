@@ -2,25 +2,50 @@ module Demo
   # Lo que la demo declara: en qué se simplificó el diseño del documento y dónde se ve
   # cada requisito. Lo muestra la página "Acerca".
   module Declaraciones
+    # El documento que la demo implementa y el código. Los usan el menú, el inicio y Acerca.
+    PROPUESTA_URL = "https://docs.google.com/document/d/1gpoD-GDRY9ae6IR0nzSVZqHMuqY7Mdaq7WAnBNwKNbY/edit".freeze
+    CODIGO_URL = "https://github.com/cristianneely/central-notificaciones-demo".freeze
+
+    # [Número, Escenario, Dónde, Qué se ve]. De aquí salen "Qué probar" de la consola y del README.
+    ESCENARIOS = [
+      [1, "Emitir un certificado", "Consola → \"Emitir certificado\"",
+       "El recorrido completo y el correo armado en la bandeja"],
+      [2, "Emitirlo por la API", "Consola → \"Emitir certificado por la API\"",
+       "El mismo recorrido, con origen api"],
+      [3, "La acción llama dos veces a send()", "Casilla \"la acción llama dos veces a send()\"",
+       "Una sola notificación; la segunda queda como duplicada"],
+      [4, "La acción falla a la mitad", "Casilla \"la acción falla a la mitad\"",
+       "Ni certificado ni notificación"],
+      [5, "Política del cliente",
+       "Empresa Minera Los Robles → \"Saludar cumpleaños\"; botón \"Intentar apagar lo crítico\"",
+       "\"No enviada: política del cliente\"; el rechazo"],
+      [6, "Límite de frecuencia", "Cuatro avisos no críticos y un certificado a la misma persona",
+       "El cuarto queda retenido; el certificado pasa"],
+      [7, "Caída del proveedor", "\"Apagar el proveedor\", emitir varias, \"Encender el proveedor\"",
+       "Esperan, se reintenta y salen con lo crítico primero"],
+      [8, "Historial", "Pantalla Historial", "Filtros y recorridos, con no enviadas y un rebote"]
+    ].freeze
+
     # [En el documento, En la demo]
     SIMPLIFICACIONES = [
       ["Postgres", "SQLite (un archivo dentro de la app)"],
       ["SendGrid", "Proveedor simulado; no sale ningún correo"],
       ["Servidores de segundo plano en máquinas aparte", "Un proceso en segundo plano dentro de la misma app"],
       ["Varias máquinas toman pendientes; si una cae, otra sigue", "Un solo despachador"],
-      ["Reintentos con esperas de minutos", "Esperas de 5, 10 y 20 segundos"],
-      ["Reintentos \"con esperas cada vez más largas\" (no dice si por correo o por proveedor)",
-       "Por canal: se prueba con el pendiente más crítico y, cuando pasa, salen todos por importancia"],
-      ["N y período del límite de frecuencia, pendientes",
-       "3 no críticas por persona y canal en 24 h; cuenta la decisión de enviar"],
+      ["Reintentos con esperas cada vez más largas, de minutos",
+       "Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, " \
+       "salen todos por importancia"],
+      ["Límite de frecuencia configurable; parte en 3 no críticas por persona y canal cada 24 h",
+       "El mismo valor, fijo en la configuración; cuenta la decisión de enviar"],
       ["Varios canales y respaldo para lo crítico (cuando exista un segundo canal)", "Un solo canal por envío"],
       ["Auditoría a escala (R11)", "No se demuestra"],
-      ["Tres puertas de entrada: web, API y carga masiva (R9)", "Dos: web y API"],
+      ["Tres entradas: web, API y carga masiva (R9)", "Dos: web y API"],
       ["Quién originó la solicitud (R10)",
-       "Se anota la notificación, que identifica al módulo dueño, y la puerta (web, api o interno)"],
+       "Se anota la notificación, que identifica al módulo dueño, y la entrada (web, api o interno)"],
       ["Tiempos de salida: lo crítico en menos de 1 minuto, lo demás en menos de 15 (R13)",
        "No se miden; solo se muestra el orden"],
-      ["Envío doble si la app cae justo después de que el proveedor acepta (fuera del documento)",
+      ["Envío doble si una máquina cae justo después de que el proveedor acepta " \
+       "(limitación declarada en la propuesta)",
        "Puede ocurrir; no se trata"],
       ["Autenticación de la API", "La API de ejemplo no pide credenciales"],
       ["Aviso de SendGrid por la red, firmado", "El proveedor simulado llama al receptor por código; sin firma"],
@@ -29,8 +54,8 @@ module Demo
        "La base rechaza UPDATE y DELETE sobre la auditoría con disparadores"],
       ["Contador de frecuencia propio", "Se cuenta sobre la auditoría"],
       ["Cada empresa ve solo lo suyo (autenticación)", "Sin login; la empresa se elige en un filtro obligatorio"],
-      ["Clave única (el documento no fija formato)", "Texto legible, sin resumir"],
-      ["Resumen para lo excedente (opcional)", "Solo retener"],
+      ["Clave única por notificación, persona y unica_por", "Texto legible, sin resumir"],
+      ["Agrupar lo excedente en un resumen (paso siguiente)", "Solo retener"],
       ["Chequeos automáticos en la revisión de código", "Dos pruebas automáticas que revisan el código"],
       ["Pantalla de políticas fuera de alcance", "Políticas sembradas; un botón solo para mostrar el rechazo"],
       ["SQLite admite un solo escritor a la vez (propio de la demo)",
@@ -53,7 +78,7 @@ module Demo
       ["R8", "Definición única, validada",
        "Catálogo: botón \"Probar una definición inválida\". Pruebas 1 a 3"],
       ["R9", "Se dispara desde la acción de negocio, igual por web, API o carga masiva",
-       "Consola: emitir por la pantalla y por la API. Pruebas 24 y 27. Hay dos puertas (web y API); " \
+       "Consola: emitir por la pantalla y por la API. Pruebas 24 y 27. Hay dos entradas (web y API); " \
        "la carga masiva no se construye"],
       ["R10", "Historial completo e inmodificable",
        "Los recorridos de la consola y del historial. Pruebas 12 y 13"],

@@ -1,15 +1,16 @@
 # Central de notificaciones — demo
 
 Demo funcional de una central de notificaciones: el punto único por el que una aplicación
-envía avisos a sus usuarios. Muestra la lógica, los flujos y las dos APIs del diseño
+envía avisos a sus usuarios. Muestra la lógica, los flujos y las dos APIs del [diseño](https://docs.google.com/document/d/1gpoD-GDRY9ae6IR0nzSVZqHMuqY7Mdaq7WAnBNwKNbY/edit)
 (definir una notificación y enviarla), con una interfaz para probarlo todo.
 
 **Demo con datos ficticios. No sale ningún correo real.** El proveedor de correo es simulado:
 lo que "envía" queda en su bandeja, visible en la consola.
 
-Demo en línea: <https://central-notificaciones-demo.onrender.com>. Está en un plan gratuito:
-si nadie la usó en los últimos minutos puede tardar cerca de un minuto en despertar, y al
-despertar la base vuelve a los datos de ejemplo.
+Demo en línea: <https://central-notificaciones-demo.onrender.com>.
+La página de inicio lleva a la propuesta, a la demo y al código; la consola está en `/consola`. Está en un plan gratuito: si
+nadie la usó en los últimos minutos puede tardar cerca de un minuto en despertar, y al despertar
+la base vuelve a los datos de ejemplo.
 
 ## Qué demuestra
 
@@ -79,8 +80,8 @@ base de datos.
 | # | Escenario | Dónde | Qué se ve |
 |---|---|---|---|
 | 1 | Emitir un certificado | Consola → "Emitir certificado" | El recorrido completo y el correo armado en la bandeja |
-| 2 | Emitirlo por la API | Consola → "Emitir certificado por la API" | El mismo recorrido, con origen `api` |
-| 3 | La acción llama dos veces a `send()` | Casilla "la acción llama dos veces a send()" | Una sola notificación; la segunda queda como duplicada |
+| 2 | Emitirlo por la API | Consola → "Emitir certificado por la API" | El mismo recorrido, con origen api |
+| 3 | La acción llama dos veces a send() | Casilla "la acción llama dos veces a send()" | Una sola notificación; la segunda queda como duplicada |
 | 4 | La acción falla a la mitad | Casilla "la acción falla a la mitad" | Ni certificado ni notificación |
 | 5 | Política del cliente | Empresa Minera Los Robles → "Saludar cumpleaños"; botón "Intentar apagar lo crítico" | "No enviada: política del cliente"; el rechazo |
 | 6 | Límite de frecuencia | Cuatro avisos no críticos y un certificado a la misma persona | El cuarto queda retenido; el certificado pasa |
@@ -115,8 +116,8 @@ Cada prueba lleva al inicio de su nombre el número del caso que cubre (por ejem
 |---|---|---|
 | `app/central/` | La central: `Notification` (`define` y `send`), catálogo, despachador, políticas, canales, proveedores, receptor, auditoría y configuración | Es la única que habla con el proveedor de correo |
 | `app/modulos/` | Los módulos de los equipos: sus definiciones y sus acciones de negocio | Solo usan `Notification.define` y `Notification.send` |
-| `app/controllers/` | Las puertas: pantallas y API | Llaman a las acciones; nunca a `send()` |
-| `test/` | Las pruebas | `test/chequeos/` revisa el código mismo: que ninguna puerta llame a `send()` y que solo el canal email hable con el proveedor |
+| `app/controllers/` | Las entradas: pantallas y API | Llaman a las acciones; nunca a `send()` |
+| `test/` | Las pruebas | `test/chequeos/` revisa el código mismo: que ninguna entrada llame a `send()` y que solo el canal email hable con el proveedor |
 
 Los valores de la central (límite de frecuencia, esperas, tiempos) están en un solo lugar:
 `app/central/notification/configuracion.rb`.
@@ -133,7 +134,7 @@ Los valores de la central (límite de frecuencia, esperas, tiempos) están en un
 | R6 | Lo crítico siempre tiene canal | Consola: botón "Intentar apagar lo crítico". Prueba 18 |
 | R7 | Canales extensibles sin tocar definiciones | Prueba 29, con un canal de prueba |
 | R8 | Definición única, validada | Catálogo: botón "Probar una definición inválida". Pruebas 1 a 3 |
-| R9 | Se dispara desde la acción de negocio, igual por web, API o carga masiva | Consola: emitir por la pantalla y por la API. Pruebas 24 y 27. Hay dos puertas (web y API); la carga masiva no se construye |
+| R9 | Se dispara desde la acción de negocio, igual por web, API o carga masiva | Consola: emitir por la pantalla y por la API. Pruebas 24 y 27. Hay dos entradas (web y API); la carga masiva no se construye |
 | R10 | Historial completo e inmodificable | Los recorridos de la consola y del historial. Pruebas 12 y 13 |
 | R11 | Auditoría a escala (12 millones al día, plazo de conservación, cada empresa ve lo suyo) | No se demuestra. Solo quedan el filtro obligatorio por empresa y los índices por empresa y fecha |
 | R12 | Historial visible en una pantalla simple | Pantalla Historial. Prueba 30 |
@@ -150,23 +151,22 @@ La demo muestra la lógica y los flujos. Esto es lo que cambia respecto del dise
 | SendGrid | Proveedor simulado; no sale ningún correo |
 | Servidores de segundo plano en máquinas aparte | Un proceso en segundo plano dentro de la misma app |
 | Varias máquinas toman pendientes; si una cae, otra sigue | Un solo despachador |
-| Reintentos con esperas de minutos | Esperas de 5, 10 y 20 segundos |
-| Reintentos "con esperas cada vez más largas" (no dice si por correo o por proveedor) | Por canal: se prueba con el pendiente más crítico y, cuando pasa, salen todos por importancia |
-| N y período del límite de frecuencia, pendientes | 3 no críticas por persona y canal en 24 h; cuenta la decisión de enviar |
+| Reintentos con esperas cada vez más largas, de minutos | Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, salen todos por importancia |
+| Límite de frecuencia configurable; parte en 3 no críticas por persona y canal cada 24 h | El mismo valor, fijo en la configuración; cuenta la decisión de enviar |
 | Varios canales y respaldo para lo crítico (cuando exista un segundo canal) | Un solo canal por envío |
 | Auditoría a escala (R11) | No se demuestra |
-| Tres puertas de entrada: web, API y carga masiva (R9) | Dos: web y API |
-| Quién originó la solicitud (R10) | Se anota la notificación, que identifica al módulo dueño, y la puerta (web, api o interno) |
+| Tres entradas: web, API y carga masiva (R9) | Dos: web y API |
+| Quién originó la solicitud (R10) | Se anota la notificación, que identifica al módulo dueño, y la entrada (web, api o interno) |
 | Tiempos de salida: lo crítico en menos de 1 minuto, lo demás en menos de 15 (R13) | No se miden; solo se muestra el orden |
-| Envío doble si la app cae justo después de que el proveedor acepta (fuera del documento) | Puede ocurrir; no se trata |
+| Envío doble si una máquina cae justo después de que el proveedor acepta (limitación declarada en la propuesta) | Puede ocurrir; no se trata |
 | Autenticación de la API | La API de ejemplo no pide credenciales |
 | Aviso de SendGrid por la red, firmado | El proveedor simulado llama al receptor por código; sin firma |
 | Auditoría separada por día, 90 días, archivo a S3 | Una tabla, sin archivo |
 | La aplicación no tiene permiso para modificar ni borrar | La base rechaza UPDATE y DELETE sobre la auditoría con disparadores |
 | Contador de frecuencia propio | Se cuenta sobre la auditoría |
 | Cada empresa ve solo lo suyo (autenticación) | Sin login; la empresa se elige en un filtro obligatorio |
-| Clave única (el documento no fija formato) | Texto legible, sin resumir |
-| Resumen para lo excedente (opcional) | Solo retener |
+| Clave única por notificación, persona y unica_por | Texto legible, sin resumir |
+| Agrupar lo excedente en un resumen (paso siguiente) | Solo retener |
 | Chequeos automáticos en la revisión de código | Dos pruebas automáticas que revisan el código |
 | Pantalla de políticas fuera de alcance | Políticas sembradas; un botón solo para mostrar el rechazo |
 | SQLite admite un solo escritor a la vez (propio de la demo) | No se muestran varias máquinas tomando pendientes |

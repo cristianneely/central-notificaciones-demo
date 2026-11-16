@@ -1,0 +1,22 @@
+<%# Línea de estado del proveedor y del canal. Va dentro de la sección 4 y se refresca. %>
+<div class="estado-general">
+  <span class="dato">Certificados emitidos en esta empresa: <%= @certificados %></span>
+  <% if @proveedor_encendido %>
+    <span class="dato estado-ok">Proveedor encendido</span>
+  <% else %>
+    <span class="dato estado-no">Proveedor apagado</span>
+  <% end %>
+  <span class="dato <%= "estado-no" if @canal.fallas_consecutivas > 0 %>">
+    Canal email:
+    <% if @canal.fallas_consecutivas.zero? %>
+      sin fallas
+    <% else %>
+      <%= pluralize(@canal.fallas_consecutivas, "falla consecutiva", plural: "fallas consecutivas") %>,
+      <% if @segundos_para_reintentar > 0 %>
+        próximo intento en <%= @segundos_para_reintentar %> s
+      <% else %>
+        reintentando ahora
+      <% end %>
+    <% end %>
+  </span>
+</div>
