@@ -1,0 +1,26 @@
+<%# Pendientes de todas las empresas. Se refresca. %>
+<section class="tarjeta" id="pendientes">
+  <h2>5. Pendientes <span class="cuenta"><%= @total_pendientes %></span></h2>
+  <p class="nota">De todas las empresas, en el orden en que el despachador los tomaría: lo crítico
+    primero y, después, lo más antiguo.</p>
+  <table>
+    <thead>
+      <tr><th>Notificación</th><th>Empresa</th><th>Persona</th><th>Importancia</th><th>Antigüedad</th></tr>
+    </thead>
+    <tbody>
+      <% @pendientes.each do |pendiente| %>
+        <tr>
+          <td><code><%= pendiente.notificacion %></code></td>
+          <td><%= @nombres_empresas[pendiente.empresa_id] %></td>
+          <td><%= nombre_persona(pendiente.usuario_id) %></td>
+          <td><%= etiqueta_importancia(pendiente.importancia) %></td>
+          <td><%= (Time.current - pendiente.creado_en).round %> s</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if @pendientes.empty? %><p class="vacio">No hay pendientes.</p><% end %>
+  <% if @total_pendientes > @pendientes.size %>
+    <p class="nota">Se muestran los primeros <%= @pendientes.size %> de <%= @total_pendientes %>.</p>
+  <% end %>
+</section>

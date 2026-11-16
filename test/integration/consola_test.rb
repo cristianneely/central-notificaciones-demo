@@ -172,4 +172,72 @@ class ConsolaTest < ActionDispatch::IntegrationTest
 
     assert_select "select[name=empresa_id][onchange*='/consola?empresa_id=']"
   end
+
+  test "las secciones de la consola van en el orden nuevo" do
+    get "/consola"
+
+    titulos = css_select("main h2").map { |titulo| titulo.text.squish }
+    assert_equal ["1. Acciones de negocio", "2. Últimas solicitudes de Andes Capacitación",
+                  "3. Bandeja del proveedor simulado", "4. Proveedor de correo (simulado) y políticas",
+                  "5. Pendientes 0"], titulos
+  end
+
+  test "el refresco trae los tres pedazos con los mismos ids que la consola" do
+    get "/consola"
+    assert_select "#vivo-solicitudes #solicitudes"
+    assert_select "#vivo-solicitudes #bandeja"
+    assert_select "section.tarjeta #vivo-estado", text: /Certificados emitidos en esta empresa: 0/
+    assert_select "#vivo-pendientes #pendientes"
+    assert_select ".estado-general", count: 1
+
+    get "/consola/listas", params: { empresa_id: 1 }
+    assert_not_includes response.body, "<html"
+    assert_select "#vivo-solicitudes #solicitudes"
+    assert_select "#vivo-solicitudes #bandeja"
+    assert_select "#vivo-estado", text: /Proveedor encendido/
+    assert_select "#vivo-pendientes #pendientes"
+  end
+
+  test "después de una acción el resultado tiene el link Ver el recorrido" do
+    emitir
+    assert_select ".resultado a[href='#solicitudes']", text: "Ver el recorrido"
+
+    post "/acciones/recordatorio", params: { empresa_id: 1, usuario_id: 2, curso: "Excel básico" }
+    follow_redirect!
+    assert_select ".resultado a[href='#solicitudes']", text: "Ver el recorrido"
+  end
+
+  test "con la casilla de doble llamada también aparece Ver el recorrido" do
+    emitir(llamar_dos_veces: "1")
+
+    assert_select ".resultado a[href='#solicitudes']", text: "Ver el recorrido"
+  end
+
+  test "sin Ver el recorrido cuando no hubo una acción ejecutada" do
+    emitir(fallar_a_la_mitad: "1")
+    assert_select ".resultado a", count: 0
+
+    post "/consola/apagar_critico", params: { empresa_id: 1 }
+    follow_redirect!
+    assert_select ".resultado a", count: 0
+
+    post "/consola/reiniciar"
+    follow_redirect!
+    assert_select ".resultado a", count: 0
+  end
+
+  test "qué probar está en la consola, plegado, con los ocho escenarios" do
+    get "/consola"
+
+    assert_select "details.que-probar:not([open])" do
+      assert_select "summary", text: "Qué probar (ocho escenarios)"
+      assert_equal ["Escenario", "Dónde", "Qué se ve"], css_select("details.que-probar th").map(&:text)
+      assert_select "tbody tr", count: 8
+      Demo::Declaraciones::ESCENARIOS.each do |_numero, escenario, donde, que_se_ve|
+        assert_select "td", text: escenario
+        assert_select "td", text: donde
+        assert_select "td", text: que_se_ve
+      end
+    end
+  end
 end

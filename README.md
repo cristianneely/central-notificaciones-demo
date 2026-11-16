@@ -79,8 +79,8 @@ base de datos.
 | # | Escenario | Dónde | Qué se ve |
 |---|---|---|---|
 | 1 | Emitir un certificado | Consola → "Emitir certificado" | El recorrido completo y el correo armado en la bandeja |
-| 2 | Emitirlo por la API | Consola → "Emitir certificado por la API" | El mismo recorrido, con origen `api` |
-| 3 | La acción llama dos veces a `send()` | Casilla "la acción llama dos veces a send()" | Una sola notificación; la segunda queda como duplicada |
+| 2 | Emitirlo por la API | Consola → "Emitir certificado por la API" | El mismo recorrido, con origen api |
+| 3 | La acción llama dos veces a send() | Casilla "la acción llama dos veces a send()" | Una sola notificación; la segunda queda como duplicada |
 | 4 | La acción falla a la mitad | Casilla "la acción falla a la mitad" | Ni certificado ni notificación |
 | 5 | Política del cliente | Empresa Minera Los Robles → "Saludar cumpleaños"; botón "Intentar apagar lo crítico" | "No enviada: política del cliente"; el rechazo |
 | 6 | Límite de frecuencia | Cuatro avisos no críticos y un certificado a la misma persona | El cuarto queda retenido; el certificado pasa |

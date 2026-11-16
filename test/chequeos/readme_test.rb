@@ -12,6 +12,12 @@ class ReadmeTest < ActiveSupport::TestCase
     end
   end
 
+  test "el README tiene los mismos escenarios que la consola" do
+    Demo::Declaraciones::ESCENARIOS.each do |numero, escenario, donde, que_se_ve|
+      assert_includes README, "| #{numero} | #{escenario} | #{donde} | #{que_se_ve} |"
+    end
+  end
+
   test "el README dice dónde se ve cada requisito" do
     Demo::Declaraciones::REQUISITOS.each do |codigo, que_pide, donde|
       assert_includes README, "| #{codigo} | #{que_pide} | #{donde} |"

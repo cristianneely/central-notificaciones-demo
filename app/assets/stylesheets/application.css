@@ -148,7 +148,12 @@ td.detalle { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-s
 .cuenta { display: inline-block; min-width: 1.6rem; padding: 0 0.4rem; text-align: center; font-size: 0.85rem; background: var(--fondo); border: 1px solid var(--borde); border-radius: 999px; }
 
 /* Estado general de la consola */
-.estado-general { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: center; }
+.estado-general { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: center; margin-bottom: 0.75rem; }
+.resultado a { margin-left: 0.75rem; font-weight: 400; color: var(--azul); }
+
+/* "Qué probar", plegado arriba de la consola */
+.que-probar summary { font-weight: 600; cursor: pointer; }
+.que-probar table { margin-top: 0.75rem; }
 .dato { font-weight: 600; }
 .dato.estado-ok { color: var(--verde); }
 .dato.estado-no { color: var(--rojo); }
