@@ -28,13 +28,23 @@ module Notification
         resultado = entregar_al_proveedor(mensaje, pendiente: pendiente, para: para)
 
         if resultado.aceptado?
+          EstadoCanal.reiniciar(nombre)
           Auditoria.anotar(pendiente, "enviada", canal: nombre,
                                                  detalle: { id_proveedor: resultado.id_proveedor })
         elsif resultado.rechazado?
-          # El proveedor rechazó este mensaje puntual: reintentar no sirve.
+          # El proveedor rechazó este mensaje puntual: reintentar no sirve. Pero respondió,
+          # así que el canal está sano.
+          EstadoCanal.reiniciar(nombre)
           Auditoria.anotar(pendiente, "fallo_definitivo", canal: nombre,
                                                           motivo: "rechazado_por_proveedor",
                                                           detalle: { mensaje: resultado.mensaje })
+        else
+          # El proveedor no respondió: no es culpa de este mensaje. El canal entra en
+          # espera y el pendiente se queda en la fila; nada se pierde (R14).
+          estado = EstadoCanal.registrar_falla(nombre, Time.current)
+          Auditoria.anotar(pendiente, "intento_fallido", canal: nombre,
+                                                         motivo: "proveedor_no_disponible",
+                                                         detalle: { falla_consecutiva: estado.fallas_consecutivas })
         end
 
         resultado

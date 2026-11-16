@@ -4,8 +4,25 @@ module Notification
     # No sale ningún correo: lo que "acepta" queda guardado en su bandeja, y un rato
     # después avisa al receptor en qué terminó, igual que haría el proveedor real.
     module Simulado
+      ENCENDIDO = "proveedor_encendido"
+
+      # El interruptor de la demo: apagado, el proveedor no responde (simula una caída).
+      def self.encendido?
+        AjusteDemo.find_by(clave: ENCENDIDO)&.valor != "no"
+      end
+
+      def self.encender
+        AjusteDemo.where(clave: ENCENDIDO).delete_all
+      end
+
+      def self.apagar
+        AjusteDemo.find_or_create_by!(clave: ENCENDIDO) { |ajuste| ajuste.valor = "no" }
+      end
+
       # La única operación de un proveedor. Devuelve un Resultado.
       def self.entregar(correo)
+        return Resultado.sin_respuesta unless encendido?
+
         # Rechaza ese correo puntual cuando la dirección no tiene arroba.
         return Resultado.rechazado("dirección inválida") unless correo[:para].to_s.include?("@")
 

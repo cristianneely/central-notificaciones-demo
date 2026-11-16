@@ -9,6 +9,11 @@ module Notification
     # Bloqueo de duplicados (R2): cuánto tiempo una clave única impide repetir el envío.
     BLOQUEO_DUPLICADOS = 24.hours
 
+    # Límite de frecuencia (R3): cuántas notificaciones no críticas puede recibir una
+    # persona por un canal dentro de la ventana. Lo crítico está exento.
+    LIMITE_FRECUENCIA = 3
+    VENTANA_LIMITE = 24.hours
+
     # Política por defecto: por qué canales sale cada importancia (R5). Lo que una empresa
     # apaga se guarda aparte, en la tabla politicas_cliente.
     POLITICA_POR_DEFECTO = {
@@ -20,6 +25,10 @@ module Notification
     # Cada cuántos segundos el despachador revisa los pendientes, y cuántos toma por vuelta.
     INTERVALO_DESPACHADOR = 1
     PENDIENTES_POR_VUELTA = 20
+
+    # Reintentos por canal (R14): segundos de espera tras la 1.ª, la 2.ª y la 3.ª falla
+    # seguida del proveedor. De la tercera en adelante se repite la última.
+    ESPERAS_CANAL = [5, 10, 20].freeze
 
     # Cuánto demora el proveedor simulado en avisar el estado final de un correo.
     DEMORA_AVISO_PROVEEDOR = 2.seconds
