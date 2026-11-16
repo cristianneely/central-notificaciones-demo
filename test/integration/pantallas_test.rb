@@ -34,7 +34,9 @@ class PantallasTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Proveedor simulado; no sale ningún correo"
     assert_includes response.body, "en producción se llamaría"
     assert_includes response.body, "El diseño llama <code>send</code> a la operación de envío"
-    assert_includes response.body, "puede tardar cerca de un minuto en despertar"
+    texto = css_select("main").text.squish
+    assert_includes texto, "Para volver a los datos de ejemplo, usa \"Reiniciar demo\" al final de la consola."
+    assert_no_match(/plan gratuito|despert|se duerme/i, texto)
     assert_select "table.requisitos td", text: "R11"
     assert_select ".bajada a[href='#{Demo::Declaraciones::PROPUESTA_URL}'][target=_blank]", text: "el diseño"
   end

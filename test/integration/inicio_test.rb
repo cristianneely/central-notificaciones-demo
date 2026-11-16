@@ -17,8 +17,9 @@ class InicioTest < ActionDispatch::IntegrationTest
     texto = css_select("main").text.squish
     assert_includes texto, "Implementación de las partes 1 y 2 de la propuesta, con datos ficticios. " \
                            "No sale ningún correo real."
-    assert_includes texto, "La demo corre en un plan gratuito y vuelve a los datos de ejemplo cuando se " \
-                           "duerme. Lo que simplifica respecto de la propuesta está en Acerca."
+    assert_includes texto, "Para volver a los datos de ejemplo, usa \"Reiniciar demo\" al final de la " \
+                           "consola. Lo que simplifica respecto de la propuesta está en Acerca."
+    assert_no_match(/plan gratuito|despert|se duerme/i, texto)
     assert_select ".inicio .pie a[href='/acerca']", text: "Acerca"
   end
 
