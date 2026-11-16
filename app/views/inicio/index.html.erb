@@ -1,4 +1,4 @@
-<%# El inicio va sin el aviso amarillo: la frase de abajo ya dice que los datos son ficticios. %>
+<%# El inicio va con fondo blanco y una sola columna angosta (clase pagina-inicio del marco). %>
 <% content_for :pagina, "inicio" %>
 
 <div class="inicio">
@@ -15,6 +15,6 @@
     <li><%= link_to "Ver el código", Demo::Declaraciones::CODIGO_URL, target: "_blank", rel: "noopener" %></li>
   </ul>
 
-  <p class="pie">La demo corre en un plan gratuito y vuelve a los datos de ejemplo cuando se duerme. Lo que
+  <p class="pie">Para volver a los datos de ejemplo, usa "Reiniciar demo" al final de la consola. Lo que
     simplifica respecto de la propuesta está en <%= link_to "Acerca", acerca_path %>.</p>
 </div>

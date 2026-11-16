@@ -17,8 +17,9 @@ class InicioTest < ActionDispatch::IntegrationTest
     texto = css_select("main").text.squish
     assert_includes texto, "Implementación de las partes 1 y 2 de la propuesta, con datos ficticios. " \
                            "No sale ningún correo real."
-    assert_includes texto, "La demo corre en un plan gratuito y vuelve a los datos de ejemplo cuando se " \
-                           "duerme. Lo que simplifica respecto de la propuesta está en Acerca."
+    assert_includes texto, "Para volver a los datos de ejemplo, usa \"Reiniciar demo\" al final de la " \
+                           "consola. Lo que simplifica respecto de la propuesta está en Acerca."
+    assert_no_match(/plan gratuito|despert|se duerme/i, texto)
     assert_select ".inicio .pie a[href='/acerca']", text: "Acerca"
   end
 
@@ -50,13 +51,11 @@ class InicioTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "1. Acciones de negocio"
   end
 
-  test "el inicio no muestra el aviso amarillo; las demás pantallas sí" do
+  test "el inicio no muestra la barra de aviso" do
     get "/"
+
     assert_response :ok
     assert_select ".aviso-demo", count: 0
-
-    get "/acerca"
-    assert_select ".aviso-demo", count: 1
   end
 
   test "el menú está en las cinco pantallas, con la propuesta y el código en pestaña nueva" do

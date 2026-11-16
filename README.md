@@ -8,9 +8,8 @@ envía avisos a sus usuarios. Muestra la lógica, los flujos y las dos APIs del 
 lo que "envía" queda en su bandeja, visible en la consola.
 
 Demo en línea: <https://central-notificaciones-demo.onrender.com>.
-La página de inicio lleva a la propuesta, a la demo y al código; la consola está en `/consola`. Está en un plan gratuito: si
-nadie la usó en los últimos minutos puede tardar cerca de un minuto en despertar, y al despertar
-la base vuelve a los datos de ejemplo.
+La página de inicio lleva a la propuesta, a la demo y al código; la consola está en `/consola`.
+Para volver a los datos de ejemplo, usa "Reiniciar demo" al final de la consola.
 
 ## Qué demuestra
 

@@ -78,4 +78,9 @@ class ReadmeTest < ActiveSupport::TestCase
     assert_includes README, "las dos APIs del [diseño](#{Demo::Declaraciones::PROPUESTA_URL})"
     assert_includes README, "La página de inicio lleva a la propuesta, a la demo y al código; la consola está en `/consola`."
   end
+
+  test "el README dice cómo volver a los datos de ejemplo, sin el aviso del plan gratuito" do
+    assert_includes README, "Para volver a los datos de ejemplo, usa \"Reiniciar demo\" al final de la consola."
+    assert_no_match(/plan gratuito|despert|se duerme/i, README)
+  end
 end

@@ -1,19 +1,18 @@
 require "test_helper"
 
-# Las cuatro pantallas de la demo. Todas llevan el aviso fijo de datos ficticios.
+# Las cuatro pantallas de la demo. Ninguna lleva barra de aviso: que los datos son ficticios y
+# que no sale ningún correo real lo dicen el inicio y la página Acerca.
 class PantallasTest < ActionDispatch::IntegrationTest
-  AVISO = "Demo con datos ficticios. No sale ningún correo real."
   PANTALLAS = %w[/consola /catalogo /historial /acerca].freeze
 
-  test "31: las cuatro pantallas cargan y muestran el aviso" do
+  test "31: las cuatro pantallas cargan, sin barra de aviso" do
     sembrar
 
     PANTALLAS.each do |ruta|
       get ruta
 
       assert_response :ok, "#{ruta} debería cargar"
-      assert_includes response.body, AVISO, "#{ruta} debería mostrar el aviso"
-      assert_select ".aviso-demo a[href='/acerca']"
+      assert_select ".aviso-demo", { count: 0 }, "#{ruta} no debería mostrar la barra de aviso"
     end
   end
 
@@ -22,8 +21,14 @@ class PantallasTest < ActionDispatch::IntegrationTest
       get ruta
 
       assert_response :ok, "#{ruta} debería cargar sin datos"
-      assert_includes response.body, AVISO
     end
+  end
+
+  test "acerca explica que los datos son ficticios y que no sale ningún correo real" do
+    get "/acerca"
+
+    assert_includes css_select("main").text.squish,
+                    "Todos los datos son ficticios y no sale ningún correo real"
   end
 
   test "acerca declara las simplificaciones, los requisitos y la nota sobre send" do
@@ -34,7 +39,9 @@ class PantallasTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Proveedor simulado; no sale ningún correo"
     assert_includes response.body, "en producción se llamaría"
     assert_includes response.body, "El diseño llama <code>send</code> a la operación de envío"
-    assert_includes response.body, "puede tardar cerca de un minuto en despertar"
+    texto = css_select("main").text.squish
+    assert_includes texto, "Para volver a los datos de ejemplo, usa \"Reiniciar demo\" al final de la consola."
+    assert_no_match(/plan gratuito|despert|se duerme/i, texto)
     assert_select "table.requisitos td", text: "R11"
     assert_select ".bajada a[href='#{Demo::Declaraciones::PROPUESTA_URL}'][target=_blank]", text: "el diseño"
   end

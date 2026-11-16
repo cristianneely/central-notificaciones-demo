@@ -22,19 +22,6 @@ body {
   line-height: 1.5;
 }
 
-/* Aviso fijo, visible en todas las pantallas. */
-.aviso-demo {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  padding: 0.5rem 1rem;
-  background: #fff4ce;
-  border-bottom: 1px solid #e3c55a;
-  font-weight: 600;
-  text-align: center;
-}
-.aviso-demo a { margin-left: 0.75rem; font-weight: 400; }
-
 /* Un solo estilo de link en toda la app. */
 a { color: var(--azul); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -150,8 +137,6 @@ td.detalle { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-s
 /* Estado general de la consola */
 .estado-general { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: center; margin-bottom: 0.75rem; }
 .resultado a { margin-left: 0.75rem; font-weight: 400; }
-/* Al bajar con "Ver el recorrido", el aviso fijo de arriba no tapa el título. */
-#solicitudes { scroll-margin-top: 3.5rem; }
 
 /* "Qué probar", plegado arriba de la consola */
 .que-probar summary { font-weight: 600; cursor: pointer; }
