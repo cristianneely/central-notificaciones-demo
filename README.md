@@ -55,7 +55,7 @@ Notification.send "certificado_emitido",
 # → devuelve el id de la solicitud (UUID)
 ```
 
-Sobre el nombre `send`: el enunciado lo llama así y se respetó; en producción se llamaría
+Sobre el nombre `send`: el diseño lo llama así y se respetó; en producción se llamaría
 `deliver`, la convención de Rails, para no pisar un método del lenguaje (en Ruby todo objeto
 ya trae un `send`). Aquí es seguro porque `Notification` es un módulo propio y no un modelo de
 base de datos.

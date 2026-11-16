@@ -43,7 +43,7 @@ module Notification
   # Van usuarios, no correos: la central es la que busca el contacto.
   # Devuelve el id de la solicitud (un UUID), común a todos los destinatarios.
   #
-  # Sobre el nombre: el enunciado lo llama `send` y se respetó; en producción se llamaría
+  # Sobre el nombre: el diseño lo llama `send` y se respetó; en producción se llamaría
   # `deliver`, la convención de Rails, para no pisar un método del lenguaje (en Ruby todo
   # objeto ya trae un `send`). Aquí es seguro porque Notification es un módulo propio.
   def self.send(nombre, empresa:, destinatarios:, datos:)
