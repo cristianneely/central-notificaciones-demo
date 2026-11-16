@@ -28,4 +28,6 @@ test:
 # ensure the database is located in a persisted volume.
 production:
   <<: *default
-  # database: path/to/persistent/storage/production.sqlite3
+  # Un archivo dentro de la app. En el hosting no hay disco persistente: al dormir o
+  # redesplegar, la base se recrea y vuelve a los datos semilla. Es lo que la demo busca.
+  database: storage/production.sqlite3
