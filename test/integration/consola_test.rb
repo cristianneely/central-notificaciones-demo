@@ -13,7 +13,7 @@ class ConsolaTest < ActionDispatch::IntegrationTest
   end
 
   test "35: la zona de resultado muestra el certificado emitido y sube el contador" do
-    get "/"
+    get "/consola"
     assert_includes response.body, "Certificados emitidos en esta empresa: 0"
 
     emitir
@@ -37,7 +37,7 @@ class ConsolaTest < ActionDispatch::IntegrationTest
   end
 
   test "la consola conserva la empresa, la persona y el curso elegidos" do
-    get "/", params: { empresa_id: 3, usuario_id: 18, curso: "Tablas dinámicas" }
+    get "/consola", params: { empresa_id: 3, usuario_id: 18, curso: "Tablas dinámicas" }
 
     assert_select "select[name=empresa_id] option[selected]", text: "Clínica Austral"
     assert_select "select[name=usuario_id] option[selected]", text: "Sergio Campos"
@@ -47,13 +47,13 @@ class ConsolaTest < ActionDispatch::IntegrationTest
 
   test "la consola muestra pendientes, solicitudes con su recorrido, políticas y bandeja" do
     emitir
-    get "/"
+    get "/consola"
     assert_select "#pendientes tbody tr", count: 1
     assert_includes response.body, "certificado_emitido"
 
     despachar
     avisar
-    get "/"
+    get "/consola"
 
     assert_select "#pendientes tbody tr", count: 0
     assert_select "#solicitudes .recorrido", text: /recibida.*decision_enviar.*enviada.*entregada/m
@@ -74,14 +74,14 @@ class ConsolaTest < ActionDispatch::IntegrationTest
 
   test "las solicitudes de la consola son solo las de la empresa elegida" do
     emitir
-    get "/", params: { empresa_id: 2 }
+    get "/consola", params: { empresa_id: 2 }
 
     assert_select "#solicitudes .recorrido", count: 0
     assert_select "#pendientes tbody tr", count: 1 # los pendientes son de todas las empresas
   end
 
   test "parámetros con forma de objeto no rompen la consola" do
-    ["/", "/consola/listas"].each do |ruta|
+    ["/consola", "/consola/listas"].each do |ruta|
       get ruta, params: { empresa_id: { a: 1 }, usuario_id: { a: 1 }, curso: { a: 1 } }
 
       assert_response :ok
@@ -93,7 +93,7 @@ class ConsolaTest < ActionDispatch::IntegrationTest
     Notification.send "certificado_emitido", empresa: 1, destinatarios: (1001..1060).to_a,
       datos: { certificado_id: 1, curso: "Excel avanzado", link_certificado: "https://ejemplo.test/c/1" }
 
-    get "/"
+    get "/consola"
 
     assert_select "#pendientes tbody tr", count: 50
     assert_select "#pendientes .cuenta", text: "60"
@@ -116,7 +116,7 @@ class ConsolaTest < ActionDispatch::IntegrationTest
 
     enviar_certificado(Usuario.find(1))
     despachar
-    get "/"
+    get "/consola"
     assert_includes response.body, "1 falla consecutiva"
     assert_match(/próximo intento en \d+ s/, response.body)
 
@@ -130,7 +130,7 @@ class ConsolaTest < ActionDispatch::IntegrationTest
     post "/api/certificados", params: { empresa_id: 1, usuario_id: 1, curso: "<b>x</b>" }, as: :json
     despachar
 
-    ["/", "/historial", "/consola/listas?empresa_id=1"].each do |ruta|
+    ["/consola", "/historial", "/consola/listas?empresa_id=1"].each do |ruta|
       get ruta
 
       assert_includes response.body, "&lt;b&gt;x&lt;/b&gt;", "#{ruta} debería mostrar el dato escapado"
@@ -146,5 +146,30 @@ class ConsolaTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Demo reiniciada"
     assert_equal 0, Certificado.where(empresa_id: 1).count
     assert_equal 0, Notification::Pendiente.count
+  end
+
+  test "proveedor, apagar lo crítico y reiniciar vuelven a la consola" do
+    post "/consola/proveedor", params: { encender: "0", empresa_id: 2, usuario_id: 9, curso: "Excel básico" }
+    assert_redirected_to "/consola?curso=Excel+b%C3%A1sico&empresa_id=2&usuario_id=9"
+
+    post "/consola/apagar_critico", params: { empresa_id: 1 }
+    assert_redirected_to "/consola?empresa_id=1"
+
+    post "/consola/reiniciar"
+    assert_redirected_to "/consola"
+  end
+
+  test "un error de validación vuelve a la consola con el error" do
+    post "/acciones/emitir_certificado", params: { empresa_id: 1, usuario_id: 9, curso: "Excel avanzado" }
+
+    assert_redirected_to "/consola?curso=Excel+avanzado&empresa_id=1&usuario_id=9"
+    follow_redirect!
+    assert_select ".resultado.error"
+  end
+
+  test "el selector de empresa lleva a la consola de esa empresa" do
+    get "/consola"
+
+    assert_select "select[name=empresa_id][onchange*='/consola?empresa_id=']"
   end
 end

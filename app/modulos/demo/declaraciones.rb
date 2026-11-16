@@ -2,6 +2,10 @@ module Demo
   # Lo que la demo declara: en qué se simplificó el diseño del documento y dónde se ve
   # cada requisito. Lo muestra la página "Acerca".
   module Declaraciones
+    # El documento que la demo implementa y el código. Los usan el menú, el inicio y Acerca.
+    PROPUESTA_URL = "https://docs.google.com/document/d/1gpoD-GDRY9ae6IR0nzSVZqHMuqY7Mdaq7WAnBNwKNbY/edit".freeze
+    CODIGO_URL = "https://github.com/cristianneely/central-notificaciones-demo".freeze
+
     # [En el documento, En la demo]
     SIMPLIFICACIONES = [
       ["Postgres", "SQLite (un archivo dentro de la app)"],

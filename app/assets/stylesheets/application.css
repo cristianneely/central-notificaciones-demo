@@ -46,6 +46,27 @@ body {
 }
 .menu a { color: var(--azul); text-decoration: none; }
 .menu a:hover { text-decoration: underline; }
+.menu .externos { display: flex; gap: 1.25rem; margin-left: auto; }
+
+/* Página de inicio */
+.accesos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.acceso {
+  display: block;
+  padding: 1.25rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--azul);
+  text-align: center;
+  text-decoration: none;
+  background: #ffffff;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+.acceso:hover { border-color: var(--azul); background: #ddf4ff; }
+.acceso.principal { color: #ffffff; background: var(--azul); border-color: var(--azul); }
+.acceso.principal:hover { background: #0757ba; }
+.recorrido-corto { margin: 0; padding-left: 1.4rem; }
+.recorrido-corto li { margin-bottom: 0.4rem; }
 
 main { max-width: 1100px; margin: 0 auto; padding: 1rem; }
 

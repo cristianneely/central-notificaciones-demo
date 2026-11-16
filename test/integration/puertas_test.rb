@@ -26,7 +26,7 @@ class PuertasTest < ActionDispatch::IntegrationTest
     pedido = { empresa_id: 1, usuario_id: 1, curso: "Excel avanzado" }
 
     post "/acciones/emitir_certificado", params: pedido
-    assert_redirected_to "/?curso=Excel+avanzado&empresa_id=1&usuario_id=1"
+    assert_redirected_to "/consola?curso=Excel+avanzado&empresa_id=1&usuario_id=1"
 
     emitir_por_api(pedido)
     assert_response :created

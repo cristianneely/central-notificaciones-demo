@@ -3,7 +3,7 @@ require "test_helper"
 # Las cuatro pantallas de la demo. Todas llevan el aviso fijo de datos ficticios.
 class PantallasTest < ActionDispatch::IntegrationTest
   AVISO = "Demo con datos ficticios. No sale ningún correo real."
-  PANTALLAS = %w[/ /catalogo /historial /acerca].freeze
+  PANTALLAS = %w[/consola /catalogo /historial /acerca].freeze
 
   test "31: las cuatro pantallas cargan y muestran el aviso" do
     sembrar

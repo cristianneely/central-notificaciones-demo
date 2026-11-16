@@ -1,4 +1,4 @@
-# Consola de demo (/). Desde aquí se disparan las acciones de negocio y se ve qué hace
+# Consola de demo (/consola). Desde aquí se disparan las acciones de negocio y se ve qué hace
 # la central con cada notificación. Los botones de acciones van a AccionesController.
 class ConsolaController < ApplicationController
   PENDIENTES_VISIBLES = 50
@@ -39,7 +39,7 @@ class ConsolaController < ApplicationController
 
   def reiniciar
     Demo::Reinicio.ejecutar
-    redirect_to root_path, flash: { resultado: "Demo reiniciada: la base volvió a los datos semilla." }
+    redirect_to consola_path, flash: { resultado: "Demo reiniciada: la base volvió a los datos semilla." }
   end
 
   private
@@ -72,6 +72,6 @@ class ConsolaController < ApplicationController
   end
 
   def volver(mensajes = {})
-    redirect_to root_path(params.permit(:empresa_id, :usuario_id, :curso).to_h), flash: mensajes
+    redirect_to consola_path(params.permit(:empresa_id, :usuario_id, :curso).to_h), flash: mensajes
   end
 end

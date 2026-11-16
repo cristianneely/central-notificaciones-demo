@@ -18,7 +18,7 @@
 
       <div class="selectores">
         <label>Empresa
-          <select name="empresa_id" onchange="window.location = '/?empresa_id=' + this.value">
+          <select name="empresa_id" onchange="window.location = '/consola?empresa_id=' + this.value">
             <%= options_from_collection_for_select(@empresas, :id, :nombre, @empresa.id) %>
           </select>
         </label>

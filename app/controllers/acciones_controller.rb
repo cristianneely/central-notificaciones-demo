@@ -44,6 +44,6 @@ class AccionesController < ApplicationController
 
   # Vuelve a la consola conservando la empresa, la persona y el curso elegidos.
   def volver(mensajes)
-    redirect_to root_path(params.permit(:empresa_id, :usuario_id, :curso).to_h), flash: mensajes
+    redirect_to consola_path(params.permit(:empresa_id, :usuario_id, :curso).to_h), flash: mensajes
   end
 end
