@@ -19,6 +19,9 @@ module Notification
   # Un pedido de envío que no cumple las reglas de 1.2.
   class SolicitudInvalida < StandardError; end
 
+  # Una política de cliente que no se puede guardar (R6).
+  class PoliticaInvalida < StandardError; end
+
   # API 1.1 — Declara una notificación. La valida y la deja en el catálogo (R8).
   # Si la definición está mal escrita lanza DefinicionInvalida: la app no arranca.
   def self.define(nombre, **opciones)

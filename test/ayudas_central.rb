@@ -40,6 +40,35 @@ module AyudasCentral
       datos: { curso: curso, fecha_limite: fecha_limite, link_curso: "https://ejemplo.test/cursos" }
   end
 
+  def enviar_saludo(usuario, nombre: "Ana", anio: 2026)
+    Notification.send "saludo_cumpleanos",
+      empresa: usuario.empresa_id,
+      destinatarios: [usuario.id],
+      datos: { nombre: nombre, anio: anio }
+  end
+
+  def enviar_encuesta(usuario, curso: "Excel básico")
+    Notification.send "encuesta_satisfaccion",
+      empresa: usuario.empresa_id,
+      destinatarios: [usuario.id],
+      datos: { curso: curso, link_encuesta: "https://ejemplo.test/encuesta" }
+  end
+
+  # Una vuelta del despachador, a mano (en las pruebas no corre el hilo en segundo plano).
+  def despachar
+    Notification::Despachador.vuelta
+  end
+
+  # El proveedor simulado avisa el estado final de todo lo que aceptó, sin esperar los 2 s.
+  def avisar
+    Notification::Proveedores::Simulado.enviar_avisos(sin_demora: true)
+  end
+
+  # Los correos que el proveedor simulado aceptó, del más antiguo al más nuevo.
+  def bandeja
+    Notification::Proveedores::CorreoSimulado.order(:id).to_a
+  end
+
   # Cuántas filas hay en las tres tablas que escribe send().
   def conteos_de_send
     [Notification::ClaveUnica.count, Notification::Pendiente.count, Notification::Auditoria.count]

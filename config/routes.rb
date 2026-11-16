@@ -11,4 +11,7 @@ Rails.application.routes.draw do
 
   # Consola de demo: la pantalla principal.
   root "consola#index"
+
+  # Receptor: por aquí el proveedor de correo avisa el estado final de un envío.
+  post "receptor/proveedor" => "receptor#proveedor"
 end
