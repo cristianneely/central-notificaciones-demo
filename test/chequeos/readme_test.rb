@@ -28,4 +28,8 @@ class ReadmeTest < ActiveSupport::TestCase
       assert_includes README, texto
     end
   end
+
+  test "el README explica por qué la operación se llama send" do
+    assert_includes README, "Sobre el nombre `send`: el diseño lo llama así y se respetó"
+  end
 end

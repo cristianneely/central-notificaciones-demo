@@ -33,6 +33,7 @@ class PantallasTest < ActionDispatch::IntegrationTest
     assert_select "table.requisitos tbody tr", count: 14
     assert_includes response.body, "Proveedor simulado; no sale ningún correo"
     assert_includes response.body, "en producción se llamaría"
+    assert_includes response.body, "El diseño llama <code>send</code> a la operación de envío"
     assert_includes response.body, "puede tardar cerca de un minuto en despertar"
     assert_select "table.requisitos td", text: "R11"
   end
