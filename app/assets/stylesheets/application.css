@@ -150,6 +150,8 @@ td.detalle { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-s
 /* Estado general de la consola */
 .estado-general { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: center; margin-bottom: 0.75rem; }
 .resultado a { margin-left: 0.75rem; font-weight: 400; color: var(--azul); }
+/* Al bajar con "Ver el recorrido", el aviso fijo de arriba no tapa el título. */
+#solicitudes { scroll-margin-top: 3.5rem; }
 
 /* "Qué probar", plegado arriba de la consola */
 .que-probar summary { font-weight: 600; cursor: pointer; }
