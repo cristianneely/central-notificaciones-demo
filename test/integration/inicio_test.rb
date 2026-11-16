@@ -7,39 +7,40 @@ class InicioTest < ActionDispatch::IntegrationTest
   CODIGO = Demo::Declaraciones::CODIGO_URL
   PANTALLAS = %w[/ /consola /catalogo /historial /acerca].freeze
 
-  test "el inicio carga con su título, su bajada, el ejemplo y el recorrido" do
+  test "el inicio tiene solo el título, la autoría, la frase, los tres accesos y el pie" do
     sembrar
     get "/"
 
     assert_response :ok
-    assert_select "h1", text: "Central de notificaciones"
+    assert_select "h1", text: "Propuesta técnica: central de notificaciones"
+    assert_select ".inicio .autoria", text: "Cristián Neely, noviembre de 2026"
     texto = css_select("main").text.squish
-    assert_includes texto, "Implementación de las partes 1 y 2 de la propuesta: definir una notificación, " \
-                           "enviarla, evitar el spam y ver el historial. Usa datos ficticios y un proveedor " \
-                           "de correo simulado: no sale ningún correo real."
-    assert_includes texto, "El ejemplo es una plataforma de capacitación: la notificación principal es el " \
-                           "certificado de un curso. También están definidos un recordatorio, una encuesta y " \
-                           "un saludo de cumpleaños."
-    assert_includes texto, "La app está en un plan gratuito y vuelve a los datos de ejemplo cuando se duerme. " \
-                           "El detalle de lo que se simplificó está en Acerca."
-    assert_select "h2", text: "Recorrido de 2 minutos"
-    assert_select "ol.recorrido-corto li", count: 4
-    assert_select "main a[href='/acerca']", text: "Acerca"
+    assert_includes texto, "Implementación de las partes 1 y 2 de la propuesta, con datos ficticios. " \
+                           "No sale ningún correo real."
+    assert_includes texto, "La demo corre en un plan gratuito y vuelve a los datos de ejemplo cuando se " \
+                           "duerme. Lo que simplifica respecto de la propuesta está en Acerca."
+    assert_select ".inicio .pie a[href='/acerca']", text: "Acerca"
   end
 
-  test "el inicio tiene los tres accesos" do
+  test "el inicio tiene los tres accesos como links de texto, con su descripción" do
     get "/"
 
-    assert_select ".accesos a[href='#{PROPUESTA}'][target=_blank]", text: "Leer la propuesta"
-    assert_select ".accesos a[href='/consola']", text: "Abrir la demo"
-    assert_select ".accesos a[href='#{CODIGO}'][target=_blank]", text: "Ver el código"
+    assert_select ".accesos li", count: 3
+    assert_select ".accesos li:nth-child(1) a[href='#{PROPUESTA}'][target=_blank]", text: "Leer la propuesta"
+    assert_select ".accesos li:nth-child(1) .descripcion", text: "Requisitos, solución y riesgos."
+    assert_select ".accesos li:nth-child(2) a[href='/consola']", text: "Abrir la demo"
+    assert_select ".accesos li:nth-child(2) .descripcion", text: "Definir, enviar y seguir una notificación."
+    assert_select ".accesos li:nth-child(3) a[href='#{CODIGO}'][target=_blank]", text: "Ver el código"
+    assert_select ".accesos li:nth-child(3) .descripcion", count: 0
   end
 
-  test "los pasos del recorrido llevan a su pantalla" do
+  test "el inicio ya no tiene el recorrido, el ejemplo, tarjetas ni botones" do
     get "/"
 
-    assert_select "ol.recorrido-corto li a[href='/consola']", count: 3
-    assert_select "ol.recorrido-corto li a[href='/historial?empresa_id=3']", text: "Historial de Clínica Austral"
+    assert_not_includes response.body, "Recorrido de 2 minutos"
+    assert_not_includes response.body, "plataforma de capacitación"
+    assert_select "main .tarjeta", count: 0
+    assert_select "main button", count: 0
   end
 
   test "la raíz ya no es la consola" do
@@ -49,11 +50,13 @@ class InicioTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "1. Acciones de negocio"
   end
 
-  test "el inicio carga aunque la base no tenga datos semilla" do
+  test "el inicio no muestra el aviso amarillo; las demás pantallas sí" do
     get "/"
-
     assert_response :ok
-    assert_includes response.body, "Demo con datos ficticios. No sale ningún correo real."
+    assert_select ".aviso-demo", count: 0
+
+    get "/acerca"
+    assert_select ".aviso-demo", count: 1
   end
 
   test "el menú está en las cinco pantallas, con la propuesta y el código en pestaña nueva" do

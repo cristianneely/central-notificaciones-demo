@@ -76,6 +76,6 @@ class ReadmeTest < ActiveSupport::TestCase
 
   test "el README enlaza la propuesta y explica el inicio y la consola" do
     assert_includes README, "las dos APIs del [diseño](#{Demo::Declaraciones::PROPUESTA_URL})"
-    assert_includes README, "La página de inicio dice qué mirar; la consola está en `/consola`."
+    assert_includes README, "La página de inicio lleva a la propuesta, a la demo y al código; la consola está en `/consola`."
   end
 end

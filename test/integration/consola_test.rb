@@ -240,4 +240,12 @@ class ConsolaTest < ActionDispatch::IntegrationTest
       end
     end
   end
+
+  test "la bajada de la consola explica el ejemplo" do
+    get "/consola"
+
+    assert_includes css_select(".bajada").text.squish,
+                    "El ejemplo es una plataforma de capacitación: la notificación principal es el certificado " \
+                    "de un curso. También están definidos un recordatorio, una encuesta y un saludo de cumpleaños."
+  end
 end

@@ -1,29 +1,20 @@
-<h1>Central de notificaciones</h1>
-<p class="bajada">Implementación de las partes 1 y 2 de la propuesta: definir una notificación, enviarla,
-  evitar el spam y ver el historial. Usa datos ficticios y un proveedor de correo simulado: no sale ningún
-  correo real.</p>
+<%# El inicio va sin el aviso amarillo: la frase de abajo ya dice que los datos son ficticios. %>
+<% content_for :pagina, "inicio" %>
 
-<nav class="accesos">
-  <%= link_to "Leer la propuesta", Demo::Declaraciones::PROPUESTA_URL, class: "acceso", target: "_blank", rel: "noopener" %>
-  <%= link_to "Abrir la demo", consola_path, class: "acceso principal" %>
-  <%= link_to "Ver el código", Demo::Declaraciones::CODIGO_URL, class: "acceso", target: "_blank", rel: "noopener" %>
-</nav>
+<div class="inicio">
+  <h1>Propuesta técnica: central de notificaciones</h1>
+  <p class="autoria">Cristián Neely, noviembre de 2026</p>
 
-<section class="tarjeta">
-  <p>El ejemplo es una plataforma de capacitación: la notificación principal es el certificado de un curso.
-    También están definidos un recordatorio, una encuesta y un saludo de cumpleaños.</p>
+  <p>Implementación de las partes 1 y 2 de la propuesta, con datos ficticios. No sale ningún correo real.</p>
 
-  <h2>Recorrido de 2 minutos</h2>
-  <ol class="recorrido-corto">
-    <li>Emite un certificado en la <%= link_to "Consola", consola_path %> y mira su recorrido y el correo armado
-      en la bandeja.</li>
-    <li>En la <%= link_to "Consola", consola_path %>, repítelo con la casilla "la acción llama dos veces a
-      send()": sale uno solo y la segunda solicitud queda como duplicada.</li>
-    <li>En la <%= link_to "Consola", consola_path %>, apaga el proveedor, emite un certificado y vuelve a
-      encenderlo: el pendiente espera y sale cuando el proveedor vuelve. Nada se pierde.</li>
-    <li>Abre el <%= link_to "Historial de Clínica Austral", historial_path(empresa_id: 3) %>.</li>
-  </ol>
-</section>
+  <ul class="accesos">
+    <li><%= link_to "Leer la propuesta", Demo::Declaraciones::PROPUESTA_URL, target: "_blank", rel: "noopener" %>
+      <span class="descripcion">Requisitos, solución y riesgos.</span></li>
+    <li><%= link_to "Abrir la demo", consola_path %>
+      <span class="descripcion">Definir, enviar y seguir una notificación.</span></li>
+    <li><%= link_to "Ver el código", Demo::Declaraciones::CODIGO_URL, target: "_blank", rel: "noopener" %></li>
+  </ul>
 
-<p class="nota">La app está en un plan gratuito y vuelve a los datos de ejemplo cuando se duerme. El detalle de
-  lo que se simplificó está en <%= link_to "Acerca", acerca_path %>.</p>
+  <p class="pie">La demo corre en un plan gratuito y vuelve a los datos de ejemplo cuando se duerme. Lo que
+    simplifica respecto de la propuesta está en <%= link_to "Acerca", acerca_path %>.</p>
+</div>
