@@ -1,0 +1,36 @@
+/*
+ * This is a manifest file that'll be compiled into application.css.
+ *
+ * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
+ * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
+ * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
+ * depending on specificity.
+ *
+ * Consider organizing styles into separate files for maintainability.
+ */
+
+/* Estilos mínimos, sin librerías: la demo muestra lógica, no diseño. */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #1f2328;
+  background: #ffffff;
+  line-height: 1.5;
+}
+
+/* Aviso fijo de la decisión 9, visible en todas las pantallas. */
+.aviso-demo {
+  position: sticky;
+  top: 0;
+  padding: 0.5rem 1rem;
+  background: #fff4ce;
+  border-bottom: 1px solid #e3c55a;
+  font-weight: 600;
+  text-align: center;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem;
+}

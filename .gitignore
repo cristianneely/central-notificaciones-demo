@@ -1,0 +1,37 @@
+# Ignorar la configuración local de bundler y las gemas instaladas dentro del proyecto.
+/.bundle
+/vendor/bundle
+
+# Ignorar los archivos de entorno (con o sin extensión).
+/.env*
+
+# Ignorar logs y temporales.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Ignorar pidfiles, pero conservar el directorio.
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# Ignorar archivos subidos y bases SQLite en storage/.
+/storage/*
+!/storage/.keep
+/tmp/storage/*
+!/tmp/storage/
+!/tmp/storage/.keep
+
+# Ignorar los assets precompilados.
+/public/assets
+
+# Ignorar la llave maestra de las credenciales cifradas.
+/config/*.key
+
+# Bases de datos SQLite, estén donde estén.
+*.sqlite3
+*.sqlite3-*
+
+# Configuración local de Claude Code.
+.claude/
