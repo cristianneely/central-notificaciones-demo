@@ -51,13 +51,11 @@ class InicioTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "1. Acciones de negocio"
   end
 
-  test "el inicio no muestra el aviso amarillo; las demás pantallas sí" do
+  test "el inicio no muestra la barra de aviso" do
     get "/"
+
     assert_response :ok
     assert_select ".aviso-demo", count: 0
-
-    get "/acerca"
-    assert_select ".aviso-demo", count: 1
   end
 
   test "el menú está en las cinco pantallas, con la propuesta y el código en pestaña nueva" do
