@@ -11,14 +11,19 @@ module Notification
     # Devuelve :anotado, o :ya_anotado si ese envío ya tenía estado final (un aviso
     # repetido no agrega nada).
     def self.recibir(solicitud_id:, usuario_id:, id_proveedor:, estado:)
+      # Lo que manda el proveedor se lee como texto: un campo con otra forma no calza con
+      # ningún envío, pero tampoco rompe el receptor.
+      solicitud_id, usuario_id, id_proveedor, estado =
+        [solicitud_id, usuario_id, id_proveedor, estado].map { |valor| valor.to_s.strip }
+
       { solicitud_id: solicitud_id, usuario_id: usuario_id, id_proveedor: id_proveedor,
         estado: estado }.each do |campo, valor|
-        raise AvisoInvalido, "falta #{campo}" if valor.blank?
+        raise AvisoInvalido, "falta #{campo}" if valor.empty?
       end
       evento = EVENTOS[estado] or raise AvisoInvalido, "estado debe ser entregado o rebotado"
 
       # El aviso tiene que calzar con un envío que la central haya hecho de verdad.
-      recorrido = Auditoria.recorrido(solicitud_id, usuario_id).to_a
+      recorrido = usuario_id.match?(/\A\d{1,18}\z/) ? Auditoria.recorrido(solicitud_id, usuario_id.to_i).to_a : []
       enviada = recorrido.find do |fila|
         fila.evento == "enviada" && fila.detalle["id_proveedor"] == id_proveedor
       end

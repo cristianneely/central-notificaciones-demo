@@ -92,7 +92,7 @@ inválido (el proveedor lo rechaza) y una sin correo (la central no tiene a dón
 
 ## Cómo se corre
 
-Requiere Ruby 3.3 o superior. No necesita ningún servicio externo: la base es un archivo
+Requiere Ruby 4.0.9, la versión que fija `.ruby-version`. No necesita ningún servicio externo: la base es un archivo
 SQLite dentro de la app.
 
 ```bash

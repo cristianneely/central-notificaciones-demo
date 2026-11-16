@@ -18,6 +18,10 @@ class ReadmeTest < ActiveSupport::TestCase
     end
   end
 
+  test "el README pide la misma versión de Ruby que fija el proyecto" do
+    assert_includes README, "Ruby #{Rails.root.join(".ruby-version").read.strip.delete_prefix("ruby-")}"
+  end
+
   test "el README explica cómo correr la demo y sus pruebas" do
     ["bin/rails db:prepare", "bin/rails server", "bin/rails test", "Notification.define",
      "Notification.send", "No sale ningún correo real"].each do |texto|

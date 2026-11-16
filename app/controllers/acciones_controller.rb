@@ -8,9 +8,7 @@ class AccionesController < ApplicationController
 
   def emitir_certificado
     resultado = Certificados::EmitirCertificado.ejecutar(
-      empresa_id: params[:empresa_id],
-      usuario_id: params[:usuario_id],
-      curso: params[:curso],
+      **pedido,
       llamar_dos_veces: params[:llamar_dos_veces] == "1",
       fallar_a_la_mitad: params[:fallar_a_la_mitad] == "1"
     )
@@ -34,8 +32,10 @@ class AccionesController < ApplicationController
 
   private
 
+  # Lo que llega del formulario, como texto. Un parámetro con forma rara (un objeto en
+  # vez de un valor) termina como un id que no existe, no como un error.
   def pedido
-    { empresa_id: params[:empresa_id], usuario_id: params[:usuario_id], curso: params[:curso] }
+    { empresa_id: params[:empresa_id].to_s, usuario_id: params[:usuario_id].to_s, curso: params[:curso].to_s }
   end
 
   def ejecutada(solicitud_id)

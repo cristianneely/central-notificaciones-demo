@@ -60,6 +60,22 @@ class ReceptorTest < ActionDispatch::IntegrationTest
     assert_equal({ "error" => "falta usuario_id" }, response.parsed_body)
   end
 
+  test "26: campos con forma de objeto o ids enormes no rompen el receptor" do
+    avisar_por_http(@aviso.merge(solicitud_id: { a: 1 }))
+    assert_response :not_found
+
+    avisar_por_http(@aviso.merge(id_proveedor: [1, 2]))
+    assert_response :not_found
+
+    avisar_por_http(@aviso.merge(usuario_id: 99_999_999_999_999_999_999))
+    assert_response :not_found
+
+    avisar_por_http(@aviso.merge(estado: { a: 1 }))
+    assert_response :unprocessable_content
+
+    assert_equal %w[recibida decision_enviar enviada], eventos(@solicitud)
+  end
+
   test "26: un cuerpo que no es JSON no rompe el receptor" do
     post "/receptor/proveedor", params: "{esto no es json", headers: { "Content-Type" => "application/json" }
 

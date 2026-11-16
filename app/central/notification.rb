@@ -88,10 +88,11 @@ module Notification
   # en la primera que no se cumple. Devuelve los datos con sus claves normalizadas.
   def self.validar_solicitud(nombre, definicion, empresa, destinatarios, datos)
     raise SolicitudInvalida, "notificación desconocida: #{nombre}" unless definicion
-    raise SolicitudInvalida, "empresa desconocida: #{empresa}" unless Empresa.exists?(id: empresa)
+    raise SolicitudInvalida, "empresa desconocida: #{empresa}" unless id?(empresa) && Empresa.exists?(id: empresa)
 
     lista_valida = destinatarios.is_a?(Array) && destinatarios.any? &&
-                   destinatarios.all?(Integer) && destinatarios.uniq == destinatarios
+                   destinatarios.all? { |usuario_id| id?(usuario_id) } &&
+                   destinatarios.uniq == destinatarios
     unless lista_valida
       raise SolicitudInvalida, "destinatarios debe ser una lista de ids de usuario sin repetir"
     end
@@ -108,5 +109,11 @@ module Notification
 
     datos
   end
-  private_class_method :validar_solicitud
+
+  # Un id es un entero positivo que cabe en la base (64 bits).
+  def self.id?(valor)
+    valor.is_a?(Integer) && valor.between?(1, 2**63 - 1)
+  end
+
+  private_class_method :validar_solicitud, :id?
 end

@@ -121,6 +121,26 @@ class PuertasTest < ActionDispatch::IntegrationTest
     assert_equal ["web"], Notification::Auditoria.all.map { |fila| fila.detalle["origen"] }.uniq
   end
 
+  test "pantalla: ids enormes o con forma de objeto vuelven a la consola con un mensaje" do
+    destinatarios = "destinatarios debe ser una lista de ids de usuario sin repetir"
+
+    %w[recordatorio encuesta cumpleanos].each do |accion|
+      post "/acciones/#{accion}", params: { empresa_id: 1, usuario_id: "99999999999999999999", curso: "Excel básico" }
+      assert_response :redirect
+      assert_equal destinatarios, flash[:error]
+
+      post "/acciones/#{accion}", params: { empresa_id: { a: 1 }, usuario_id: { a: 1 }, curso: "Excel básico" }
+      assert_response :redirect
+      assert_equal "empresa desconocida: 0", flash[:error]
+    end
+
+    post "/acciones/emitir_certificado", params: { empresa_id: { a: 1 }, usuario_id: 1, curso: "Excel básico" }
+    assert_response :redirect
+    assert_equal "empresa desconocida", flash[:error]
+
+    assert_nada_guardado
+  end
+
   test "pantalla: un pedido sin datos a las otras acciones no da error 500" do
     post "/acciones/recordatorio", params: { empresa_id: "abc", usuario_id: "", curso: "" }
 

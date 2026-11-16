@@ -1,6 +1,8 @@
 # Consola de demo (/). Desde aquí se disparan las acciones de negocio y se ve qué hace
 # la central con cada notificación. Los botones de acciones van a AccionesController.
 class ConsolaController < ApplicationController
+  PENDIENTES_VISIBLES = 50
+
   before_action :cargar_seleccion
 
   def index
@@ -45,9 +47,9 @@ class ConsolaController < ApplicationController
   # La empresa, la persona y el curso elegidos viajan en la dirección de la página.
   def cargar_seleccion
     @empresas = Empresa.order(:id).to_a
-    @empresa = @empresas.find { |empresa| empresa.id == params[:empresa_id].to_i } || @empresas.first
+    @empresa = @empresas.find { |empresa| empresa.id == params[:empresa_id].to_s.to_i } || @empresas.first
     @personas = @empresa ? @empresa.usuarios.order(:id).to_a : []
-    @persona = @personas.find { |persona| persona.id == params[:usuario_id].to_i } || @personas.first
+    @persona = @personas.find { |persona| persona.id == params[:usuario_id].to_s.to_i } || @personas.first
     @curso = Cursos::LISTA.include?(params[:curso]) ? params[:curso] : Cursos::LISTA.first
   end
 
@@ -59,7 +61,9 @@ class ConsolaController < ApplicationController
     @certificados = @empresa ? Certificado.where(empresa_id: @empresa.id).count : 0
 
     # Pendientes de todas las empresas, en el orden en que el despachador los tomaría.
-    @pendientes = Notification::Pendiente.en_orden.to_a
+    # Se muestran los primeros 50; el total va aparte.
+    @pendientes = Notification::Pendiente.en_orden.limit(PENDIENTES_VISIBLES).to_a
+    @total_pendientes = Notification::Pendiente.count
     @solicitudes = @empresa ? Notification::Historial.filas(empresa_id: @empresa.id, limite: 20) : []
     @bandeja = Notification::Proveedores::CorreoSimulado.order(id: :desc).limit(20).to_a
 

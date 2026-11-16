@@ -22,7 +22,7 @@
 </section>
 
 <section class="tarjeta" id="pendientes">
-  <h2>3. Pendientes <span class="cuenta"><%= @pendientes.size %></span></h2>
+  <h2>3. Pendientes <span class="cuenta"><%= @total_pendientes %></span></h2>
   <p class="nota">De todas las empresas, en el orden en que el despachador los tomaría: lo crítico
     primero y, después, lo más antiguo.</p>
   <table>
@@ -42,6 +42,9 @@
     </tbody>
   </table>
   <% if @pendientes.empty? %><p class="vacio">No hay pendientes.</p><% end %>
+  <% if @total_pendientes > @pendientes.size %>
+    <p class="nota">Se muestran los primeros <%= @pendientes.size %> de <%= @total_pendientes %>.</p>
+  <% end %>
 </section>
 
 <section class="tarjeta" id="solicitudes">

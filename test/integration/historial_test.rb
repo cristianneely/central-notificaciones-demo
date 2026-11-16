@@ -63,6 +63,21 @@ class HistorialTest < ActionDispatch::IntegrationTest
                  filas(limite: 2).map { |fila| [fila.solicitud_id, fila.usuario_id] }
   end
 
+  test "30: el orden es por cuándo se pidió, aunque una solicitud anterior termine después" do
+    Notification::Proveedores::Simulado.apagar
+    primera = enviar_recordatorio(@ana, curso: "Tablas dinámicas") # informativa
+    travel 1.second
+    despachar # intento fallido de la primera: el canal queda en espera
+    segunda = enviar_certificado(@bruno, certificado_id: 2)        # crítica: sale antes
+    Notification::Proveedores::Simulado.encender
+    travel 5.seconds
+    despachar # salen las dos, la crítica primero: la primera es la última en terminar
+    avisar
+    assert_equal primera, Notification::Auditoria.order(:id).last.solicitud_id
+
+    assert_equal [segunda, primera], filas.first(2).map(&:solicitud_id)
+  end
+
   test "30: el estado final de cada recorrido usa los textos de la pantalla" do
     estados = {
       "recibida" => "Pendiente",
@@ -111,6 +126,10 @@ class HistorialTest < ActionDispatch::IntegrationTest
 
   test "30: filtros mal escritos no rompen la pantalla" do
     get "/historial", params: { empresa_id: 999, usuario_id: "abc", desde: "xx", hasta: "32-13-2026" }
+    assert_response :ok
+    assert_select "select[name=empresa_id] option[selected]", text: "Andes Capacitación"
+
+    get "/historial", params: { empresa_id: { a: 1 }, usuario_id: { a: 1 }, desde: "9" * 200, hasta: { a: 1 } }
     assert_response :ok
     assert_select "select[name=empresa_id] option[selected]", text: "Andes Capacitación"
 

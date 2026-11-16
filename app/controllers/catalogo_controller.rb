@@ -16,10 +16,10 @@ class CatalogoController < ApplicationController
   # laboratorio, que es la que lo hace (R9).
   def probar_send
     @solicitud = Demo::ProbarSend.ejecutar(
-      notificacion: params[:notificacion],
-      empresa_id: params[:empresa_id],
-      destinatarios_texto: params[:destinatarios],
-      datos_texto: params[:datos]
+      notificacion: @notificacion,
+      empresa_id: @empresa_id,
+      destinatarios_texto: @destinatarios,
+      datos_texto: @datos
     )
     render :index
   rescue Demo::ProbarSend::Invalida, Notification::SolicitudInvalida => error
@@ -37,10 +37,10 @@ class CatalogoController < ApplicationController
 
     # Lo que muestra el formulario: lo que se envió o, la primera vez, valores de ejemplo.
     @notificaciones = @definiciones.map(&:nombre) + ["una_que_no_existe"]
-    @notificacion = params[:notificacion].presence || @notificaciones.first
+    @notificacion = (params[:notificacion].presence || @notificaciones.first).to_s
     @empresa_id = (params[:empresa_id].presence || @empresas.first&.id).to_s
-    @destinatarios = params[:destinatarios] || @primera_persona[@empresa_id.to_i].to_s
-    @datos = params[:datos] || ejemplo_como_texto(@notificacion)
+    @destinatarios = (params[:destinatarios] || @primera_persona[@empresa_id.to_i]).to_s
+    @datos = (params[:datos] || ejemplo_como_texto(@notificacion)).to_s
     @ejemplos = @notificaciones.to_h { |nombre| [nombre, ejemplo_como_texto(nombre)] }
   end
 

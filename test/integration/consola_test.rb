@@ -80,6 +80,26 @@ class ConsolaTest < ActionDispatch::IntegrationTest
     assert_select "#pendientes tbody tr", count: 1 # los pendientes son de todas las empresas
   end
 
+  test "parámetros con forma de objeto no rompen la consola" do
+    ["/", "/consola/listas"].each do |ruta|
+      get ruta, params: { empresa_id: { a: 1 }, usuario_id: { a: 1 }, curso: { a: 1 } }
+
+      assert_response :ok
+    end
+    assert_includes response.body, "Últimas solicitudes de Andes Capacitación"
+  end
+
+  test "la lista de pendientes muestra los primeros 50 y avisa cuántos hay en total" do
+    Notification.send "certificado_emitido", empresa: 1, destinatarios: (1001..1060).to_a,
+      datos: { certificado_id: 1, curso: "Excel avanzado", link_certificado: "https://ejemplo.test/c/1" }
+
+    get "/"
+
+    assert_select "#pendientes tbody tr", count: 50
+    assert_select "#pendientes .cuenta", text: "60"
+    assert_includes response.body, "Se muestran los primeros 50"
+  end
+
   test "intentar apagar lo crítico muestra el rechazo" do
     post "/consola/apagar_critico", params: { empresa_id: 1 }
     follow_redirect!

@@ -84,6 +84,18 @@ class SendTest < ActiveSupport::TestCase
     assert_rechaza "destinatarios debe ser una lista de ids de usuario sin repetir", destinatarios: "1"
   end
 
+  test "5: destinatarios con ids imposibles (cero, negativos o enormes)" do
+    mensaje = "destinatarios debe ser una lista de ids de usuario sin repetir"
+
+    assert_rechaza mensaje, destinatarios: [0]
+    assert_rechaza mensaje, destinatarios: [-1]
+    assert_rechaza mensaje, destinatarios: [99_999_999_999_999_999_999]
+  end
+
+  test "5: una empresa con un id enorme es una empresa desconocida" do
+    assert_rechaza "empresa desconocida: 99999999999999999999", empresa: 99_999_999_999_999_999_999
+  end
+
   test "5: falta un dato declarado" do
     assert_rechaza "falta el dato: curso", datos: @datos.except(:curso)
   end

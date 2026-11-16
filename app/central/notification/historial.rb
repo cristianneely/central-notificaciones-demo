@@ -25,7 +25,7 @@ module Notification
       # Primero, cuáles solicitudes y personas entran (las más recientes); después, el
       # recorrido completo de cada una.
       pares = filtradas.group(:solicitud_id, :usuario_id)
-                       .order(Arel.sql("MAX(id) DESC")).limit(limite)
+                       .order(Arel.sql("MIN(id) DESC")).limit(limite) # por cuándo se pidió
                        .pluck(:solicitud_id, :usuario_id)
       recorridos = Auditoria.where(empresa_id: empresa_id, solicitud_id: pares.map(&:first)).order(:id)
                             .group_by { |fila| [fila.solicitud_id, fila.usuario_id] }

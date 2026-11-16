@@ -32,9 +32,11 @@ module Notification
 
     # Los pasos por pendiente, en orden. El primero que corta, termina.
     def self.procesar(pendiente, ahora)
-      # Un pendiente que vuelve tras una caída ya tiene su decisión anotada: no repite
-      # los pasos 1 a 4 y reanuda en la entrega, por el mismo canal. Así cada solicitud
-      # tiene una sola decisión en su recorrido.
+      # Un pendiente que vuelve tras una caída ya tiene su decisión anotada: no vuelve a
+      # pasar por la política, el límite ni la decisión (pasos 2 a 4) y reanuda en la
+      # entrega, por el mismo canal. Así cada solicitud tiene una sola decisión en su
+      # recorrido. El contacto (paso 1) sí se vuelve a buscar, porque la dirección no se
+      # guarda en el pendiente.
       decision = Auditoria.recorrido(pendiente.solicitud_id, pendiente.usuario_id)
                           .find_by(evento: "decision_enviar")
 

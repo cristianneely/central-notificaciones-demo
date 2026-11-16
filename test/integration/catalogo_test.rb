@@ -97,6 +97,16 @@ class CatalogoPantallaTest < ActionDispatch::IntegrationTest
     assert_send_rechaza "empresa desconocida: abc", empresa_id: "abc"
   end
 
+  test "36: probar send() con un destinatario enorme o con campos con forma de objeto" do
+    assert_send_rechaza "destinatarios debe ser una lista de ids de usuario sin repetir",
+                        destinatarios: "99999999999999999999"
+
+    post "/catalogo/probar_send", params: { notificacion: { a: 1 }, empresa_id: { a: 1 },
+                                            destinatarios: { a: 1 }, datos: { a: 1 } }
+    assert_response :ok
+    assert_select ".resultado.error"
+  end
+
   test "recargar la página después de probar un botón vuelve al catálogo" do
     ["/catalogo/definicion_invalida", "/catalogo/probar_send"].each do |ruta|
       get ruta
