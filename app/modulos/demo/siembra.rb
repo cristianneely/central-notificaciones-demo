@@ -40,7 +40,16 @@ module Demo
 
     # Se llama al preparar la base (db/seeds.rb): siembra solo si no hay empresas.
     def self.sembrar_si_vacia
-      datos_base unless Empresa.exists?
+      ejecutar unless Empresa.exists?
+    end
+
+    # La siembra completa: los datos base y un historial de ejemplo.
+    def self.ejecutar
+      # Lo sembrado no entró por ninguna puerta: queda con origen "interno".
+      Notification::Contexto.set(origen: "interno") do
+        datos_base
+        historial_de_ejemplo
+      end
     end
 
     # Empresas, personas y la política propia de Minera Los Robles.
@@ -59,5 +68,55 @@ module Demo
         empresa_id: 2, importancia: "opcional", canal: "email", habilitado: false
       )
     end
+
+    # Historial de ejemplo, para que la demo no parta vacía. No son filas escritas a
+    # mano: se ejecutan las acciones de negocio y se deja trabajar a la central.
+    # Andes Capacitación (empresa 1) queda sin historial: es la empresa para probar en vivo.
+    def self.historial_de_ejemplo
+      rosa, sergio, yolanda = Usuario.find(17), Usuario.find(18), Usuario.find(24) # Clínica Austral
+      ines = Usuario.find(9)                                                        # Minera Los Robles
+
+      # 1. Un certificado que llega bien → entregada.
+      emitir_certificado(rosa, "Excel básico")
+      # 2. Un certificado a un correo que rebota → rebotada.
+      emitir_certificado(yolanda, "Excel básico")
+      # 3. La acción llama dos veces a send() → una entregada y una duplicada.
+      emitir_certificado(rosa, "Excel avanzado", llamar_dos_veces: true)
+
+      # 4. Cuatro avisos no críticos a la misma persona → tres entregadas y el cuarto retenido.
+      pedido = { empresa_id: sergio.empresa_id, usuario_id: sergio.id }
+      Cursos::EnviarRecordatorio.ejecutar(**pedido, curso: "Excel básico")
+      despachar_todo
+      Cursos::EnviarRecordatorio.ejecutar(**pedido, curso: "Excel avanzado")
+      despachar_todo
+      Cursos::EnviarEncuesta.ejecutar(**pedido, curso: "Excel básico")
+      despachar_todo
+      Personas::SaludarCumpleanos.ejecutar(**pedido)
+      despachar_todo
+
+      # 5. Un aviso opcional en una empresa que lo apagó → no enviada por política del cliente.
+      Personas::SaludarCumpleanos.ejecutar(empresa_id: ines.empresa_id, usuario_id: ines.id)
+      despachar_todo
+    end
+
+    def self.emitir_certificado(persona, curso, **opciones)
+      Certificados::EmitirCertificado.ejecutar(
+        empresa_id: persona.empresa_id, usuario_id: persona.id, curso: curso, **opciones
+      )
+      despachar_todo
+    end
+
+    # Hace de inmediato lo que el hilo en segundo plano haría con el tiempo: despacha
+    # hasta no dejar pendientes y entrega los avisos del proveedor sin esperar los 2 s.
+    def self.despachar_todo
+      10.times do
+        break unless Notification::Pendiente.exists?
+
+        Notification::Despachador.vuelta
+      end
+      Notification::Proveedores::Simulado.enviar_avisos(sin_demora: true)
+    end
+
+    private_class_method :emitir_certificado, :despachar_todo
   end
 end

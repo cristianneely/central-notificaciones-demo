@@ -17,8 +17,13 @@ module Notification
       Thread.new do
         loop do
           # executor.wrap le da al hilo una conexión a la base y la devuelve al terminar.
-          Rails.application.executor.wrap { tic }
-          sleep Configuracion::INTERVALO_DESPACHADOR
+          # Los nombres van con "::" adelante para que, en desarrollo, el hilo use siempre
+          # el código recién cargado.
+          Rails.application.executor.wrap { ::Notification::SegundoPlano.tic }
+          sleep ::Notification::Configuracion::INTERVALO_DESPACHADOR
+        rescue StandardError => error
+          Rails.logger.error("[central] el hilo en segundo plano falló: #{error.class}: #{error.message}")
+          sleep 1
         end
       end
     end

@@ -14,7 +14,10 @@ module Notification
         tomados += 1
         # Cada pendiente va en su propia transacción: lo que se anota y el borrado del
         # pendiente ocurren juntos, o no ocurre ninguno.
-        resultado = ActiveRecord::Base.transaction { procesar(pendiente, ahora) }
+        resultado = ActiveRecord::Base.transaction do
+          # Se confirma, ya dentro de la transacción, que el pendiente sigue en la fila.
+          procesar(pendiente, ahora) if Pendiente.exists?(pendiente.id)
+        end
 
         # El proveedor no respondió: el canal quedó en espera y la vuelta termina.
         break if resultado == :canal_en_espera

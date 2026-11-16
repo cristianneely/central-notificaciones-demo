@@ -1,36 +1,164 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
-
 /* Estilos mínimos, sin librerías: la demo muestra lógica, no diseño. */
+
+:root {
+  --texto: #1f2328;
+  --tenue: #59636e;
+  --borde: #d8dee4;
+  --fondo: #f6f8fa;
+  --azul: #0969da;
+  --verde: #1a7f37;
+  --rojo: #cf222e;
+  --ambar: #9a6700;
+}
+
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  color: #1f2328;
-  background: #ffffff;
+  font-size: 15px;
+  color: var(--texto);
+  background: var(--fondo);
   line-height: 1.5;
 }
 
-/* Aviso fijo de la decisión 9, visible en todas las pantallas. */
+/* Aviso fijo, visible en todas las pantallas. */
 .aviso-demo {
   position: sticky;
   top: 0;
+  z-index: 10;
   padding: 0.5rem 1rem;
   background: #fff4ce;
   border-bottom: 1px solid #e3c55a;
   font-weight: 600;
   text-align: center;
 }
+.aviso-demo a { margin-left: 0.75rem; font-weight: 400; color: var(--azul); }
 
-main {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 1rem;
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: #ffffff;
+  border-bottom: 1px solid var(--borde);
 }
+.menu a { color: var(--azul); text-decoration: none; }
+.menu a:hover { text-decoration: underline; }
+
+main { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+
+h1 { margin: 0.5rem 0 0.25rem; font-size: 1.6rem; }
+h2 { margin: 0 0 0.5rem; font-size: 1.15rem; }
+h3 { margin: 1rem 0 0.4rem; font-size: 0.95rem; color: var(--tenue); text-transform: uppercase; letter-spacing: 0.03em; }
+.bajada { margin: 0 0 1rem; color: var(--tenue); max-width: 75ch; }
+.nota { margin: 0 0 0.75rem; color: var(--tenue); font-size: 0.9rem; }
+.vacio { color: var(--tenue); font-style: italic; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em; }
+pre { margin: 0 0 0.75rem; padding: 0.75rem; background: var(--fondo); border: 1px solid var(--borde); border-radius: 6px; overflow-x: auto; white-space: pre-wrap; }
+
+.tarjeta {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+.tarjeta.discreta { display: flex; gap: 0.75rem; align-items: center; background: transparent; border-style: dashed; }
+.tarjeta.discreta .nota { margin: 0; }
+
+.dos-columnas { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; }
+
+/* Formularios y botones */
+label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.85rem; color: var(--tenue); }
+select, input[type="text"], input[type="date"], textarea {
+  padding: 0.4rem 0.5rem;
+  font: inherit;
+  color: var(--texto);
+  background: #ffffff;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+}
+textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em; }
+button {
+  padding: 0.45rem 0.9rem;
+  font: inherit;
+  color: var(--texto);
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:hover { background: #eaeef2; }
+button.principal { color: #ffffff; background: var(--azul); border-color: var(--azul); }
+button.principal:hover { background: #0757ba; }
+
+.selectores { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+.grupo-botones { display: flex; flex-direction: column; gap: 0.6rem; }
+.grupo { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: center; }
+.grupo .nota { margin: 0; }
+.casilla { flex-direction: row; align-items: center; gap: 0.35rem; color: var(--texto); font-size: 0.9rem; }
+.filtros { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; }
+.formulario { display: grid; gap: 0.75rem; max-width: 640px; margin-bottom: 1rem; }
+.formulario button { justify-self: start; }
+
+/* Zona de resultado */
+.resultado { padding: 0.6rem 0.8rem; background: #dafbe1; border: 1px solid #aceebb; border-radius: 6px; font-weight: 600; }
+.resultado.error { background: #ffebe9; border-color: #ffcecb; color: var(--rojo); }
+.resultado.vacio { background: var(--fondo); border-color: var(--borde); color: var(--tenue); font-weight: 400; }
+
+/* Tablas */
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--borde); }
+th { color: var(--tenue); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+td.apagado { color: var(--rojo); }
+td.detalle { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; color: var(--tenue); word-break: break-word; }
+#politicas table { margin-bottom: 0.75rem; }
+
+/* Etiquetas */
+.etiqueta { display: inline-block; padding: 0.05rem 0.5rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
+.importancia-critica { color: var(--rojo); background: #ffebe9; border-color: #ffcecb; }
+.importancia-informativa { color: var(--azul); background: #ddf4ff; border-color: #b6e3ff; }
+.importancia-opcional { color: var(--tenue); background: var(--fondo); border-color: var(--borde); }
+.etiqueta.estado-ok { color: var(--verde); background: #dafbe1; border-color: #aceebb; }
+.etiqueta.estado-en-curso { color: var(--ambar); background: #fff8c5; border-color: #eac54f; }
+.etiqueta.estado-no { color: var(--rojo); background: #ffebe9; border-color: #ffcecb; }
+.cuenta { display: inline-block; min-width: 1.6rem; padding: 0 0.4rem; text-align: center; font-size: 0.85rem; background: var(--fondo); border: 1px solid var(--borde); border-radius: 999px; }
+
+/* Estado general de la consola */
+.estado-general { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: center; }
+.dato { font-weight: 600; }
+.dato.estado-ok { color: var(--verde); }
+.dato.estado-no { color: var(--rojo); }
+
+/* Solicitudes y su recorrido */
+.solicitud { padding: 0.6rem 0; border-bottom: 1px solid var(--borde); }
+.solicitud:last-of-type { border-bottom: 0; }
+.encabezado, .fila-historial summary { display: flex; flex-wrap: wrap; gap: 0.3rem 0.7rem; align-items: center; }
+.hora, .id-solicitud { color: var(--tenue); font-size: 0.82rem; }
+.recorrido { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; margin-top: 0.4rem; }
+.paso { padding: 0.1rem 0.5rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; background: var(--fondo); border: 1px solid var(--borde); border-radius: 4px; }
+.flecha { color: var(--tenue); }
+
+/* Bandeja del proveedor simulado */
+.correos { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0.75rem; }
+.correo { padding: 0.75rem; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo); }
+.correo .para { color: var(--tenue); font-size: 0.82rem; }
+.correo .asunto { margin: 0.2rem 0; font-weight: 600; }
+.correo .cuerpo { margin-bottom: 0.5rem; }
+.boton-correo { display: inline-block; padding: 0.2rem 0.7rem; color: #ffffff; background: var(--azul); border-radius: 6px; font-size: 0.85rem; }
+.correo .link { margin-left: 0.4rem; color: var(--tenue); font-size: 0.78rem; word-break: break-all; }
+
+/* Catálogo */
+.definiciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.definiciones .tarjeta { margin-bottom: 0; }
+dl { display: grid; grid-template-columns: 6rem 1fr; gap: 0.25rem 0.75rem; margin: 0; }
+dt { color: var(--tenue); font-size: 0.85rem; }
+dd { margin: 0; }
+.errores-definicion { margin: 0.75rem 0 0; padding: 0.6rem 0.8rem 0.6rem 2rem; background: #ffebe9; border: 1px solid #ffcecb; border-radius: 6px; color: var(--rojo); font-weight: 600; }
+
+/* Historial */
+.fila-historial { padding: 0.5rem 0; border-bottom: 1px solid var(--borde); }
+.fila-historial summary { cursor: pointer; }
+.recorrido-detalle { margin: 0.5rem 0 0.25rem; background: var(--fondo); }

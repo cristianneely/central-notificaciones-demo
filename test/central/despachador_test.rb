@@ -125,6 +125,27 @@ class DespachadorTest < ActiveSupport::TestCase
     assert_equal solicitudes.last(5), Notification::Pendiente.en_orden.pluck(:solicitud_id)
   end
 
+  test "34: un pendiente que desaparece a mitad de la vuelta no se procesa" do
+    enviar_certificado(@ana, certificado_id: 1)
+    travel 1.second
+    segunda = enviar_certificado(Usuario.find(2), certificado_id: 2)
+
+    # Mientras se entrega el primero, alguien vacía la fila (por ejemplo, "Reiniciar demo").
+    canal = Notification::Canales.buscar("email")
+    original = canal.method(:adaptar)
+    canal.define_singleton_method(:adaptar) do |contenido|
+      Notification::Pendiente.where(solicitud_id: segunda).delete_all
+      original.call(contenido)
+    end
+
+    despachar
+
+    assert_equal ["recibida"], eventos(segunda)
+    assert_equal 1, bandeja.size
+  ensure
+    canal.singleton_class.remove_method(:adaptar)
+  end
+
   test "34: lo crítico sale antes aunque se haya pedido después" do
     informativa = enviar_recordatorio(@ana)
     travel 1.second

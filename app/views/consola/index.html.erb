@@ -1,5 +1,161 @@
 <% content_for :title, "Consola de demo · Central de notificaciones" %>
 
-<h1>Central de notificaciones</h1>
-<p>Consola de demo. Aquí se podrán disparar acciones de negocio y seguir cada notificación
-  desde que se pide hasta que se entrega.</p>
+<h1>Consola de demo</h1>
+<p class="bajada">Dispara una acción de negocio y sigue la notificación desde que se pide hasta que se
+  entrega. Las listas de abajo se refrescan solas cada 2 segundos.</p>
+
+<% if @empresa.nil? %>
+  <p class="resultado error">La base no tiene datos semilla. Corre <code>bin/rails db:seed</code>.</p>
+<% else %>
+  <section class="tarjeta">
+    <h2>1. Acciones de negocio</h2>
+    <p class="nota">Cada botón ejecuta una acción de negocio. La acción es la que llama a
+      <code>Notification.send</code>; la pantalla no.</p>
+
+    <%# Un solo formulario: todos los botones usan la empresa, la persona y el curso elegidos. %>
+    <form method="post" id="acciones">
+      <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+
+      <div class="selectores">
+        <label>Empresa
+          <select name="empresa_id" onchange="window.location = '/?empresa_id=' + this.value">
+            <%= options_from_collection_for_select(@empresas, :id, :nombre, @empresa.id) %>
+          </select>
+        </label>
+        <label>Persona
+          <select name="usuario_id">
+            <%= options_from_collection_for_select(@personas, :id, :nombre, @persona&.id) %>
+          </select>
+        </label>
+        <label>Curso
+          <select name="curso">
+            <%= options_for_select(Cursos::LISTA, @curso) %>
+          </select>
+        </label>
+      </div>
+
+      <div class="grupo-botones">
+        <div class="grupo">
+          <button formaction="/acciones/emitir_certificado" class="principal">Emitir certificado</button>
+          <label class="casilla"><input type="checkbox" name="llamar_dos_veces" value="1">
+            la acción llama dos veces a send()</label>
+          <label class="casilla"><input type="checkbox" name="fallar_a_la_mitad" value="1">
+            la acción falla a la mitad</label>
+        </div>
+        <div class="grupo">
+          <button type="button" id="emitir-por-api">Emitir certificado por la API</button>
+          <span class="nota">El navegador llama a <code>POST /api/certificados</code>.</span>
+        </div>
+        <div class="grupo">
+          <button formaction="/acciones/recordatorio">Enviar recordatorio de curso</button>
+          <button formaction="/acciones/encuesta">Enviar encuesta</button>
+          <button formaction="/acciones/cumpleanos">Saludar cumpleaños</button>
+        </div>
+      </div>
+    </form>
+
+    <h3>Resultado</h3>
+    <% if flash[:error] %>
+      <div class="resultado error"><%= flash[:error] %></div>
+    <% elsif flash[:resultado] %>
+      <div class="resultado"><%= flash[:resultado] %></div>
+    <% else %>
+      <div class="resultado vacio">Aquí aparece el efecto del último botón.</div>
+    <% end %>
+
+    <div id="llamada-api" hidden>
+      <div class="dos-columnas">
+        <div><h3>Petición enviada</h3><pre id="api-peticion"></pre></div>
+        <div><h3>Respuesta recibida</h3><pre id="api-respuesta"></pre></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tarjeta">
+    <h2>2. Proveedor de correo (simulado) y políticas</h2>
+    <div class="dos-columnas">
+      <div>
+        <p class="nota">Apagado, el proveedor no responde: simula una caída. Al encenderlo no se le avisa
+          a la central; ella lo descubre en su próximo intento.</p>
+        <% seleccion = { empresa_id: @empresa.id, usuario_id: @persona&.id, curso: @curso } %>
+        <% if @proveedor_encendido %>
+          <%= button_to "Apagar el proveedor", consola_proveedor_path, params: seleccion.merge(encender: 0) %>
+        <% else %>
+          <%= button_to "Encender el proveedor", consola_proveedor_path, params: seleccion.merge(encender: 1),
+                        class: "principal" %>
+        <% end %>
+      </div>
+      <div id="politicas">
+        <h3>Políticas efectivas de <%= @empresa.nombre %></h3>
+        <table>
+          <thead><tr><th>Importancia</th><th>Sale por</th></tr></thead>
+          <tbody>
+            <% Notification::Configuracion::PRIORIDADES.each_key do |importancia| %>
+              <% canales = Notification::Politicas.canales_efectivos(empresa_id: @empresa.id, importancia: importancia) %>
+              <tr>
+                <td><%= etiqueta_importancia(importancia) %></td>
+                <% if canales.any? %>
+                  <td><%= canales.join(", ") %></td>
+                <% else %>
+                  <td class="apagado">ningún canal: la empresa lo apagó</td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <%= button_to "Intentar apagar lo crítico", consola_apagar_critico_path, params: seleccion %>
+      </div>
+    </div>
+  </section>
+
+  <div id="listas">
+    <%= render "listas" %>
+  </div>
+
+  <section class="tarjeta discreta">
+    <%= button_to "Reiniciar demo", consola_reiniciar_path,
+                  form: { onsubmit: "return confirm('¿Volver a los datos semilla?')" } %>
+    <span class="nota">Vacía la base y vuelve a sembrar los datos de ejemplo.</span>
+  </section>
+
+  <script>
+    // Refresco de las listas: cada 2 segundos se vuelve a pedir ese pedazo de la página.
+    const urlListas = "/consola/listas?empresa_id=<%= @empresa.id %>";
+    async function refrescarListas() {
+      try {
+        const respuesta = await fetch(urlListas);
+        if (respuesta.ok) document.getElementById("listas").innerHTML = await respuesta.text();
+      } catch (error) { /* la app puede estar despertando: se reintenta en el próximo ciclo */ }
+    }
+    setInterval(refrescarListas, 2000);
+
+    // Botón "Emitir certificado por la API": el navegador llama al endpoint y muestra
+    // la petición enviada y la respuesta recibida.
+    document.getElementById("emitir-por-api").addEventListener("click", async () => {
+      const formulario = document.getElementById("acciones");
+      const cuerpo = {
+        empresa_id: Number(formulario.empresa_id.value),
+        usuario_id: Number(formulario.usuario_id.value),
+        curso: formulario.curso.value
+      };
+      const peticion = document.getElementById("api-peticion");
+      const salida = document.getElementById("api-respuesta");
+      document.getElementById("llamada-api").hidden = false;
+      peticion.textContent = "POST /api/certificados\nContent-Type: application/json\n\n" +
+        JSON.stringify(cuerpo, null, 2);
+      salida.textContent = "esperando…";
+      try {
+        const respuesta = await fetch("/api/certificados", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(cuerpo)
+        });
+        salida.textContent = "HTTP " + respuesta.status + "\n\n" +
+          JSON.stringify(await respuesta.json(), null, 2);
+      } catch (error) {
+        salida.textContent = "No se pudo llamar a la API: " + error;
+      }
+      refrescarListas();
+    });
+  </script>
+<% end %>

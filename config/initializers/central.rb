@@ -12,3 +12,10 @@ Rails.application.config.to_prepare do
   Notification.catalogo.vaciar
   Dir[definiciones].sort.each { |archivo| load archivo }
 end
+
+# El despachador corre en segundo plano dentro del mismo proceso web: arranca con el
+# servidor. No arranca en las pruebas (lo invocan a mano) ni en la consola o las tareas
+# de Rails.
+Rails.application.config.after_initialize do
+  Notification::SegundoPlano.iniciar if defined?(Rails::Server) && !Rails.env.test?
+end

@@ -1,0 +1,130 @@
+require "test_helper"
+
+# La consola de demo: desde aquí se disparan las acciones y se ve qué hace la central.
+class ConsolaTest < ActionDispatch::IntegrationTest
+  Simulado = Notification::Proveedores::Simulado
+
+  setup { sembrar }
+
+  def emitir(**opciones)
+    post "/acciones/emitir_certificado",
+         params: { empresa_id: 1, usuario_id: 1, curso: "Excel avanzado" }.merge(opciones)
+    follow_redirect!
+  end
+
+  test "35: la zona de resultado muestra el certificado emitido y sube el contador" do
+    get "/"
+    assert_includes response.body, "Certificados emitidos en esta empresa: 0"
+
+    emitir
+
+    assert_match(/Certificado ##{Certificado.sole.id} emitido\. Solicitud \h{8}\./, response.body)
+    assert_includes response.body, "Certificados emitidos en esta empresa: 1"
+  end
+
+  test "35: con falla a la mitad muestra la falla y el contador no sube" do
+    emitir
+    emitir(fallar_a_la_mitad: "1")
+
+    assert_includes response.body, "La acción falló a la mitad: no se guardó el certificado ni la notificación."
+    assert_includes response.body, "Certificados emitidos en esta empresa: 1"
+  end
+
+  test "35: un error de validación se muestra con el mismo mensaje que da la API" do
+    emitir(usuario_id: 9)
+
+    assert_select ".resultado.error", text: "la persona no pertenece a la empresa"
+  end
+
+  test "la consola conserva la empresa, la persona y el curso elegidos" do
+    get "/", params: { empresa_id: 3, usuario_id: 18, curso: "Tablas dinámicas" }
+
+    assert_select "select[name=empresa_id] option[selected]", text: "Clínica Austral"
+    assert_select "select[name=usuario_id] option[selected]", text: "Sergio Campos"
+    assert_select "select[name=curso] option[selected]", text: "Tablas dinámicas"
+    assert_select "select[name=usuario_id] option", count: 8
+  end
+
+  test "la consola muestra pendientes, solicitudes con su recorrido, políticas y bandeja" do
+    emitir
+    get "/"
+    assert_select "#pendientes tbody tr", count: 1
+    assert_includes response.body, "certificado_emitido"
+
+    despachar
+    avisar
+    get "/"
+
+    assert_select "#pendientes tbody tr", count: 0
+    assert_select "#solicitudes .recorrido", text: /recibida.*decision_enviar.*enviada.*entregada/m
+    assert_select "#bandeja .correo", count: 1
+    assert_includes response.body, "Tu certificado de Excel avanzado está listo"
+    assert_select "#politicas td", text: "email"
+  end
+
+  test "las listas se pueden pedir solas, para refrescarlas cada 2 segundos" do
+    emitir
+    get "/consola/listas", params: { empresa_id: 1 }
+
+    assert_response :ok
+    assert_not_includes response.body, "<html", "es un fragmento, sin el marco de la página"
+    assert_select "#pendientes tbody tr", count: 1
+    assert_includes response.body, "Certificados emitidos en esta empresa: 1"
+  end
+
+  test "las solicitudes de la consola son solo las de la empresa elegida" do
+    emitir
+    get "/", params: { empresa_id: 2 }
+
+    assert_select "#solicitudes .recorrido", count: 0
+    assert_select "#pendientes tbody tr", count: 1 # los pendientes son de todas las empresas
+  end
+
+  test "intentar apagar lo crítico muestra el rechazo" do
+    post "/consola/apagar_critico", params: { empresa_id: 1 }
+    follow_redirect!
+
+    assert_select ".resultado.error", text: /Una política no puede dejar lo crítico sin canal/
+    assert_equal 1, Notification::PoliticaCliente.count
+  end
+
+  test "el interruptor apaga y enciende el proveedor, y la consola muestra el estado del canal" do
+    post "/consola/proveedor", params: { encender: "0", empresa_id: 1 }
+    follow_redirect!
+    assert_not Simulado.encendido?
+    assert_includes response.body, "Proveedor apagado"
+
+    enviar_certificado(Usuario.find(1))
+    despachar
+    get "/"
+    assert_includes response.body, "1 falla consecutiva"
+    assert_match(/próximo intento en \d+ s/, response.body)
+
+    post "/consola/proveedor", params: { encender: "1", empresa_id: 1 }
+    follow_redirect!
+    assert Simulado.encendido?
+    assert_includes response.body, "Proveedor encendido"
+  end
+
+  test "un dato con HTML se muestra como texto, no se interpreta" do
+    post "/api/certificados", params: { empresa_id: 1, usuario_id: 1, curso: "<b>x</b>" }, as: :json
+    despachar
+
+    ["/", "/historial", "/consola/listas?empresa_id=1"].each do |ruta|
+      get ruta
+
+      assert_includes response.body, "&lt;b&gt;x&lt;/b&gt;", "#{ruta} debería mostrar el dato escapado"
+      assert_not_includes response.body, "<b>x</b>", "#{ruta} no debería interpretar el HTML"
+    end
+  end
+
+  test "reiniciar demo deja la base como recién sembrada" do
+    emitir
+    post "/consola/reiniciar"
+    follow_redirect!
+
+    assert_includes response.body, "Demo reiniciada"
+    assert_equal 0, Certificado.where(empresa_id: 1).count
+    assert_equal 0, Notification::Pendiente.count
+  end
+end

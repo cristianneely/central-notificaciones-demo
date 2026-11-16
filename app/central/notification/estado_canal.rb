@@ -35,5 +35,10 @@ module Notification
     def en_espera?(ahora)
       proximo_intento_en.present? && proximo_intento_en > ahora
     end
+
+    # Segundos que faltan para el próximo intento (0 si no está en espera).
+    def segundos_para_reintentar(ahora)
+      en_espera?(ahora) ? (proximo_intento_en - ahora).ceil : 0
+    end
   end
 end

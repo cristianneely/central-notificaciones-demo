@@ -1,0 +1,85 @@
+<% content_for :title, "Catálogo · Central de notificaciones" %>
+
+<h1>Catálogo</h1>
+<p class="bajada">Las notificaciones que existen. Cada equipo declara la suya con
+  <code>Notification.define</code> (API 1.1): dice qué importancia tiene, qué datos necesita, qué la hace
+  única y su contenido. No dice por qué canal sale: eso lo deciden las políticas.</p>
+
+<section class="definiciones">
+  <% @definiciones.each do |definicion| %>
+    <div class="tarjeta definicion">
+      <h2><code><%= definicion.nombre %></code> <%= etiqueta_importancia(definicion.importancia) %></h2>
+      <dl>
+        <dt>Datos</dt><dd><code><%= definicion.datos.join(", ") %></code></dd>
+        <dt>Única por</dt><dd><code><%= definicion.unica_por.join(", ") %></code></dd>
+        <dt>Título</dt><dd><%= definicion.contenido[:titulo] %></dd>
+        <dt>Cuerpo</dt><dd><%= definicion.contenido[:cuerpo] %></dd>
+        <% if definicion.contenido[:accion] %>
+          <dt>Acción</dt>
+          <dd><%= definicion.contenido[:accion][:texto] %> → <code><%= definicion.contenido[:accion][:link] %></code></dd>
+        <% end %>
+        <dt>Versión</dt><dd><code><%= definicion.version %></code></dd>
+      </dl>
+    </div>
+  <% end %>
+</section>
+
+<section class="tarjeta" id="definicion-invalida">
+  <h2>Probar una definición inválida</h2>
+  <p class="nota">El catálogo valida cada definición al registrarla. Si está mal escrita, la aplicación no
+    arranca y las pruebas fallan. Este botón valida el ejemplo de abajo y muestra los errores; no lo registra.</p>
+  <pre><%= Demo::DefinicionInvalida::CODIGO %></pre>
+  <%= button_to "Probar una definición inválida", catalogo_definicion_invalida_path(anchor: "definicion-invalida") %>
+  <% if @errores_definicion %>
+    <ul class="errores-definicion">
+      <% @errores_definicion.each do |mensaje| %><li><%= mensaje %></li><% end %>
+    </ul>
+  <% end %>
+</section>
+
+<section class="tarjeta" id="probar-send">
+  <h2>Probar send()</h2>
+  <p class="nota">Llama a <code>Notification.send</code> (API 1.2) con lo que escribas, para ver qué acepta
+    y qué rechaza. <code>send()</code> solo valida, guarda el pendiente y responde; la entrega se ve en la
+    consola.</p>
+
+  <%= form_with url: catalogo_probar_send_path(anchor: "probar-send"), method: :post, class: "formulario" do %>
+    <label>Notificación
+      <select name="notificacion" id="notificacion">
+        <% @notificaciones.each do |nombre| %>
+          <option value="<%= nombre %>" data-ejemplo="<%= @ejemplos[nombre] %>" <%= "selected" if nombre == @notificacion %>><%= nombre %></option>
+        <% end %>
+      </select>
+    </label>
+    <label>Empresa
+      <select name="empresa_id" id="empresa">
+        <% @empresas.each do |empresa| %>
+          <option value="<%= empresa.id %>" data-primera="<%= @primera_persona[empresa.id] %>" <%= "selected" if empresa.id.to_s == @empresa_id %>><%= empresa.nombre %></option>
+        <% end %>
+      </select>
+    </label>
+    <label>Destinatarios (ids de usuario separados por coma)
+      <input type="text" name="destinatarios" id="destinatarios" value="<%= @destinatarios %>">
+    </label>
+    <label>Datos (JSON)
+      <textarea name="datos" id="datos" rows="6"><%= @datos %></textarea>
+    </label>
+    <button class="principal">Llamar a send()</button>
+  <% end %>
+
+  <% if @solicitud %>
+    <div class="resultado">Solicitud <%= @solicitud %></div>
+  <% elsif @error_send %>
+    <div class="resultado error"><%= @error_send %></div>
+  <% end %>
+</section>
+
+<script>
+  // Al elegir otra notificación u otra empresa, el formulario propone valores de ejemplo.
+  document.getElementById("notificacion").addEventListener("change", (evento) => {
+    document.getElementById("datos").value = evento.target.selectedOptions[0].dataset.ejemplo;
+  });
+  document.getElementById("empresa").addEventListener("change", (evento) => {
+    document.getElementById("destinatarios").value = evento.target.selectedOptions[0].dataset.primera;
+  });
+</script>
