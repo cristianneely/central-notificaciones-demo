@@ -38,5 +38,12 @@ module CentralNotificaciones
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # Las fechas se guardan en UTC y se muestran en hora de Chile.
+    config.time_zone = "America/Santiago"
+
+    # La estructura de la base se guarda como SQL (db/structure.sql) y no como schema.rb,
+    # porque schema.rb no sabe guardar los disparadores de la tabla de auditoría.
+    config.active_record.schema_format = :sql
   end
 end
