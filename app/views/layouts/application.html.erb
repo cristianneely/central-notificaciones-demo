@@ -11,20 +11,28 @@
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%# Incluye todas las hojas de estilo de app/assets/stylesheets %>
     <%= stylesheet_link_tag :app %>
   </head>
 
   <body>
-    <%# Aviso fijo de la decisión 9: va en el layout para que lo hereden todas las pantallas. %>
-    <div class="aviso-demo">Demo con datos ficticios. No sale ningún correo real.</div>
+    <%# Aviso fijo: va en el marco de la página para que lo hereden todas las pantallas. %>
+    <div class="aviso-demo">
+      Demo con datos ficticios. No sale ningún correo real.
+      <a href="/acerca">Acerca de esta demo</a>
+    </div>
+
+    <nav class="menu">
+      <strong>Central de notificaciones</strong>
+      <%= link_to "Consola", root_path %>
+      <%= link_to "Catálogo", catalogo_path %>
+      <%= link_to "Historial", historial_path %>
+      <%= link_to "Acerca", acerca_path %>
+    </nav>
 
     <main>
       <%= yield %>

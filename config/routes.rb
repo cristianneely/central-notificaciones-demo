@@ -11,4 +11,30 @@ Rails.application.routes.draw do
 
   # Consola de demo: la pantalla principal.
   root "consola#index"
+  get "consola/listas" => "consola#listas"                  # las listas solas, para refrescarlas
+  post "consola/proveedor" => "consola#proveedor"           # interruptor del proveedor simulado
+  post "consola/apagar_critico" => "consola#apagar_critico" # muestra el rechazo de R6
+  post "consola/reiniciar" => "consola#reiniciar"           # vuelve a los datos semilla
+
+  # Las otras pantallas.
+  get "catalogo" => "catalogo#index"
+  post "catalogo/definicion_invalida" => "catalogo#definicion_invalida"
+  post "catalogo/probar_send" => "catalogo#probar_send"
+  # Si alguien recarga la página después de usar uno de esos botones, vuelve al catálogo.
+  get "catalogo/definicion_invalida", to: redirect("/catalogo")
+  get "catalogo/probar_send", to: redirect("/catalogo")
+  get "historial" => "historial#index"
+  get "acerca" => "acerca#index"
+
+  # Acciones de negocio desde la pantalla (puerta web).
+  post "acciones/emitir_certificado" => "acciones#emitir_certificado"
+  post "acciones/recordatorio" => "acciones#recordatorio"
+  post "acciones/encuesta" => "acciones#encuesta"
+  post "acciones/cumpleanos" => "acciones#cumpleanos"
+
+  # La misma acción "emitir certificado", por la API (puerta API).
+  post "api/certificados" => "api/certificados#create"
+
+  # Receptor: por aquí el proveedor de correo avisa el estado final de un envío.
+  post "receptor/proveedor" => "receptor#proveedor"
 end

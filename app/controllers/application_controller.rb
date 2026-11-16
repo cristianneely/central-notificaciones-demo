@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  # Todo lo que entra por una pantalla queda anotado con origen "web". La central lo lee
+  # de este contexto; así no hace falta agregarle un parámetro a send().
+  before_action { Notification::Contexto.origen = "web" }
 end

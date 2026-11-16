@@ -1,0 +1,57 @@
+<% content_for :title, "Historial · Central de notificaciones" %>
+
+<h1>Historial</h1>
+<p class="bajada">Qué pasó con cada notificación de una empresa, incluidas las que no se enviaron. Sale de
+  la auditoría, que solo se puede agregar. Cada fila se abre para ver su recorrido.</p>
+
+<section class="tarjeta">
+  <form method="get" action="/historial" class="filtros">
+    <label>Empresa
+      <select name="empresa_id" onchange="this.form.usuario_id.value = ''; this.form.submit()">
+        <%= options_from_collection_for_select(@empresas, :id, :nombre, @empresa&.id) %>
+      </select>
+    </label>
+    <label>Persona
+      <select name="usuario_id">
+        <option value="">Todas</option>
+        <%= options_from_collection_for_select(@personas, :id, :nombre, @persona&.id) %>
+      </select>
+    </label>
+    <label>Desde <input type="date" name="desde" value="<%= @desde %>"></label>
+    <label>Hasta <input type="date" name="hasta" value="<%= @hasta %>"></label>
+    <button class="principal">Filtrar</button>
+  </form>
+</section>
+
+<section class="tarjeta">
+  <p class="nota"><%= pluralize(@filas.size, "fila", plural: "filas") %>, de la más reciente a la más antigua
+    (máximo 200).</p>
+
+  <% @filas.each do |fila| %>
+    <details class="fila-historial">
+      <summary>
+        <span class="hora"><%= hora(fila.creado_en) %></span>
+        <code><%= fila.notificacion %></code>
+        <%= etiqueta_importancia(fila.importancia) %>
+        <span><%= nombre_persona(fila.usuario_id) %></span>
+        <span class="etiqueta <%= clase_estado(fila.estado) %>"><%= fila.estado %></span>
+        <span class="id-solicitud">solicitud <%= fila.solicitud_id.first(8) %></span>
+      </summary>
+      <table class="recorrido-detalle">
+        <thead><tr><th>Hora</th><th>Evento</th><th>Canal</th><th>Motivo</th><th>Detalle</th></tr></thead>
+        <tbody>
+          <% fila.recorrido.each do |paso| %>
+            <tr>
+              <td><%= hora(paso.creado_en) %></td>
+              <td><code><%= paso.evento %></code></td>
+              <td><%= paso.canal %></td>
+              <td><%= Notification::Historial.motivo_legible(paso.motivo) if paso.motivo %></td>
+              <td class="detalle"><%= detalle_como_texto(paso.detalle) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </details>
+  <% end %>
+  <% if @filas.empty? %><p class="vacio">No hay notificaciones con esos filtros.</p><% end %>
+</section>
