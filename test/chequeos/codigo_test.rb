@@ -13,6 +13,18 @@ class CodigoTest < ActiveSupport::TestCase
             .sort
   end
 
+  test "27: chequeo R9, ninguna puerta llama a send(): solo las acciones de negocio" do
+    llamada_a_send = /Notification\s*\.\s*(send|public_send|__send__)\b/
+
+    assert_empty archivos_con(llamada_a_send, carpetas: %w[app/controllers app/views])
+    assert_not_empty Dir[RAIZ.join("app/controllers/**/*.rb")]
+  end
+
+  test "27: las acciones de negocio sí llaman a send()" do
+    assert_includes archivos_con(/Notification\.send\b/, carpetas: %w[app/modulos]),
+                    "app/modulos/certificados/emitir_certificado.rb"
+  end
+
   test "28: chequeo R1, solo el canal email invoca la entrega del proveedor" do
     entrega_del_proveedor = /(Proveedores::\w+|Simulado)\.entregar\b/
 

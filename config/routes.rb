@@ -12,6 +12,15 @@ Rails.application.routes.draw do
   # Consola de demo: la pantalla principal.
   root "consola#index"
 
+  # Acciones de negocio desde la pantalla (puerta web).
+  post "acciones/emitir_certificado" => "acciones#emitir_certificado"
+  post "acciones/recordatorio" => "acciones#recordatorio"
+  post "acciones/encuesta" => "acciones#encuesta"
+  post "acciones/cumpleanos" => "acciones#cumpleanos"
+
+  # La misma acción "emitir certificado", por la API (puerta API).
+  post "api/certificados" => "api/certificados#create"
+
   # Receptor: por aquí el proveedor de correo avisa el estado final de un envío.
   post "receptor/proveedor" => "receptor#proveedor"
 end
