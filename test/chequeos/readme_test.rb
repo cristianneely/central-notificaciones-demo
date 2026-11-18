@@ -42,9 +42,14 @@ class ReadmeTest < ActiveSupport::TestCase
 
   test "las simplificaciones usan la redacción nueva" do
     nuevas = [
-      ["Reintentos con esperas cada vez más largas, de minutos",
+      ["Esperas de reintento que se duplican, de 1 a 15 minutos",
        "Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, " \
        "salen todos por criticidad"],
+      ["Varios servidores toman pendientes sin pisarse (FOR UPDATE SKIP LOCKED); si uno cae, otro sigue", "Un solo despachador"],
+      ["Tope de destinatarios por llamada; lo que pase del tope lo reparte por lotes el equipo que envía",
+       "El tope existe (1.000); la central no ofrece el reparto por lotes"],
+      ["Respaldo de lo crítico por el canal siguiente",
+       "Hay un solo canal (email); el respaldo se demuestra con canales de prueba (prueba 42)"],
       ["Límite de frecuencia configurable; parte en 3 no críticas por persona y canal cada 24 h",
        "El mismo valor, fijo en la configuración; cuenta la decisión de enviar"],
       ["Tres entradas: web, API y carga masiva (R9)", "Dos: web y API"],
@@ -56,11 +61,13 @@ class ReadmeTest < ActiveSupport::TestCase
       ["Agrupar lo excedente en un resumen (paso siguiente)", "Solo descartar"]
     ]
     nuevas.each { |fila| assert_includes Demo::Declaraciones::SIMPLIFICACIONES, fila }
-    assert_equal 23, Demo::Declaraciones::SIMPLIFICACIONES.size
+    assert_equal 24, Demo::Declaraciones::SIMPLIFICACIONES.size
 
     viejas = ["N y período del límite de frecuencia", "fuera del documento", "el documento no fija formato",
               "Resumen para lo excedente (opcional)", "Reintentos con esperas de minutos",
-              "no dice si por correo o por proveedor"]
+              "no dice si por correo o por proveedor", "Reintentos con esperas cada vez más largas",
+              "Varias máquinas toman pendientes; si una cae, otra sigue", "cuando exista un segundo canal",
+              "Solo retener"]
     viejas.each do |texto|
       assert_not_includes README, texto
       assert_not Demo::Declaraciones::SIMPLIFICACIONES.flatten.any? { |celda| celda.include?(texto) }, texto

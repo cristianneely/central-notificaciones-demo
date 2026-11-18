@@ -71,11 +71,14 @@ ya trae un `send`). Aquí `send` con un símbolo sigue siendo el de Ruby, y el t
    pendiente y la anotación `recibida`. Si la clave ya existía, anota `duplicada` y no crea
    pendiente. Devuelve el id de la solicitud.
 3. El despachador, en segundo plano, toma los pendientes (lo crítico primero) y por cada uno:
-   busca el contacto, aplica la política de la empresa, aplica el límite de frecuencia, anota
-   `decision_enviar` y entrega por el canal.
+   revisa que la persona sea de la empresa, aplica la política de la empresa para elegir el
+   canal, busca el dato de contacto que pide ese canal, aplica el límite de frecuencia, anota
+   `decision_enviar` y entrega por el canal. Lo que excede el límite queda `descartada`.
 4. El canal email adapta el contenido a un correo y lo entrega al proveedor. Si el proveedor
-   acepta, anota `enviada`; si rechaza ese correo, `fallo_definitivo`; si no responde,
-   `intento_fallido`, y el canal espera 5, 10 y 20 segundos antes de volver a probar.
+   acepta, anota `enviada`, con la dirección a la que salió y la versión del contenido; si
+   rechaza ese correo, `fallo_definitivo`; si no responde, `intento_fallido`, y el canal
+   espera 5, 10 y 20 segundos antes de volver a probar. Si lo rechazado es crítico y la
+   política tiene otro canal, se intenta por el siguiente.
 5. El proveedor avisa después al receptor en qué terminó el envío: `entregada` o `rebotada`.
 
 ## Qué probar
@@ -134,9 +137,9 @@ Los valores de la central (límite de frecuencia, esperas, tiempos) están en un
 | R3 | Frecuencia máxima para lo no crítico | Consola: cuatro avisos no críticos y uno crítico a la misma persona. Pruebas 19, 20, 32 y 33 |
 | R4 | Criticidad declarada | Catálogo. Pruebas 1 y 2 |
 | R5 | Política de envío configurable por cliente | Consola: un aviso opcional en Minera Los Robles. Prueba 17 |
-| R6 | Lo crítico siempre tiene canal | Consola: botón "Intentar apagar lo crítico". Prueba 18 |
-| R7 | Canales extensibles sin tocar definiciones | Prueba 29, con un canal de prueba |
-| R8 | Definición única, validada | Catálogo: botón "Probar una definición inválida". Pruebas 1 a 3 |
+| R6 | Lo crítico siempre tiene canal | Consola: botón "Intentar apagar lo crítico". Pruebas 18 y 42 |
+| R7 | Canales extensibles sin tocar definiciones | Pruebas 29 y 41, con un canal de prueba |
+| R8 | Definición única, validada: una clase por notificación | Catálogo: botón "Probar una definición inválida". Pruebas 1 a 3 y 38 |
 | R9 | Se dispara desde la acción de negocio, igual por web, API o carga masiva | Consola: emitir por la pantalla y por la API. Pruebas 24 y 27. Hay dos entradas (web y API); la carga masiva no se construye |
 | R10 | Historial completo e inmodificable | Los recorridos de la consola y del historial. Pruebas 12 y 13 |
 | R11 | Auditoría a escala (12 millones al día, plazo de conservación, cada empresa ve lo suyo) | No se demuestra. Solo quedan el filtro obligatorio por empresa y los índices por empresa y fecha |
@@ -153,10 +156,11 @@ La demo muestra la lógica y los flujos. Esto es lo que cambia respecto del dise
 | Postgres | SQLite (un archivo dentro de la app) |
 | SendGrid | Proveedor simulado; no sale ningún correo |
 | Servidores de segundo plano en máquinas aparte | Un proceso en segundo plano dentro de la misma app |
-| Varias máquinas toman pendientes; si una cae, otra sigue | Un solo despachador |
-| Reintentos con esperas cada vez más largas, de minutos | Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, salen todos por criticidad |
+| Varios servidores toman pendientes sin pisarse (FOR UPDATE SKIP LOCKED); si uno cae, otro sigue | Un solo despachador |
+| Esperas de reintento que se duplican, de 1 a 15 minutos | Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, salen todos por criticidad |
 | Límite de frecuencia configurable; parte en 3 no críticas por persona y canal cada 24 h | El mismo valor, fijo en la configuración; cuenta la decisión de enviar |
-| Varios canales y respaldo para lo crítico (cuando exista un segundo canal) | Un solo canal por envío |
+| Respaldo de lo crítico por el canal siguiente | Hay un solo canal (email); el respaldo se demuestra con canales de prueba (prueba 42) |
+| Tope de destinatarios por llamada; lo que pase del tope lo reparte por lotes el equipo que envía | El tope existe (1.000); la central no ofrece el reparto por lotes |
 | Auditoría a escala (R11) | No se demuestra |
 | Tres entradas: web, API y carga masiva (R9) | Dos: web y API |
 | Quién originó la solicitud (R10) | Se anota la notificación, que identifica al módulo dueño, y la entrada (web, api o interno) |
