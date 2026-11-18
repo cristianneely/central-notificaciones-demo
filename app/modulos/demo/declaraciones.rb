@@ -20,7 +20,7 @@ module Demo
        "Empresa Minera Los Robles → \"Saludar cumpleaños\"; botón \"Intentar apagar lo crítico\"",
        "\"No enviada: política del cliente\"; el rechazo"],
       [6, "Límite de frecuencia", "Cuatro avisos no críticos y un certificado a la misma persona",
-       "El cuarto queda retenido; el certificado pasa"],
+       "El cuarto queda descartado; el certificado pasa"],
       [7, "Caída del proveedor", "\"Apagar el proveedor\", emitir varias, \"Encender el proveedor\"",
        "Esperan, se reintenta y salen con lo crítico primero"],
       [8, "Historial", "Pantalla Historial", "Filtros y recorridos, con no enviadas y un rebote"]
@@ -55,7 +55,7 @@ module Demo
       ["Contador de frecuencia propio", "Se cuenta sobre la auditoría"],
       ["Cada empresa ve solo lo suyo (autenticación)", "Sin login; la empresa se elige en un filtro obligatorio"],
       ["Clave única por notificación, persona y unica_por", "Texto legible, sin resumir"],
-      ["Agrupar lo excedente en un resumen (paso siguiente)", "Solo retener"],
+      ["Agrupar lo excedente en un resumen (paso siguiente)", "Solo descartar"],
       ["Chequeos automáticos en la revisión de código", "Dos pruebas automáticas que revisan el código"],
       ["Pantalla de políticas fuera de alcance", "Políticas sembradas; un botón solo para mostrar el rechazo"],
       ["SQLite admite un solo escritor a la vez (propio de la demo)",

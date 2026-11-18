@@ -55,12 +55,12 @@ class Notification
         return terminar(pendiente, "no_enviada", motivo: "politica_cliente") unless nombre_canal
 
         # 3. Límite de frecuencia (R3), solo para lo no crítico: lo que excede se
-        #    retiene. No se envía, pero queda anotado con su motivo.
+        #    descarta. No se envía, pero queda anotado con su motivo.
         if pendiente.criticidad != "critica"
           llevaba = no_criticas_recientes(pendiente.usuario_id, nombre_canal, ahora)
           limite = Configuracion::LIMITE_FRECUENCIA
           if llevaba >= limite
-            return terminar(pendiente, "retenida", canal: nombre_canal, motivo: "limite_frecuencia",
+            return terminar(pendiente, "descartada", canal: nombre_canal, motivo: "limite_frecuencia",
                                                    detalle: { llevaba: llevaba, limite: limite })
           end
         end

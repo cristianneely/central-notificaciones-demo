@@ -26,7 +26,7 @@ Para volver a los datos de ejemplo, usa "Reiniciar demo" al final de la consola.
 - **Lo crítico primero.** El despachador saca los pendientes por criticidad y antigüedad.
 - **Políticas por cliente.** Una empresa puede apagar lo que no es crítico. Lo crítico
   siempre tiene canal.
-- **Frecuencia máxima.** Lo no crítico tiene un tope por persona; lo que excede se retiene y
+- **Frecuencia máxima.** Lo no crítico tiene un tope por persona; lo que excede se descarta y
   queda anotado.
 - **Historial completo.** Cada paso de cada notificación queda en una auditoría que solo se
   puede agregar: la propia base rechaza modificarla o borrarla.
@@ -87,7 +87,7 @@ ya trae un `send`). Aquí `send` con un símbolo sigue siendo el de Ruby, y el t
 | 3 | La acción llama dos veces a send() | Casilla "la acción llama dos veces a send()" | Una sola notificación; la segunda queda como duplicada |
 | 4 | La acción falla a la mitad | Casilla "la acción falla a la mitad" | Ni certificado ni notificación |
 | 5 | Política del cliente | Empresa Minera Los Robles → "Saludar cumpleaños"; botón "Intentar apagar lo crítico" | "No enviada: política del cliente"; el rechazo |
-| 6 | Límite de frecuencia | Cuatro avisos no críticos y un certificado a la misma persona | El cuarto queda retenido; el certificado pasa |
+| 6 | Límite de frecuencia | Cuatro avisos no críticos y un certificado a la misma persona | El cuarto queda descartado; el certificado pasa |
 | 7 | Caída del proveedor | "Apagar el proveedor", emitir varias, "Encender el proveedor" | Esperan, se reintenta y salen con lo crítico primero |
 | 8 | Historial | Pantalla Historial | Filtros y recorridos, con no enviadas y un rebote |
 
@@ -169,7 +169,7 @@ La demo muestra la lógica y los flujos. Esto es lo que cambia respecto del dise
 | Contador de frecuencia propio | Se cuenta sobre la auditoría |
 | Cada empresa ve solo lo suyo (autenticación) | Sin login; la empresa se elige en un filtro obligatorio |
 | Clave única por notificación, persona y unica_por | Texto legible, sin resumir |
-| Agrupar lo excedente en un resumen (paso siguiente) | Solo retener |
+| Agrupar lo excedente en un resumen (paso siguiente) | Solo descartar |
 | Chequeos automáticos en la revisión de código | Dos pruebas automáticas que revisan el código |
 | Pantalla de políticas fuera de alcance | Políticas sembradas; un botón solo para mostrar el rechazo |
 | SQLite admite un solo escritor a la vez (propio de la demo) | No se muestran varias máquinas tomando pendientes |

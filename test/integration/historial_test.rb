@@ -87,7 +87,7 @@ class HistorialTest < ActionDispatch::IntegrationTest
       "entregada" => "Entregada",
       "rebotada" => "Rebotada",
       "duplicada" => "Duplicada",
-      "retenida" => "Retenida: límite de frecuencia"
+      "descartada" => "Descartada: límite de frecuencia"
     }
     estados.each do |evento, texto|
       assert_equal texto, Notification::Historial.estado(Notification::Auditoria.new(evento: evento))

@@ -1,7 +1,7 @@
 require "test_helper"
 
 # R3: frecuencia máxima para lo no crítico. Máximo 3 notificaciones no críticas por
-# persona y canal en 24 horas; lo que excede se retiene y queda anotado. Lo crítico
+# persona y canal en 24 horas; lo que excede se descarta y queda anotado. Lo crítico
 # está exento.
 class LimiteFrecuenciaTest < ActiveSupport::TestCase
   setup do
@@ -19,7 +19,7 @@ class LimiteFrecuenciaTest < ActiveSupport::TestCase
     ].each { despachar }
   end
 
-  test "19: la cuarta no crítica se retiene y la crítica pasa igual" do
+  test "19: la cuarta no crítica se descarta y la crítica pasa igual" do
     tres = tres_no_criticas(@ana)
     saludo = enviar_saludo(@ana)
     despachar
@@ -28,25 +28,25 @@ class LimiteFrecuenciaTest < ActiveSupport::TestCase
 
     tres.each { |solicitud| assert_equal %w[recibida decision_enviar enviada], eventos(solicitud) }
 
-    assert_equal %w[recibida retenida], eventos(saludo)
-    retenida = recorrido(saludo).last
-    assert_equal "limite_frecuencia", retenida.motivo
-    assert_equal "email", retenida.canal
-    assert_equal({ "llevaba" => 3, "limite" => 3 }, retenida.detalle)
+    assert_equal %w[recibida descartada], eventos(saludo)
+    descartada = recorrido(saludo).last
+    assert_equal "limite_frecuencia", descartada.motivo
+    assert_equal "email", descartada.canal
+    assert_equal({ "llevaba" => 3, "limite" => 3 }, descartada.detalle)
 
     assert_equal %w[recibida decision_enviar enviada], eventos(certificado)
     assert_equal 0, Notification::Pendiente.count
     assert_equal 4, bandeja.size
   end
 
-  test "19: lo retenido no ocupa cupo, y la siguiente no crítica también se retiene" do
+  test "19: lo descartado no ocupa cupo, y la siguiente no crítica también se descarta" do
     tres_no_criticas(@ana)
     enviar_saludo(@ana)
     despachar
     otra = enviar_encuesta(@ana, curso: "Tablas dinámicas")
     despachar
 
-    assert_equal %w[recibida retenida], eventos(otra)
+    assert_equal %w[recibida descartada], eventos(otra)
     assert_equal({ "llevaba" => 3, "limite" => 3 }, recorrido(otra).last.detalle)
   end
 
@@ -73,7 +73,7 @@ class LimiteFrecuenciaTest < ActiveSupport::TestCase
     cuarta = enviar_saludo(@ana)
     despachar
 
-    assert_equal %w[recibida retenida], eventos(cuarta)
+    assert_equal %w[recibida descartada], eventos(cuarta)
   end
 
   test "33: lo crítico no ocupa cupo" do

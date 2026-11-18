@@ -53,7 +53,7 @@ class ReadmeTest < ActiveSupport::TestCase
       ["Envío doble si una máquina cae justo después de que el proveedor acepta (limitación declarada en la propuesta)",
        "Puede ocurrir; no se trata"],
       ["Clave única por notificación, persona y unica_por", "Texto legible, sin resumir"],
-      ["Agrupar lo excedente en un resumen (paso siguiente)", "Solo retener"]
+      ["Agrupar lo excedente en un resumen (paso siguiente)", "Solo descartar"]
     ]
     nuevas.each { |fila| assert_includes Demo::Declaraciones::SIMPLIFICACIONES, fila }
     assert_equal 23, Demo::Declaraciones::SIMPLIFICACIONES.size

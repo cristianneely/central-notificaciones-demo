@@ -39,11 +39,11 @@ class SiembraTest < ActiveSupport::TestCase
 
     assert_equal 0, Notification::Pendiente.count
     estados = [2, 3].flat_map { |empresa_id| Notification::Historial.filas(empresa_id: empresa_id) }.map(&:estado)
-    ["Entregada", "Rebotada", "Duplicada", "Retenida: límite de frecuencia",
+    ["Entregada", "Rebotada", "Duplicada", "Descartada: límite de frecuencia",
      "No enviada: política del cliente"].each do |estado|
       assert_includes estados, estado
     end
-    assert_equal({ "Entregada" => 5, "Rebotada" => 1, "Duplicada" => 1, "Retenida: límite de frecuencia" => 1,
+    assert_equal({ "Entregada" => 5, "Rebotada" => 1, "Duplicada" => 1, "Descartada: límite de frecuencia" => 1,
                    "No enviada: política del cliente" => 1 }, estados.tally)
 
     assert_equal 0, Notification::Auditoria.where(empresa_id: 1).count, "Andes Capacitación parte sin historial"

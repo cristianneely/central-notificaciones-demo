@@ -55,7 +55,7 @@ class Notification
       when "rebotada" then "Rebotada"
       when "duplicada" then "Duplicada"
       when "no_enviada" then "No enviada: #{motivo_legible(ultima.motivo)}"
-      when "retenida" then "Retenida: límite de frecuencia"
+      when "descartada" then "Descartada: límite de frecuencia"
       when "fallo_definitivo" then "Falló: #{motivo_legible(ultima.motivo)}"
       else ultima.evento
       end
