@@ -103,7 +103,7 @@ class Notification
 
           if ClaveUnica.reservar(clave, ahora: ahora)
             pendiente.save!
-            Auditoria.anotar(pendiente, "recibida", detalle: detalle.merge(version: definicion.version))
+            Auditoria.anotar(pendiente, "recibida", detalle: detalle)
           else
             # Ya se había pedido lo mismo: no se crea pendiente, pero queda anotado.
             Auditoria.anotar(pendiente, "duplicada", motivo: "clave_repetida", detalle: detalle)

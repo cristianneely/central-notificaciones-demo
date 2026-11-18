@@ -43,7 +43,6 @@ class SendTest < ActiveSupport::TestCase
     assert_equal "recibida", fila.evento
     assert_equal [solicitud, 1, 1, "certificado_emitido", "critica"],
                  [fila.solicitud_id, fila.empresa_id, fila.usuario_id, fila.notificacion, fila.criticidad]
-    assert_equal Notification.catalogo.buscar("certificado_emitido").version, fila.detalle["version"]
     assert_equal "interno", fila.detalle["origen"]
     assert_equal "certificado_emitido|1|789", fila.detalle["clave"]
     assert_equal "Excel avanzado", fila.detalle["datos"]["curso"]

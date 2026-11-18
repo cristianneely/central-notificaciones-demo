@@ -33,6 +33,17 @@ class DespachadorTest < ActiveSupport::TestCase
     assert_equal correo.id_proveedor, recorrido(solicitud).last.detalle["id_proveedor"]
   end
 
+  test "40: enviada guarda la dirección a la que salió y la versión del contenido" do
+    solicitud = enviar_certificado(@ana)
+    despachar
+
+    recibida, _decision, enviada = recorrido(solicitud)
+    assert_equal "enviada", enviada.evento
+    assert_equal "ana.soto@ejemplo.test", enviada.detalle["para"]
+    assert_equal Notification.catalogo.buscar("certificado_emitido").version, enviada.detalle["version"]
+    assert_not recibida.detalle.key?("version"), "la versión se anota al enviar, no al recibir"
+  end
+
   test "13: una notificación sin acción arma un correo sin botón" do
     enviar_saludo(@ana, nombre: "Ana")
     despachar

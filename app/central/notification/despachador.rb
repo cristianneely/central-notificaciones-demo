@@ -73,7 +73,7 @@ class Notification
       canal = Canales.buscar(nombre_canal)
       definicion = Notification.catalogo.buscar(pendiente.notificacion)
       mensaje = canal.adaptar(Contenido.rellenar(definicion.contenido, pendiente.datos))
-      resultado = canal.entregar(mensaje, pendiente: pendiente, para: contacto)
+      resultado = canal.entregar(mensaje, pendiente: pendiente, para: contacto, version: definicion.version)
 
       # Si el proveedor no respondió, el pendiente se queda en la fila. En cualquier otro
       # caso (enviado o rechazado) ya terminó y se borra.
