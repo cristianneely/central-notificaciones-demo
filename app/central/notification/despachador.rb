@@ -33,12 +33,12 @@ class Notification
     # Los pasos por pendiente, en orden. El primero que corta, termina.
     def self.procesar(pendiente, ahora)
       # Un pendiente que vuelve tras una caída ya tiene su decisión anotada: no vuelve a
-      # pasar por la política, el límite ni la decisión (pasos 2 a 4) y reanuda en la
-      # entrega, por el mismo canal. Así cada solicitud tiene una sola decisión en su
-      # recorrido. La persona y su dato de contacto (pasos 1 y 3) sí se vuelven a buscar,
+      # pasar por la política, el límite ni la decisión (pasos 2, 4 y 5) y reanuda en la
+      # entrega, por el canal de su última decisión. Así cada solicitud tiene una sola
+      # decisión por canal en su recorrido. La persona y su dato de contacto (pasos 1 y 3) sí se vuelven a buscar,
       # porque la dirección no se guarda en el pendiente.
       decision = Auditoria.recorrido(pendiente.solicitud_id, pendiente.usuario_id)
-                          .find_by(evento: "decision_enviar")
+                          .where(evento: "decision_enviar").last
 
       # 1. Persona: tiene que existir y ser de esa empresa. Si no, no hay a quién enviar.
       usuario = Usuario.find_by(id: pendiente.usuario_id, empresa_id: pendiente.empresa_id)
@@ -46,8 +46,8 @@ class Notification
 
       nombre_canal = decision&.canal
       unless decision
-        # 2. Política: por qué canal sale. Se usa un solo canal, el primero de los
-        #    efectivos. Si la empresa los apagó todos, no se envía.
+        # 2. Política: por qué canal sale. Parte por el primero de los efectivos. Si la
+        #    empresa los apagó todos, no se envía.
         nombre_canal = Politicas.canales_efectivos(empresa_id: pendiente.empresa_id,
                                                    criticidad: pendiente.criticidad).first
         return terminar(pendiente, "no_enviada", motivo: "politica_cliente") unless nombre_canal
@@ -77,15 +77,39 @@ class Notification
 
       # 6. El canal adapta el contenido a su formato y lo entrega a su proveedor.
       definicion = Notification.catalogo.buscar(pendiente.notificacion)
-      mensaje = canal.adaptar(Contenido.rellenar(definicion.contenido, pendiente.datos))
-      resultado = canal.entregar(mensaje, pendiente: pendiente, para: contacto, version: definicion.version)
+      contenido = Contenido.rellenar(definicion.contenido, pendiente.datos)
 
-      # Si el proveedor no respondió, el pendiente se queda en la fila. En cualquier otro
-      # caso (enviado o rechazado) ya terminó y se borra.
-      return :canal_en_espera if resultado.sin_respuesta?
+      loop do
+        resultado = canal.entregar(canal.adaptar(contenido), pendiente: pendiente, para: contacto,
+                                                             version: definicion.version)
 
+        # Si el proveedor no respondió, el pendiente se queda en la fila y reanuda después
+        # por este mismo canal.
+        return :canal_en_espera if resultado.sin_respuesta?
+
+        # 7. Respaldo de lo crítico (R6): si el canal rechazó el envío en forma definitiva,
+        #    lo crítico se intenta por el canal siguiente de la política. Lo demás termina
+        #    aquí. Un rebote que el proveedor informa después no pasa por este punto.
+        respaldo = canal_siguiente(pendiente, canal.nombre) if resultado.rechazado? && pendiente.criticidad == "critica"
+        break unless respaldo
+
+        canal = Canales.buscar(respaldo)
+        contacto = Contactos.buscar(usuario, canal.contacto)
+        return terminar(pendiente, "no_enviada", canal: respaldo, motivo: "sin_contacto") unless contacto
+
+        Auditoria.anotar(pendiente, "decision_enviar", canal: respaldo)
+      end
+
+      # Enviado o rechazado sin más canales: el pendiente ya terminó y se borra.
       pendiente.destroy!
       :terminado
+    end
+
+    # El canal efectivo que viene después de `actual` para ese pendiente, o nil si no hay.
+    def self.canal_siguiente(pendiente, actual)
+      efectivos = Politicas.canales_efectivos(empresa_id: pendiente.empresa_id, criticidad: pendiente.criticidad)
+      posicion = efectivos.index(actual)
+      posicion && efectivos[posicion + 1]
     end
 
     # Cuántas notificaciones no críticas se decidió enviar a esa persona por ese canal
@@ -106,6 +130,6 @@ class Notification
       :terminado
     end
 
-    private_class_method :procesar, :terminar, :no_criticas_recientes
+    private_class_method :procesar, :terminar, :no_criticas_recientes, :canal_siguiente
   end
 end
