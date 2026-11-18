@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # Las reglas de la API 1.1. Revisa una definición completa y devuelve todos sus errores
   # juntos (no se detiene en el primero), en el orden de la tabla de validaciones.
   module ValidadorDefinicion
@@ -16,7 +16,8 @@ module Notification
       contenido = opciones[:contenido].is_a?(Hash) ? opciones[:contenido] : {}
       accion = contenido[:accion]
 
-      # El nombre: minúsculas_con_guion_bajo y único en el catálogo.
+      # El nombre sale del nombre de la clase: minúsculas_con_guion_bajo y único en el
+      # catálogo.
       if !nombre.is_a?(String) || !nombre.match?(FORMATO_NOMBRE)
         errores << "nombre inválido"
       elsif nombres_existentes.include?(nombre)

@@ -90,8 +90,8 @@ class ConsolaTest < ActionDispatch::IntegrationTest
   end
 
   test "la lista de pendientes muestra los primeros 50 y avisa cuántos hay en total" do
-    Notification.send "certificado_emitido", empresa: 1, destinatarios: (1001..1060).to_a,
-      datos: { certificado_id: 1, curso: "Excel avanzado", link_certificado: "https://ejemplo.test/c/1" }
+    CertificadoEmitido.send(empresa: 1, destinatarios: (1001..1060).to_a,
+      datos: { certificado_id: 1, curso: "Excel avanzado", link_certificado: "https://ejemplo.test/c/1" })
 
     get "/consola"
 

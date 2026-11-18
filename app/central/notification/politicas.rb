@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # Políticas de envío: por qué canales sale una notificación.
   # Canales efectivos = política por defecto según la criticidad (código)
   #                     menos lo que esa empresa apagó (tabla politicas_cliente).

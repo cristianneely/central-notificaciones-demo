@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # El despachador: toma los pendientes y los saca. Corre en segundo plano, cada
   # segundo, separado de la petición que pidió el envío (R13).
   module Despachador

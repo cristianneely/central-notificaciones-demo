@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # Los valores de la central, en un solo lugar. Cambiar un número aquí cambia el
   # comportamiento de toda la central; ninguna otra parte del código los repite.
   module Configuracion

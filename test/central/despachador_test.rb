@@ -80,10 +80,10 @@ class DespachadorTest < ActiveSupport::TestCase
   test "16: sin contacto: persona de otra empresa, id inexistente y persona sin correo" do
     de_otra_empresa = Usuario.find(9)
     sin_correo = persona("(sin correo)")
-    solicitud = Notification.send "certificado_emitido",
+    solicitud = CertificadoEmitido.send(
       empresa: 1,
       destinatarios: [de_otra_empresa.id, 9999, sin_correo.id],
-      datos: { certificado_id: 789, curso: "Excel avanzado", link_certificado: "https://ejemplo.test/c/789" }
+      datos: { certificado_id: 789, curso: "Excel avanzado", link_certificado: "https://ejemplo.test/c/789" })
 
     assert_equal 3, despachar
     [de_otra_empresa.id, 9999, sin_correo.id].each do |usuario_id|

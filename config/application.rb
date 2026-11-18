@@ -39,6 +39,13 @@ module CentralNotificaciones
     # Don't generate system test files.
     config.generators.system_tests = nil
 
+    # Las notificaciones de cada equipo viven en app/modulos/<módulo>/notificaciones/.
+    # Cada una de esas carpetas se carga como raíz, para que la clase se llame
+    # CertificadoEmitido a secas, como en el diseño, y no Certificados::Notificaciones::…
+    notificaciones = Dir[File.expand_path("../app/modulos/*/notificaciones", __dir__)]
+    config.autoload_paths.concat(notificaciones)
+    config.eager_load_paths.concat(notificaciones)
+
     # Las fechas se guardan en UTC y se muestran en hora de Chile.
     config.time_zone = "America/Santiago"
 

@@ -1,6 +1,6 @@
 require "test_helper"
 
-# API 1.1 del documento: Notification.define y el catálogo (R4 y R8).
+# API 1.1 del documento: una clase por notificación y el catálogo (R4 y R8).
 # Cada definición se valida al registrarla; una inválida no entra al catálogo.
 class CatalogoTest < ActiveSupport::TestCase
   # Una definición correcta, para cambiarle una sola cosa en cada prueba.
@@ -17,10 +17,25 @@ class CatalogoTest < ActiveSupport::TestCase
 
   setup { @catalogo = Notification::Catalogo.new }
 
+  # Arma una clase de notificación con nombre, como la escribiría un equipo. Cada clave
+  # es una declaración: `criticidad :critica`, `datos :curso, :link`, etc.
+  def clase(nombre = "DePrueba", **campos)
+    nueva = Class.new(Notification)
+    Module.new.const_set(nombre, nueva)
+    campos.each do |campo, valor|
+      case campo
+      when :datos, :unica_por then nueva.public_send(campo, *valor)
+      when :contenido then nueva.contenido(**valor)
+      else nueva.public_send(campo, valor)
+      end
+    end
+    nueva
+  end
+
   # Registra "de_prueba" con los cambios pedidos y devuelve la lista de errores.
-  def errores_con(nombre: "de_prueba", **cambios)
+  def errores_con(**cambios)
     error = assert_raises(Notification::DefinicionInvalida) do
-      @catalogo.registrar(nombre, **VALIDA.merge(cambios))
+      @catalogo.registrar(clase(**VALIDA.merge(cambios)))
     end
     error.errores
   end
@@ -29,7 +44,7 @@ class CatalogoTest < ActiveSupport::TestCase
     catalogo = Notification.catalogo
 
     assert_equal %w[certificado_emitido encuesta_satisfaccion recordatorio_curso saludo_cumpleanos],
-                 catalogo.nombres.sort
+                 catalogo.nombres
     assert_equal :critica, catalogo.buscar("certificado_emitido").criticidad
     assert_equal :informativa, catalogo.buscar("recordatorio_curso").criticidad
     assert_equal :opcional, catalogo.buscar("encuesta_satisfaccion").criticidad
@@ -37,6 +52,12 @@ class CatalogoTest < ActiveSupport::TestCase
     catalogo.todas.each do |definicion|
       assert_match(/\A[0-9a-f]{8}\z/, definicion.version)
     end
+  end
+
+  test "1: el identificador sale del nombre de la clase" do
+    assert_equal "certificado_emitido", CertificadoEmitido.identificador
+    assert_equal CertificadoEmitido, Notification.catalogo.buscar("certificado_emitido").clase
+    assert_equal "de_prueba", clase("DePrueba").identificador
   end
 
   test "1: la definición guarda lo declarado" do
@@ -50,21 +71,19 @@ class CatalogoTest < ActiveSupport::TestCase
   end
 
   test "1: la versión cambia cuando cambia el contenido" do
-    una = @catalogo.registrar("una", **VALIDA)
-    otra = @catalogo.registrar("otra", **VALIDA.merge(contenido: { titulo: "Otro", cuerpo: "Texto" }))
-    igual = @catalogo.registrar("igual", **VALIDA)
+    una = @catalogo.registrar(clase("Una", **VALIDA))
+    otra = @catalogo.registrar(clase("Otra", **VALIDA.merge(contenido: { titulo: "Otro", cuerpo: "Texto" })))
+    igual = @catalogo.registrar(clase("Igual", **VALIDA))
 
     assert_not_equal una.version, otra.version
     assert_equal una.version, igual.version
   end
 
   test "2: una definición inválida informa todos sus errores juntos y no se registra" do
-    error = assert_raises(Notification::DefinicionInvalida) do
-      @catalogo.registrar "mal_escrita",
-        datos: [:curso],
-        contenido: { titulo: "Hola {dato_inexistente}", cuerpo: "x" },
-        canales: [:email]
-    end
+    mal_escrita = clase("MalEscrita", datos: [:curso],
+                                      contenido: { titulo: "Hola {dato_inexistente}", cuerpo: "x" },
+                                      canales: [:email])
+    error = assert_raises(Notification::DefinicionInvalida) { @catalogo.registrar(mal_escrita) }
 
     assert_equal [
       "criticidad debe ser :critica, :informativa u :opcional",
@@ -76,12 +95,26 @@ class CatalogoTest < ActiveSupport::TestCase
     assert_nil @catalogo.buscar("mal_escrita")
   end
 
-  test "2b: nombre con formato inválido" do
-    assert_equal ["nombre inválido"], errores_con(nombre: "Mal Nombre")
+  test "2: una clase vacía informa todo lo que le falta" do
+    error = assert_raises(Notification::DefinicionInvalida) { @catalogo.registrar(clase("Vacia")) }
+
+    assert_equal [
+      "criticidad debe ser :critica, :informativa u :opcional",
+      "datos debe ser una lista de nombres sin repetir",
+      "unica_por es obligatorio",
+      "contenido necesita titulo y cuerpo"
+    ], error.errores
   end
 
-  test "2b: nombre vacío" do
-    assert_equal ["nombre inválido"], errores_con(nombre: "")
+  test "2b: nombre con formato inválido" do
+    assert_equal ["nombre inválido"], Notification::ValidadorDefinicion.errores("Mal Nombre", VALIDA)
+  end
+
+  test "2b: una clase sin nombre" do
+    sin_nombre = Class.new(Notification) { criticidad :opcional }
+    error = assert_raises(Notification::DefinicionInvalida) { @catalogo.registrar(sin_nombre) }
+
+    assert_includes error.errores, "nombre inválido"
   end
 
   test "2b: criticidad que no es una de las tres" do
@@ -132,7 +165,7 @@ class CatalogoTest < ActiveSupport::TestCase
   end
 
   test "3: nombre repetido" do
-    @catalogo.registrar("de_prueba", **VALIDA)
+    @catalogo.registrar(clase(**VALIDA))
 
     assert_equal ["ya existe una definición con ese nombre"], errores_con
     assert_equal ["de_prueba"], @catalogo.nombres

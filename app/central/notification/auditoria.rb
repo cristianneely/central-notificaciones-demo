@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # La auditoría (R10): cada cosa que le pasa a una notificación queda anotada en una
   # fila nueva. Nunca se modifica ni se borra; la base lo impide con disparadores.
   class Auditoria < ApplicationRecord

@@ -29,14 +29,15 @@ class ReadmeTest < ActiveSupport::TestCase
   end
 
   test "el README explica cómo correr la demo y sus pruebas" do
-    ["bin/rails db:prepare", "bin/rails server", "bin/rails test", "Notification.define",
-     "Notification.send", "No sale ningún correo real"].each do |texto|
+    ["bin/rails db:prepare", "bin/rails server", "bin/rails test", "class CertificadoEmitido < Notification",
+     "CertificadoEmitido.send(", "No sale ningún correo real"].each do |texto|
       assert_includes README, texto
     end
   end
 
   test "el README explica por qué la operación se llama send" do
     assert_includes README, "Sobre el nombre `send`: el diseño lo llama así y se respetó"
+    assert_includes README, "Aquí `send` con un símbolo sigue siendo el de Ruby, y el trabajo lo hace `deliver`."
   end
 
   test "las simplificaciones usan la redacción nueva" do

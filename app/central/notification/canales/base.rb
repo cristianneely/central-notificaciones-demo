@@ -1,4 +1,4 @@
-module Notification
+class Notification
   module Canales
     # Lo común a todos los canales. Todo canal tiene dos operaciones, y el despachador
     # solo conoce esas dos:

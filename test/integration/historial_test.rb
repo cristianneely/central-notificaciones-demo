@@ -54,8 +54,8 @@ class HistorialTest < ActionDispatch::IntegrationTest
   end
 
   test "30: una fila por solicitud y persona, de la más reciente a la más antigua, con tope" do
-    solicitud = Notification.send "saludo_cumpleanos", empresa: 1, destinatarios: [@ana.id, @bruno.id],
-                                                       datos: { nombre: "equipo", anio: 2026 }
+    solicitud = SaludoCumpleanos.send(empresa: 1, destinatarios: [@ana.id, @bruno.id],
+                                                       datos: { nombre: "equipo", anio: 2026 })
 
     assert_equal [[solicitud, @bruno.id], [solicitud, @ana.id], [@de_bruno, @bruno.id], [@de_ana, @ana.id]],
                  filas.map { |fila| [fila.solicitud_id, fila.usuario_id] }

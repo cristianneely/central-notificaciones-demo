@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # Lo que una empresa cambió respecto de la política por defecto (R5): una fila con
   # habilitado = no apaga ese canal para esa criticidad en esa empresa.
   class PoliticaCliente < ApplicationRecord

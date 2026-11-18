@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # El receptor: recibe del proveedor el aviso de en qué terminó un envío (entregado o
   # rebotado) y lo anota en la auditoría.
   module Receptor

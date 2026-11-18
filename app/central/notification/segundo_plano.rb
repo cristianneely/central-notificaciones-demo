@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # El trabajo en segundo plano de la demo: un hilo dentro del mismo proceso web que,
   # cada segundo, da una vuelta del despachador y hace llegar los avisos del proveedor
   # simulado. En el documento son servidores aparte; aquí es un solo hilo.

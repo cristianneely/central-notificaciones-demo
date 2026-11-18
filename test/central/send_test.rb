@@ -1,6 +1,6 @@
 require "test_helper"
 
-# API 1.2 del documento: Notification.send. Solo valida, guarda y responde (R13);
+# API 1.2 del documento: el send() de cada notificación. Solo valida, guarda y responde (R13);
 # no entrega nada: eso lo hace después el despachador.
 class SendTest < ActiveSupport::TestCase
   UUID = /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/
@@ -14,8 +14,8 @@ class SendTest < ActiveSupport::TestCase
   end
 
   # Llama a send() con un certificado válido, cambiando lo que la prueba pida.
-  def enviar(nombre: "certificado_emitido", empresa: 1, destinatarios: [@ana.id], datos: @datos)
-    Notification.send nombre, empresa: empresa, destinatarios: destinatarios, datos: datos
+  def enviar(clase: CertificadoEmitido, empresa: 1, destinatarios: [@ana.id], datos: @datos)
+    clase.send(empresa: empresa, destinatarios: destinatarios, datos: datos)
   end
 
   def assert_rechaza(mensaje, **cambios)
@@ -51,8 +51,8 @@ class SendTest < ActiveSupport::TestCase
 
   test "4: la prioridad del pendiente sale de la criticidad de la definición" do
     enviar_recordatorio(@ana)
-    Notification.send "saludo_cumpleanos", empresa: 1, destinatarios: [@ana.id],
-                                           datos: { nombre: "Ana", anio: 2026 }
+    SaludoCumpleanos.send(empresa: 1, destinatarios: [@ana.id],
+                                           datos: { nombre: "Ana", anio: 2026 })
 
     assert_equal [1, 2], Notification::Pendiente.order(:id).pluck(:prioridad)
   end
@@ -63,8 +63,39 @@ class SendTest < ActiveSupport::TestCase
     assert_equal 1, Notification::Pendiente.count
   end
 
-  test "5: notificación desconocida" do
-    assert_rechaza "notificación desconocida: no_existe", nombre: "no_existe"
+  test "5: una clase que no está en el catálogo es una notificación desconocida" do
+    sin_registrar = Class.new(Notification)
+    Module.new.const_set("NoExiste", sin_registrar)
+
+    assert_rechaza "notificación desconocida: no_existe", clase: sin_registrar
+    assert_rechaza "notificación desconocida: notification", clase: Notification
+  end
+
+  test "38: send con un símbolo se comporta como el send de Ruby" do
+    assert_equal "CertificadoEmitido", CertificadoEmitido.send(:name)
+    assert_equal "certificado_emitido", CertificadoEmitido.public_send(:identificador)
+    assert_not CertificadoEmitido.respond_to?(:canales)
+  end
+
+  test "38: un método desconocido sobre una clase ya validada es un error de Ruby" do
+    assert_raises(NoMethodError) { CertificadoEmitido.sennd(empresa: 1) }
+    assert_raises(NoMethodError) { CertificadoEmitido.canales [:email] }
+    assert_equal 4, Notification.catalogo.todas.size
+    assert_equal %i[contenido criticidad datos unica_por], CertificadoEmitido.declarado.keys.sort
+  end
+
+  test "38: deliver hace lo mismo que send" do
+    solicitud = CertificadoEmitido.deliver(empresa: 1, destinatarios: [@ana.id], datos: @datos)
+
+    assert_match UUID, solicitud
+    assert_equal 1, Notification::Pendiente.count
+  end
+
+  test "38: send sin un parámetro obligatorio no guarda nada" do
+    antes = conteos_de_send
+
+    assert_raises(ArgumentError) { CertificadoEmitido.send(empresa: 1) }
+    assert_equal antes, conteos_de_send
   end
 
   test "5: empresa desconocida" do

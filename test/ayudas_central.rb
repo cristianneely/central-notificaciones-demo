@@ -27,31 +27,31 @@ module AyudasCentral
   # las acciones de negocio, que tienen sus propias pruebas.
   def enviar_certificado(usuario, certificado_id: 789, curso: "Excel avanzado",
                          link: "https://ejemplo.test/certificados/789")
-    Notification.send "certificado_emitido",
+    CertificadoEmitido.send(
       empresa: usuario.empresa_id,
       destinatarios: [usuario.id],
-      datos: { certificado_id: certificado_id, curso: curso, link_certificado: link }
+      datos: { certificado_id: certificado_id, curso: curso, link_certificado: link })
   end
 
   def enviar_recordatorio(usuario, curso: "Excel básico", fecha_limite: "22-11-2026")
-    Notification.send "recordatorio_curso",
+    RecordatorioCurso.send(
       empresa: usuario.empresa_id,
       destinatarios: [usuario.id],
-      datos: { curso: curso, fecha_limite: fecha_limite, link_curso: "https://ejemplo.test/cursos" }
+      datos: { curso: curso, fecha_limite: fecha_limite, link_curso: "https://ejemplo.test/cursos" })
   end
 
   def enviar_saludo(usuario, nombre: "Ana", anio: 2026)
-    Notification.send "saludo_cumpleanos",
+    SaludoCumpleanos.send(
       empresa: usuario.empresa_id,
       destinatarios: [usuario.id],
-      datos: { nombre: nombre, anio: anio }
+      datos: { nombre: nombre, anio: anio })
   end
 
   def enviar_encuesta(usuario, curso: "Excel básico")
-    Notification.send "encuesta_satisfaccion",
+    EncuestaSatisfaccion.send(
       empresa: usuario.empresa_id,
       destinatarios: [usuario.id],
-      datos: { curso: curso, link_encuesta: "https://ejemplo.test/encuesta" }
+      datos: { curso: curso, link_encuesta: "https://ejemplo.test/encuesta" })
   end
 
   # Una vuelta del despachador, a mano (en las pruebas no corre el hilo en segundo plano).

@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # Lo que responde un proveedor cuando se le entrega un mensaje. Solo hay tres casos:
   #   aceptado       — lo recibió y devolvió su id.
   #   rechazado      — rechazó ese mensaje en particular (por ejemplo, dirección inválida).

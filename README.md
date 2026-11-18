@@ -13,11 +13,11 @@ Para volver a los datos de ejemplo, usa "Reiniciar demo" al final de la consola.
 
 ## Qué demuestra
 
-- **Definición única y validada.** Cada equipo declara su notificación una vez, con
-  `Notification.define`: criticidad, datos, qué la hace única y su contenido. Una definición
-  mal escrita impide arrancar la aplicación.
-- **Punto único de envío.** Las acciones de negocio piden el envío con `Notification.send`.
-  Nadie más habla con el proveedor de correo.
+- **Definición única y validada.** Cada equipo declara su notificación una vez, como una
+  clase que hereda de `Notification`: criticidad, datos, qué la hace única y su contenido.
+  Una definición mal escrita impide arrancar la aplicación.
+- **Punto único de envío.** Las acciones de negocio piden el envío con el `send()` de la
+  notificación (`CertificadoEmitido.send`). Nadie más habla con el proveedor de correo.
 - **Sin duplicados.** Una clave única por notificación y persona impide enviar dos veces lo
   mismo.
 - **Nada se pierde.** `send()` guarda el pendiente en la misma transacción que la acción de
@@ -36,33 +36,37 @@ Para volver a los datos de ejemplo, usa "Reiniciar demo" al final de la consola.
 Son APIs de código, no endpoints HTTP.
 
 ```ruby
-# 1.1 — Definir: un equipo declara su notificación (app/modulos/certificados/definiciones.rb)
-Notification.define "certificado_emitido",
-  criticidad: :critica,
-  datos: [:certificado_id, :curso, :link_certificado],
-  unica_por: [:certificado_id],
-  contenido: {
-    titulo: "Tu certificado de {curso} está listo",
-    cuerpo: "Felicitaciones, terminaste {curso}.",
-    accion: { texto: "Descargar", link: "{link_certificado}" }
-  }
+# 1.1 — Definir: una clase por notificación, en el módulo del equipo dueño
+# (app/modulos/certificados/notificaciones/certificado_emitido.rb)
+class CertificadoEmitido < Notification
+  criticidad  :critica
+  datos       :certificado_id, :curso, :link_certificado
+  unica_por   :certificado_id
+  contenido   titulo: "Tu certificado de {curso} está listo",
+              cuerpo: "Felicitaciones, terminaste {curso}.",
+              accion: { texto: "Descargar", link: "{link_certificado}" }
+end
 
 # 1.2 — Enviar: la acción de negocio pide el envío (app/modulos/certificados/emitir_certificado.rb)
-Notification.send "certificado_emitido",
+CertificadoEmitido.send(
   empresa: 1,
   destinatarios: [3],        # usuarios, no correos: la central busca el contacto
   datos: { certificado_id: 789, curso: "Excel avanzado", link_certificado: "https://..." }
+)
 # → devuelve el id de la solicitud (UUID)
 ```
 
+El nombre que queda en los pendientes y en la auditoría sale del nombre de la clase:
+`CertificadoEmitido` se guarda como `certificado_emitido`.
+
 Sobre el nombre `send`: el diseño lo llama así y se respetó; en producción se llamaría
 `deliver`, la convención de Rails, para no pisar un método del lenguaje (en Ruby todo objeto
-ya trae un `send`). Aquí es seguro porque `Notification` es un módulo propio y no un modelo de
-base de datos.
+ya trae un `send`). Aquí `send` con un símbolo sigue siendo el de Ruby, y el trabajo lo hace `deliver`.
 
 ## Recorrido de una solicitud
 
-1. La acción de negocio abre una transacción, hace lo suyo y llama a `Notification.send`.
+1. La acción de negocio abre una transacción, hace lo suyo y llama al `send()` de la
+   notificación.
 2. `send()` valida contra la definición y, por cada destinatario, guarda una clave única, un
    pendiente y la anotación `recibida`. Si la clave ya existía, anota `duplicada` y no crea
    pendiente. Devuelve el id de la solicitud.
@@ -113,8 +117,8 @@ Cada prueba lleva al inicio de su nombre el número del caso que cubre (por ejem
 
 | Carpeta | Qué hay | Regla |
 |---|---|---|
-| `app/central/` | La central: `Notification` (`define` y `send`), catálogo, despachador, políticas, canales, proveedores, receptor, auditoría y configuración | Es la única que habla con el proveedor de correo |
-| `app/modulos/` | Los módulos de los equipos: sus definiciones y sus acciones de negocio | Solo usan `Notification.define` y `Notification.send` |
+| `app/central/` | La central: `Notification` (la clase base y su `send`), catálogo, despachador, políticas, canales, proveedores, receptor, auditoría y configuración | Es la única que habla con el proveedor de correo |
+| `app/modulos/` | Los módulos de los equipos: sus notificaciones (una clase por archivo, en `notificaciones/`) y sus acciones de negocio | Solo heredan de `Notification` y llaman a `send()` |
 | `app/controllers/` | Las entradas: pantallas y API | Llaman a las acciones; nunca a `send()` |
 | `test/` | Las pruebas | `test/chequeos/` revisa el código mismo: que ninguna entrada llame a `send()` y que solo el canal email hable con el proveedor |
 

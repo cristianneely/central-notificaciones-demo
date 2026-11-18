@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # Una clave única por notificación y persona (R2). El índice único de la tabla es el
   # que impide el duplicado: dos pedidos iguales no pueden guardar la misma clave.
   class ClaveUnica < ApplicationRecord

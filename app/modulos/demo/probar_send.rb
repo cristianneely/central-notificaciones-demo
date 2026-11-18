@@ -12,10 +12,16 @@ module Demo
       # quien lo rechace con su propio mensaje.
       destinatarios = destinatarios_texto.to_s.split(",", -1).map { |texto| entero_o_texto(texto.strip) }
 
-      Notification.send notificacion.to_s,
+      # El formulario manda el nombre como texto; en el código se escribe la clase, y
+      # una que no existe la rechaza el propio lenguaje.
+      definicion = Notification.catalogo.buscar(notificacion.to_s) or
+        raise Invalida, "notificación desconocida: #{notificacion}"
+
+      definicion.clase.send(
         empresa: entero_o_texto(empresa_id.to_s),
         destinatarios: destinatarios,
         datos: datos
+      )
     end
 
     # Datos válidos para rellenar el formulario según la notificación elegida.

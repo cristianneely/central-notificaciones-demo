@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # Rellena el contenido neutro de una definición con los datos de un envío:
   # cada {marcador} se reemplaza por el valor de ese dato, como texto.
   module Contenido

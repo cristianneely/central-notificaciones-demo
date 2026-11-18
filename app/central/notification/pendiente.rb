@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # Un envío pedido que todavía no sale: la caja "Pendientes" del diagrama.
   # Se guarda en la misma transacción que la acción de negocio (D1) y se borra cuando
   # el despachador termina con él.

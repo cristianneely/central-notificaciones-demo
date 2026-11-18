@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # Lectura de la auditoría para las pantallas (R12): arma, a partir de las filas, una
   # línea por solicitud y persona con su estado final y su recorrido completo.
   # Siempre filtra por empresa: cada empresa ve solo lo suyo.

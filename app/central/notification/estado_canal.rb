@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # El estado de un canal para los reintentos (R14): cuántas veces seguidas falló su
   # proveedor y cuándo se vuelve a probar.
   class EstadoCanal < ApplicationRecord
