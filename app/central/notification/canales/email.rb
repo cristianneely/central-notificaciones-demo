@@ -7,6 +7,11 @@ class Notification
         "email"
       end
 
+      # El dato de la persona que este canal necesita para entregar.
+      def contacto
+        :correo
+      end
+
       # Contenido neutro → correo: el título es el asunto, el cuerpo es el cuerpo y la
       # acción, si la hay, es un botón.
       def adaptar(contenido)
