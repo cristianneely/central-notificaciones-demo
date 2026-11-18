@@ -17,7 +17,7 @@ module Notification
         empresa_id: envio.empresa_id,
         usuario_id: envio.usuario_id,
         notificacion: envio.notificacion,
-        importancia: envio.importancia,
+        criticidad: envio.criticidad,
         evento: evento,
         canal: canal,
         motivo: motivo,

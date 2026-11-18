@@ -2,7 +2,7 @@ module Notification
   # Las reglas de la API 1.1. Revisa una definición completa y devuelve todos sus errores
   # juntos (no se detiene en el primero), en el orden de la tabla de validaciones.
   module ValidadorDefinicion
-    CLAVES = %i[importancia datos unica_por contenido].freeze
+    CLAVES = %i[criticidad datos unica_por contenido].freeze
     CLAVES_CONTENIDO = %i[titulo cuerpo accion].freeze
     CLAVES_ACCION = %i[texto link].freeze
     FORMATO_NOMBRE = /\A[a-z][a-z0-9_]*\z/
@@ -23,9 +23,9 @@ module Notification
         errores << "ya existe una definición con ese nombre"
       end
 
-      # La importancia es obligatoria y solo puede ser una de las tres (R4).
-      unless Configuracion::PRIORIDADES.key?(opciones[:importancia])
-        errores << "importancia debe ser :critica, :informativa u :opcional"
+      # La criticidad es obligatoria y solo puede ser una de las tres (R4).
+      unless Configuracion::PRIORIDADES.key?(opciones[:criticidad])
+        errores << "criticidad debe ser :critica, :informativa u :opcional"
       end
 
       # Los datos que la notificación necesita: una lista de nombres, sin repetir.

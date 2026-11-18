@@ -65,7 +65,7 @@ module Demo
 
       # Minera Los Robles apagó el email para lo opcional (R5).
       Notification::PoliticaCliente.create!(
-        empresa_id: 2, importancia: "opcional", canal: "email", habilitado: false
+        empresa_id: 2, criticidad: "opcional", canal: "email", habilitado: false
       )
     end
 

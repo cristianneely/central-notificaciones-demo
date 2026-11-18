@@ -1,7 +1,7 @@
 # Notificaciones del módulo de personas.
 
 Notification.define "saludo_cumpleanos",
-  importancia: :opcional,
+  criticidad: :opcional,
   datos: [:nombre, :anio],
   unica_por: [:anio],
   contenido: {

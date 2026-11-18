@@ -2,13 +2,13 @@
 
 <h1>Catálogo</h1>
 <p class="bajada">Las notificaciones que existen. Cada equipo declara la suya con
-  <code>Notification.define</code> (API 1.1): dice qué importancia tiene, qué datos necesita, qué la hace
+  <code>Notification.define</code> (API 1.1): dice qué criticidad tiene, qué datos necesita, qué la hace
   única y su contenido. No dice por qué canal sale: eso lo deciden las políticas.</p>
 
 <section class="definiciones">
   <% @definiciones.each do |definicion| %>
     <div class="tarjeta definicion">
-      <h2><code><%= definicion.nombre %></code> <%= etiqueta_importancia(definicion.importancia) %></h2>
+      <h2><code><%= definicion.nombre %></code> <%= etiqueta_criticidad(definicion.criticidad) %></h2>
       <dl>
         <dt>Datos</dt><dd><code><%= definicion.datos.join(", ") %></code></dd>
         <dt>Única por</dt><dd><code><%= definicion.unica_por.join(", ") %></code></dd>

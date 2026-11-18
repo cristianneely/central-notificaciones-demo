@@ -32,7 +32,7 @@
       <summary>
         <span class="hora"><%= hora(fila.creado_en) %></span>
         <code><%= fila.notificacion %></code>
-        <%= etiqueta_importancia(fila.importancia) %>
+        <%= etiqueta_criticidad(fila.criticidad) %>
         <span><%= nombre_persona(fila.usuario_id) %></span>
         <span class="etiqueta <%= clase_estado(fila.estado) %>"><%= fila.estado %></span>
         <span class="id-solicitud">solicitud <%= fila.solicitud_id.first(8) %></span>

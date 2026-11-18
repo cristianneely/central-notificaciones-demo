@@ -3,13 +3,13 @@ require "digest"
 module Notification
   # Una definición ya validada: lo que un equipo declaró con Notification.define.
   # Es un valor de solo lectura; no se guarda en la base, vive en el catálogo.
-  Definicion = Data.define(:nombre, :importancia, :datos, :unica_por, :contenido, :version) do
+  Definicion = Data.define(:nombre, :criticidad, :datos, :unica_por, :contenido, :version) do
     # Arma la definición a partir de las opciones de define y le calcula la versión.
     def self.desde(nombre, opciones)
       contenido = opciones[:contenido]
       new(
         nombre: nombre,
-        importancia: opciones[:importancia],
+        criticidad: opciones[:criticidad],
         datos: opciones[:datos],
         unica_por: opciones[:unica_por],
         contenido: contenido,
@@ -25,11 +25,11 @@ module Notification
 
     # 0 crítica, 1 informativa, 2 opcional: el orden en que el despachador las toma.
     def prioridad
-      Configuracion::PRIORIDADES.fetch(importancia)
+      Configuracion::PRIORIDADES.fetch(criticidad)
     end
 
     def critica?
-      importancia == :critica
+      criticidad == :critica
     end
   end
 end

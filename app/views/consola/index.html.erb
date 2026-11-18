@@ -106,12 +106,12 @@
       <div id="politicas">
         <h3>Políticas efectivas de <%= @empresa.nombre %></h3>
         <table>
-          <thead><tr><th>Importancia</th><th>Sale por</th></tr></thead>
+          <thead><tr><th>Criticidad</th><th>Sale por</th></tr></thead>
           <tbody>
-            <% Notification::Configuracion::PRIORIDADES.each_key do |importancia| %>
-              <% canales = Notification::Politicas.canales_efectivos(empresa_id: @empresa.id, importancia: importancia) %>
+            <% Notification::Configuracion::PRIORIDADES.each_key do |criticidad| %>
+              <% canales = Notification::Politicas.canales_efectivos(empresa_id: @empresa.id, criticidad: criticidad) %>
               <tr>
-                <td><%= etiqueta_importancia(importancia) %></td>
+                <td><%= etiqueta_criticidad(criticidad) %></td>
                 <% if canales.any? %>
                   <td><%= canales.join(", ") %></td>
                 <% else %>

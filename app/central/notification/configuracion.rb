@@ -2,7 +2,7 @@ module Notification
   # Los valores de la central, en un solo lugar. Cambiar un número aquí cambia el
   # comportamiento de toda la central; ninguna otra parte del código los repite.
   module Configuracion
-    # Importancias que una definición puede declarar (R4) y su prioridad en la fila de
+    # Criticidades que una definición puede declarar (R4) y su prioridad en la fila de
     # pendientes: mientras menor el número, antes sale ("lo crítico primero", R13).
     PRIORIDADES = { critica: 0, informativa: 1, opcional: 2 }.freeze
 
@@ -14,7 +14,7 @@ module Notification
     LIMITE_FRECUENCIA = 3
     VENTANA_LIMITE = 24.hours
 
-    # Política por defecto: por qué canales sale cada importancia (R5). Lo que una empresa
+    # Política por defecto: por qué canales sale cada criticidad (R5). Lo que una empresa
     # apaga se guarda aparte, en la tabla politicas_cliente.
     POLITICA_POR_DEFECTO = {
       "critica" => ["email"],

@@ -38,7 +38,7 @@ class HistorialTest < ActionDispatch::IntegrationTest
 
     assert_equal "Entregada", fila.estado
     assert_equal %w[recibida decision_enviar enviada entregada], fila.recorrido.map(&:evento)
-    assert_equal ["certificado_emitido", "critica", @ana.id], [fila.notificacion, fila.importancia, fila.usuario_id]
+    assert_equal ["certificado_emitido", "critica", @ana.id], [fila.notificacion, fila.criticidad, fila.usuario_id]
   end
 
   test "30: filtrar por persona" do

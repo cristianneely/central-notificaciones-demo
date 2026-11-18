@@ -14,7 +14,7 @@ Para volver a los datos de ejemplo, usa "Reiniciar demo" al final de la consola.
 ## Qué demuestra
 
 - **Definición única y validada.** Cada equipo declara su notificación una vez, con
-  `Notification.define`: importancia, datos, qué la hace única y su contenido. Una definición
+  `Notification.define`: criticidad, datos, qué la hace única y su contenido. Una definición
   mal escrita impide arrancar la aplicación.
 - **Punto único de envío.** Las acciones de negocio piden el envío con `Notification.send`.
   Nadie más habla con el proveedor de correo.
@@ -23,7 +23,7 @@ Para volver a los datos de ejemplo, usa "Reiniciar demo" al final de la consola.
 - **Nada se pierde.** `send()` guarda el pendiente en la misma transacción que la acción de
   negocio: si la acción falla, no queda notificación; si el proveedor se cae, el pendiente
   espera y sale cuando el proveedor vuelve.
-- **Lo crítico primero.** El despachador saca los pendientes por importancia y antigüedad.
+- **Lo crítico primero.** El despachador saca los pendientes por criticidad y antigüedad.
 - **Políticas por cliente.** Una empresa puede apagar lo que no es crítico. Lo crítico
   siempre tiene canal.
 - **Frecuencia máxima.** Lo no crítico tiene un tope por persona; lo que excede se retiene y
@@ -38,7 +38,7 @@ Son APIs de código, no endpoints HTTP.
 ```ruby
 # 1.1 — Definir: un equipo declara su notificación (app/modulos/certificados/definiciones.rb)
 Notification.define "certificado_emitido",
-  importancia: :critica,
+  criticidad: :critica,
   datos: [:certificado_id, :curso, :link_certificado],
   unica_por: [:certificado_id],
   contenido: {
@@ -128,7 +128,7 @@ Los valores de la central (límite de frecuencia, esperas, tiempos) están en un
 | R1 | Punto único de envío: nadie habla con el proveedor fuera de la central | Prueba automática 28, que revisa el código |
 | R2 | Sin duplicados | Consola: emitir con la casilla "la acción llama dos veces a send()". Pruebas 6 a 10 |
 | R3 | Frecuencia máxima para lo no crítico | Consola: cuatro avisos no críticos y uno crítico a la misma persona. Pruebas 19, 20, 32 y 33 |
-| R4 | Importancia declarada | Catálogo. Pruebas 1 y 2 |
+| R4 | Criticidad declarada | Catálogo. Pruebas 1 y 2 |
 | R5 | Política de envío configurable por cliente | Consola: un aviso opcional en Minera Los Robles. Prueba 17 |
 | R6 | Lo crítico siempre tiene canal | Consola: botón "Intentar apagar lo crítico". Prueba 18 |
 | R7 | Canales extensibles sin tocar definiciones | Prueba 29, con un canal de prueba |
@@ -150,7 +150,7 @@ La demo muestra la lógica y los flujos. Esto es lo que cambia respecto del dise
 | SendGrid | Proveedor simulado; no sale ningún correo |
 | Servidores de segundo plano en máquinas aparte | Un proceso en segundo plano dentro de la misma app |
 | Varias máquinas toman pendientes; si una cae, otra sigue | Un solo despachador |
-| Reintentos con esperas cada vez más largas, de minutos | Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, salen todos por importancia |
+| Reintentos con esperas cada vez más largas, de minutos | Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, salen todos por criticidad |
 | Límite de frecuencia configurable; parte en 3 no críticas por persona y canal cada 24 h | El mismo valor, fijo en la configuración; cuenta la decisión de enviar |
 | Varios canales y respaldo para lo crítico (cuando exista un segundo canal) | Un solo canal por envío |
 | Auditoría a escala (R11) | No se demuestra |

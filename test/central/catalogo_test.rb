@@ -5,7 +5,7 @@ require "test_helper"
 class CatalogoTest < ActiveSupport::TestCase
   # Una definición correcta, para cambiarle una sola cosa en cada prueba.
   VALIDA = {
-    importancia: :informativa,
+    criticidad: :informativa,
     datos: [:curso, :link],
     unica_por: [:curso],
     contenido: {
@@ -25,15 +25,15 @@ class CatalogoTest < ActiveSupport::TestCase
     error.errores
   end
 
-  test "1: catálogo válido, con las cuatro definiciones, su importancia y su versión" do
+  test "1: catálogo válido, con las cuatro definiciones, su criticidad y su versión" do
     catalogo = Notification.catalogo
 
     assert_equal %w[certificado_emitido encuesta_satisfaccion recordatorio_curso saludo_cumpleanos],
                  catalogo.nombres.sort
-    assert_equal :critica, catalogo.buscar("certificado_emitido").importancia
-    assert_equal :informativa, catalogo.buscar("recordatorio_curso").importancia
-    assert_equal :opcional, catalogo.buscar("encuesta_satisfaccion").importancia
-    assert_equal :opcional, catalogo.buscar("saludo_cumpleanos").importancia
+    assert_equal :critica, catalogo.buscar("certificado_emitido").criticidad
+    assert_equal :informativa, catalogo.buscar("recordatorio_curso").criticidad
+    assert_equal :opcional, catalogo.buscar("encuesta_satisfaccion").criticidad
+    assert_equal :opcional, catalogo.buscar("saludo_cumpleanos").criticidad
     catalogo.todas.each do |definicion|
       assert_match(/\A[0-9a-f]{8}\z/, definicion.version)
     end
@@ -67,7 +67,7 @@ class CatalogoTest < ActiveSupport::TestCase
     end
 
     assert_equal [
-      "importancia debe ser :critica, :informativa u :opcional",
+      "criticidad debe ser :critica, :informativa u :opcional",
       "unica_por es obligatorio",
       "el contenido usa un dato no declarado: dato_inexistente",
       "clave no permitida: canales"
@@ -84,9 +84,9 @@ class CatalogoTest < ActiveSupport::TestCase
     assert_equal ["nombre inválido"], errores_con(nombre: "")
   end
 
-  test "2b: importancia que no es una de las tres" do
-    assert_equal ["importancia debe ser :critica, :informativa u :opcional"],
-                 errores_con(importancia: :urgente)
+  test "2b: criticidad que no es una de las tres" do
+    assert_equal ["criticidad debe ser :critica, :informativa u :opcional"],
+                 errores_con(criticidad: :urgente)
   end
 
   test "2b: datos repetidos" do

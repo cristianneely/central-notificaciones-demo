@@ -30,7 +30,7 @@ class ConsolaController < ApplicationController
   def apagar_critico
     return volver(error: "No hay empresas sembradas.") unless @empresa
 
-    Notification::Politicas.guardar(empresa_id: @empresa.id, importancia: "critica", canal: "email",
+    Notification::Politicas.guardar(empresa_id: @empresa.id, criticidad: "critica", canal: "email",
                                     habilitado: false)
     volver resultado: "Política guardada."
   rescue Notification::PoliticaInvalida => error

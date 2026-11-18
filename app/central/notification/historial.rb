@@ -3,7 +3,7 @@ module Notification
   # línea por solicitud y persona con su estado final y su recorrido completo.
   # Siempre filtra por empresa: cada empresa ve solo lo suyo.
   module Historial
-    Fila = Data.define(:solicitud_id, :usuario_id, :notificacion, :importancia, :estado, :recorrido, :creado_en)
+    Fila = Data.define(:solicitud_id, :usuario_id, :notificacion, :criticidad, :estado, :recorrido, :creado_en)
 
     MOTIVOS = {
       "sin_contacto" => "sin contacto",
@@ -37,7 +37,7 @@ module Notification
           solicitud_id: primera.solicitud_id,
           usuario_id: primera.usuario_id,
           notificacion: primera.notificacion,
-          importancia: primera.importancia,
+          criticidad: primera.criticidad,
           estado: estado(recorrido.last),
           recorrido: recorrido,
           creado_en: primera.creado_en

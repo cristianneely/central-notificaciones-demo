@@ -4,9 +4,9 @@ module ApplicationHelper
     momento.in_time_zone.strftime("%d-%m %H:%M:%S")
   end
 
-  # Etiqueta de color para la importancia: crítica, informativa u opcional.
-  def etiqueta_importancia(importancia)
-    tag.span(importancia, class: "etiqueta importancia-#{importancia}")
+  # Etiqueta de color para la criticidad: crítica, informativa u opcional.
+  def etiqueta_criticidad(criticidad)
+    tag.span(criticidad, class: "etiqueta criticidad-#{criticidad}")
   end
 
   # El nombre de una persona a partir de su id; si el id no existe, lo dice.

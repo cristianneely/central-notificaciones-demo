@@ -1,6 +1,6 @@
 module Demo
   # Una definición de ejemplo mal escrita, para el botón "Probar una definición inválida"
-  # del catálogo. Le falta la importancia, le falta unica_por, usa en el contenido un dato
+  # del catálogo. Le falta la criticidad, le falta unica_por, usa en el contenido un dato
   # que no declaró y trae una clave que no existe (`canales`).
   module DefinicionInvalida
     NOMBRE = "aviso_mal_escrito"

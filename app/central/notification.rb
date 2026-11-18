@@ -63,7 +63,7 @@ module Notification
           empresa_id: empresa,
           usuario_id: usuario_id,
           datos: datos,
-          importancia: definicion.importancia.to_s,
+          criticidad: definicion.criticidad.to_s,
           prioridad: definicion.prioridad
         )
 

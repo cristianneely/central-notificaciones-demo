@@ -2,7 +2,7 @@
 # Un equipo declara aquí qué notificación existe; no dice por qué canal sale ni cuándo.
 
 Notification.define "certificado_emitido",
-  importancia: :critica,
+  criticidad: :critica,
   datos: [:certificado_id, :curso, :link_certificado],
   unica_por: [:certificado_id],
   contenido: {

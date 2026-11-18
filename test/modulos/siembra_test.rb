@@ -23,7 +23,7 @@ class SiembraTest < ActiveSupport::TestCase
     sembrar
 
     assert_equal [[2, "opcional", "email", false]],
-                 Notification::PoliticaCliente.pluck(:empresa_id, :importancia, :canal, :habilitado)
+                 Notification::PoliticaCliente.pluck(:empresa_id, :criticidad, :canal, :habilitado)
   end
 
   test "sembrar_si_vacia no repite la siembra" do

@@ -126,9 +126,9 @@ td.detalle { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-s
 
 /* Etiquetas */
 .etiqueta { display: inline-block; padding: 0.05rem 0.5rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
-.importancia-critica { color: var(--rojo); background: #ffebe9; border-color: #ffcecb; }
-.importancia-informativa { color: var(--azul); background: #ddf4ff; border-color: #b6e3ff; }
-.importancia-opcional { color: var(--tenue); background: var(--fondo); border-color: var(--borde); }
+.criticidad-critica { color: var(--rojo); background: #ffebe9; border-color: #ffcecb; }
+.criticidad-informativa { color: var(--azul); background: #ddf4ff; border-color: #b6e3ff; }
+.criticidad-opcional { color: var(--tenue); background: var(--fondo); border-color: var(--borde); }
 .etiqueta.estado-ok { color: var(--verde); background: #dafbe1; border-color: #aceebb; }
 .etiqueta.estado-en-curso { color: var(--ambar); background: #fff8c5; border-color: #eac54f; }
 .etiqueta.estado-no { color: var(--rojo); background: #ffebe9; border-color: #ffcecb; }

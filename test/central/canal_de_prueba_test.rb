@@ -60,6 +60,6 @@ class CanalDePruebaTest < ActiveSupport::TestCase
     Notification::Canales.quitar("falso")
 
     assert_equal ["email"], Notification::Canales.nombres
-    assert_equal ["email"], Notification::Politicas.canales_efectivos(empresa_id: 1, importancia: "critica")
+    assert_equal ["email"], Notification::Politicas.canales_efectivos(empresa_id: 1, criticidad: "critica")
   end
 end

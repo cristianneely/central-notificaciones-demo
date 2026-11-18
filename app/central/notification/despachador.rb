@@ -51,12 +51,12 @@ module Notification
         # 2. Política: por qué canal sale. Se usa un solo canal, el primero de los
         #    efectivos. Si la empresa los apagó todos, no se envía.
         nombre_canal = Politicas.canales_efectivos(empresa_id: pendiente.empresa_id,
-                                                   importancia: pendiente.importancia).first
+                                                   criticidad: pendiente.criticidad).first
         return terminar(pendiente, "no_enviada", motivo: "politica_cliente") unless nombre_canal
 
         # 3. Límite de frecuencia (R3), solo para lo no crítico: lo que excede se
         #    retiene. No se envía, pero queda anotado con su motivo.
-        if pendiente.importancia != "critica"
+        if pendiente.criticidad != "critica"
           llevaba = no_criticas_recientes(pendiente.usuario_id, nombre_canal, ahora)
           limite = Configuracion::LIMITE_FRECUENCIA
           if llevaba >= limite
@@ -89,7 +89,7 @@ module Notification
     def self.no_criticas_recientes(usuario_id, canal, ahora)
       desde = ahora - Configuracion::VENTANA_LIMITE
       Auditoria.where(usuario_id: usuario_id, canal: canal, evento: "decision_enviar")
-               .where.not(importancia: "critica")
+               .where.not(criticidad: "critica")
                .where("creado_en > ?", desde)
                .count
     end

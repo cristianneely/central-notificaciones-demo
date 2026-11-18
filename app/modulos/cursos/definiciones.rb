@@ -1,7 +1,7 @@
 # Notificaciones del módulo de cursos.
 
 Notification.define "recordatorio_curso",
-  importancia: :informativa,
+  criticidad: :informativa,
   datos: [:curso, :fecha_limite, :link_curso],
   unica_por: [:curso, :fecha_limite],
   contenido: {
@@ -11,7 +11,7 @@ Notification.define "recordatorio_curso",
   }
 
 Notification.define "encuesta_satisfaccion",
-  importancia: :opcional,
+  criticidad: :opcional,
   datos: [:curso, :link_encuesta],
   unica_por: [:curso],
   contenido: {

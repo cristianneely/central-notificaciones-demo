@@ -43,7 +43,7 @@ class ReadmeTest < ActiveSupport::TestCase
     nuevas = [
       ["Reintentos con esperas cada vez más largas, de minutos",
        "Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, " \
-       "salen todos por importancia"],
+       "salen todos por criticidad"],
       ["Límite de frecuencia configurable; parte en 3 no críticas por persona y canal cada 24 h",
        "El mismo valor, fijo en la configuración; cuenta la decisión de enviar"],
       ["Tres entradas: web, API y carga masiva (R9)", "Dos: web y API"],

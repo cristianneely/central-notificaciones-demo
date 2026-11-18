@@ -41,7 +41,7 @@ class CatalogoPantallaTest < ActionDispatch::IntegrationTest
     post "/catalogo/definicion_invalida"
 
     assert_response :ok
-    ["importancia debe ser :critica, :informativa u :opcional", "unica_por es obligatorio",
+    ["criticidad debe ser :critica, :informativa u :opcional", "unica_por es obligatorio",
      "el contenido usa un dato no declarado: dato_inexistente", "clave no permitida: canales"].each do |mensaje|
       assert_select ".errores-definicion li", text: mensaje
     end

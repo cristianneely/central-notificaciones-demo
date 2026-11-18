@@ -34,7 +34,7 @@ module Demo
       ["Varias máquinas toman pendientes; si una cae, otra sigue", "Un solo despachador"],
       ["Reintentos con esperas cada vez más largas, de minutos",
        "Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, " \
-       "salen todos por importancia"],
+       "salen todos por criticidad"],
       ["Límite de frecuencia configurable; parte en 3 no críticas por persona y canal cada 24 h",
        "El mismo valor, fijo en la configuración; cuenta la decisión de enviar"],
       ["Varios canales y respaldo para lo crítico (cuando exista un segundo canal)", "Un solo canal por envío"],
@@ -70,7 +70,7 @@ module Demo
        "Consola: emitir con la casilla \"la acción llama dos veces a send()\". Pruebas 6 a 10"],
       ["R3", "Frecuencia máxima para lo no crítico",
        "Consola: cuatro avisos no críticos y uno crítico a la misma persona. Pruebas 19, 20, 32 y 33"],
-      ["R4", "Importancia declarada", "Catálogo. Pruebas 1 y 2"],
+      ["R4", "Criticidad declarada", "Catálogo. Pruebas 1 y 2"],
       ["R5", "Política de envío configurable por cliente",
        "Consola: un aviso opcional en Minera Los Robles. Prueba 17"],
       ["R6", "Lo crítico siempre tiene canal", "Consola: botón \"Intentar apagar lo crítico\". Prueba 18"],
