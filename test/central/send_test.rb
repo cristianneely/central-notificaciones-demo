@@ -127,6 +127,17 @@ class SendTest < ActiveSupport::TestCase
     assert_rechaza "empresa desconocida: 99999999999999999999", empresa: 99_999_999_999_999_999_999
   end
 
+  test "39: más destinatarios que el tope se rechaza y no guarda nada" do
+    assert_equal 1_000, Notification::Configuracion::TOPE_DESTINATARIOS
+    assert_rechaza "destinatarios supera el tope de 1000 por llamada", destinatarios: (1..1001).to_a
+  end
+
+  test "39: justo en el tope se acepta" do
+    enviar(destinatarios: (1..1000).to_a)
+
+    assert_equal 1_000, Notification::Pendiente.count
+  end
+
   test "5: falta un dato declarado" do
     assert_rechaza "falta el dato: curso", datos: @datos.except(:curso)
   end

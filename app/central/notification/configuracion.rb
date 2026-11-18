@@ -6,6 +6,10 @@ class Notification
     # pendientes: mientras menor el número, antes sale ("lo crítico primero", R13).
     PRIORIDADES = { critica: 0, informativa: 1, opcional: 2 }.freeze
 
+    # Tope de destinatarios por llamada a send(), para no alargar la operación de negocio
+    # de quien llama. Un envío más grande lo reparte por lotes el equipo que envía.
+    TOPE_DESTINATARIOS = 1_000
+
     # Bloqueo de duplicados (R2): cuánto tiempo una clave única impide repetir el envío.
     BLOQUEO_DUPLICADOS = 24.hours
 

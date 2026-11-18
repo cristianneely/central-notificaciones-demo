@@ -147,6 +147,11 @@ class Notification
         raise SolicitudInvalida, "destinatarios debe ser una lista de ids de usuario sin repetir"
       end
 
+      tope = Configuracion::TOPE_DESTINATARIOS
+      if destinatarios.size > tope
+        raise SolicitudInvalida, "destinatarios supera el tope de #{tope} por llamada"
+      end
+
       # Los datos tienen que ser exactamente los declarados: ni uno menos, ni uno más
       # (un dato de más suele ser un error de tipeo).
       datos = datos.to_h.transform_keys(&:to_sym)
