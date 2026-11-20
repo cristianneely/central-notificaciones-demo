@@ -14,14 +14,17 @@ class CodigoTest < ActiveSupport::TestCase
   end
 
   test "27: chequeo R9, ninguna puerta llama a send(): solo las acciones de negocio" do
-    llamada_a_send = /Notification\s*\.\s*(send|public_send|__send__)\b/
+    clases = Notification.catalogo.todas.map { |definicion| definicion.clase.name }
+    assert_equal 4, clases.size
+    # Ni el nombre de una notificación ni una llamada a send() o a sus equivalentes.
+    llamada_a_send = /\b(#{clases.join("|")})\b|\.\s*(send|deliver|public_send|__send__)\b/
 
     assert_empty archivos_con(llamada_a_send, carpetas: %w[app/controllers])
     assert_not_empty Dir[RAIZ.join("app/controllers/**/*.rb")]
   end
 
   test "27: las acciones de negocio sí llaman a send()" do
-    assert_includes archivos_con(/Notification\.send\b/, carpetas: %w[app/modulos]),
+    assert_includes archivos_con(/CertificadoEmitido\.send\b/, carpetas: %w[app/modulos]),
                     "app/modulos/certificados/emitir_certificado.rb"
   end
 

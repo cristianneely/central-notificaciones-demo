@@ -42,6 +42,20 @@ class CaidaProveedorTest < ActiveSupport::TestCase
     (@informativas + [@criticas.last]).each { |solicitud| assert_equal ["recibida"], eventos(solicitud) }
   end
 
+  test "40: si el correo cambia durante la caída, enviada guarda la dirección a la que salió" do
+    despachar
+    carla = Usuario.find(3)
+    carla.update!(email: "carla.nueva@ejemplo.test")
+    Simulado.encender
+    travel 5.seconds
+    despachar
+
+    enviada = recorrido(@criticas.first).last
+    assert_equal "enviada", enviada.evento
+    assert_equal "carla.nueva@ejemplo.test", enviada.detalle["para"]
+    assert_equal "carla.nueva@ejemplo.test", bandeja.find { |correo| correo.usuario_id == carla.id }.para
+  end
+
   test "22: las esperas crecen 5, 10 y 20 segundos, y antes de tiempo no se intenta" do
     despachar
     assert_equal [1, 5.seconds.from_now], [canal.fallas_consecutivas, canal.proximo_intento_en]

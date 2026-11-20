@@ -1,16 +1,21 @@
-module Notification
+class Notification
   module Canales
-    # Lo común a todos los canales. Todo canal tiene dos operaciones, y el despachador
-    # solo conoce esas dos:
+    # Lo común a todos los canales. Un canal nuevo declara cuatro cosas, y el despachador
+    # solo conoce esas:
     #
-    #   adaptar(contenido)  — convierte el contenido neutro (título, cuerpo, acción) en
-    #                         un mensaje con el formato del canal.
-    #   entregar(mensaje)   — se lo pasa a su proveedor y anota qué pasó.
+    #   nombre                 — cómo se llama ("email").
+    #   contacto               — qué dato de la persona necesita (:correo).
+    #   adaptar(contenido)     — convierte el contenido neutro (título, cuerpo, acción)
+    #                            en un mensaje con el formato del canal.
+    #   entregar_al_proveedor  — se lo pasa a su proveedor y devuelve qué respondió.
     #
-    # Un canal nuevo escribe `nombre`, `adaptar` y `entregar_al_proveedor`. Anotar el
-    # resultado en la auditoría es igual para todos y está aquí.
+    # Anotar el resultado en la auditoría es igual para todos y está aquí (`entregar`).
     class Base
       def nombre
+        raise NotImplementedError
+      end
+
+      def contacto
         raise NotImplementedError
       end
 
@@ -23,14 +28,19 @@ module Notification
         raise NotImplementedError
       end
 
-      # Entrega el mensaje y deja anotado el resultado en la auditoría.
-      def entregar(mensaje, pendiente:, para:)
+      # Entrega el mensaje y deja anotado el resultado en la auditoría. `version` es la
+      # del contenido con que se armó el mensaje.
+      def entregar(mensaje, pendiente:, para:, version:)
         resultado = entregar_al_proveedor(mensaje, pendiente: pendiente, para: para)
 
         if resultado.aceptado?
           EstadoCanal.reiniciar(nombre)
+          # Queda la receta y el destino, no el correo completo: a qué dirección salió y
+          # con qué versión del contenido. Si la persona cambia de correo después, el
+          # historial sigue diciendo a dónde se envió.
           Auditoria.anotar(pendiente, "enviada", canal: nombre,
-                                                 detalle: { id_proveedor: resultado.id_proveedor })
+                                                 detalle: { id_proveedor: resultado.id_proveedor,
+                                                            para: para, version: version })
         elsif resultado.rechazado?
           # El proveedor rechazó este mensaje puntual: reintentar no sirve. Pero respondió,
           # así que el canal está sano.

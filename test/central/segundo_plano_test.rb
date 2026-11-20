@@ -13,6 +13,10 @@ class SegundoPlanoTest < ActiveSupport::TestCase
       "inestable"
     end
 
+    def contacto
+      :correo
+    end
+
     def adaptar(contenido)
       @llamadas += 1
       raise "error inesperado en el canal" if @llamadas == 1

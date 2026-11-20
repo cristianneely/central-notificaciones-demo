@@ -28,7 +28,7 @@ module Certificados
         certificado = Certificado.create!(empresa_id: empresa.id, usuario_id: usuario.id, curso: curso)
 
         notificar = lambda do
-          Notification.send "certificado_emitido",
+          CertificadoEmitido.send(
             empresa: empresa.id,
             destinatarios: [usuario.id],
             datos: {
@@ -36,6 +36,7 @@ module Certificados
               curso: curso,
               link_certificado: "https://ejemplo.test/certificados/#{certificado.id}"
             }
+          )
         end
 
         solicitud_id = notificar.call

@@ -33,6 +33,17 @@ class DespachadorTest < ActiveSupport::TestCase
     assert_equal correo.id_proveedor, recorrido(solicitud).last.detalle["id_proveedor"]
   end
 
+  test "40: enviada guarda la dirección a la que salió y la versión del contenido" do
+    solicitud = enviar_certificado(@ana)
+    despachar
+
+    recibida, _decision, enviada = recorrido(solicitud)
+    assert_equal "enviada", enviada.evento
+    assert_equal "ana.soto@ejemplo.test", enviada.detalle["para"]
+    assert_equal Notification.catalogo.buscar("certificado_emitido").version, enviada.detalle["version"]
+    assert_not recibida.detalle.key?("version"), "la versión se anota al enviar, no al recibir"
+  end
+
   test "13: una notificación sin acción arma un correo sin botón" do
     enviar_saludo(@ana, nombre: "Ana")
     despachar
@@ -80,10 +91,10 @@ class DespachadorTest < ActiveSupport::TestCase
   test "16: sin contacto: persona de otra empresa, id inexistente y persona sin correo" do
     de_otra_empresa = Usuario.find(9)
     sin_correo = persona("(sin correo)")
-    solicitud = Notification.send "certificado_emitido",
+    solicitud = CertificadoEmitido.send(
       empresa: 1,
       destinatarios: [de_otra_empresa.id, 9999, sin_correo.id],
-      datos: { certificado_id: 789, curso: "Excel avanzado", link_certificado: "https://ejemplo.test/c/789" }
+      datos: { certificado_id: 789, curso: "Excel avanzado", link_certificado: "https://ejemplo.test/c/789" })
 
     assert_equal 3, despachar
     [de_otra_empresa.id, 9999, sin_correo.id].each do |usuario_id|
@@ -103,6 +114,31 @@ class DespachadorTest < ActiveSupport::TestCase
     assert_equal "politica_cliente", recorrido(solicitud).last.motivo
     assert_equal 0, Notification::Pendiente.count
     assert_empty bandeja
+  end
+
+  test "41: persona sin correo en una empresa que apagó ese aviso queda por política" do
+    ines = Usuario.find(9) # Minera Los Robles apagó lo opcional
+    ines.update!(email: "")
+    solicitud = enviar_saludo(ines, nombre: "Inés")
+    despachar
+
+    assert_equal %w[recibida no_enviada], eventos(solicitud)
+    assert_equal "politica_cliente", recorrido(solicitud).last.motivo
+  end
+
+  test "41: el canal email pide el correo de la persona" do
+    assert_equal :correo, Notification::Canales.buscar("email").contacto
+    assert_equal "ana.soto@ejemplo.test", Notification::Contactos.buscar(@ana, :correo)
+    assert_nil Notification::Contactos.buscar(persona("(sin correo)"), :correo)
+    assert_nil Notification::Contactos.buscar(@ana, :telefono), "la demo solo conoce el correo"
+  end
+
+  test "41: sin el dato que pide el canal queda sin contacto, con el canal anotado" do
+    solicitud = enviar_certificado(persona("(sin correo)"))
+    despachar
+
+    no_enviada = recorrido(solicitud).last
+    assert_equal ["no_enviada", "sin_contacto", "email"], [no_enviada.evento, no_enviada.motivo, no_enviada.canal]
   end
 
   test "17: la misma empresa sí recibe lo crítico" do

@@ -1,14 +1,14 @@
 <% content_for :title, "Catálogo · Central de notificaciones" %>
 
 <h1>Catálogo</h1>
-<p class="bajada">Las notificaciones que existen. Cada equipo declara la suya con
-  <code>Notification.define</code> (API 1.1): dice qué importancia tiene, qué datos necesita, qué la hace
+<p class="bajada">Las notificaciones que existen. Cada equipo declara la suya como una clase que hereda de
+  <code>Notification</code> (API 1.1): dice qué criticidad tiene, qué datos necesita, qué la hace
   única y su contenido. No dice por qué canal sale: eso lo deciden las políticas.</p>
 
 <section class="definiciones">
   <% @definiciones.each do |definicion| %>
     <div class="tarjeta definicion">
-      <h2><code><%= definicion.nombre %></code> <%= etiqueta_importancia(definicion.importancia) %></h2>
+      <h2><code><%= definicion.nombre %></code> <%= etiqueta_criticidad(definicion.criticidad) %></h2>
       <dl>
         <dt>Datos</dt><dd><code><%= definicion.datos.join(", ") %></code></dd>
         <dt>Única por</dt><dd><code><%= definicion.unica_por.join(", ") %></code></dd>
@@ -39,7 +39,7 @@
 
 <section class="tarjeta" id="probar-send">
   <h2>Probar send()</h2>
-  <p class="nota">Llama a <code>Notification.send</code> (API 1.2) con lo que escribas, para ver qué acepta
+  <p class="nota">Llama al <code>send()</code> de la notificación elegida (API 1.2) con lo que escribas, para ver qué acepta
     y qué rechaza. <code>send()</code> solo valida, guarda el pendiente y responde; la entrega se ve en la
     consola.</p>
 

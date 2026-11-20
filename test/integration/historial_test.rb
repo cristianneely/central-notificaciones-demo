@@ -38,7 +38,7 @@ class HistorialTest < ActionDispatch::IntegrationTest
 
     assert_equal "Entregada", fila.estado
     assert_equal %w[recibida decision_enviar enviada entregada], fila.recorrido.map(&:evento)
-    assert_equal ["certificado_emitido", "critica", @ana.id], [fila.notificacion, fila.importancia, fila.usuario_id]
+    assert_equal ["certificado_emitido", "critica", @ana.id], [fila.notificacion, fila.criticidad, fila.usuario_id]
   end
 
   test "30: filtrar por persona" do
@@ -54,8 +54,8 @@ class HistorialTest < ActionDispatch::IntegrationTest
   end
 
   test "30: una fila por solicitud y persona, de la más reciente a la más antigua, con tope" do
-    solicitud = Notification.send "saludo_cumpleanos", empresa: 1, destinatarios: [@ana.id, @bruno.id],
-                                                       datos: { nombre: "equipo", anio: 2026 }
+    solicitud = SaludoCumpleanos.send(empresa: 1, destinatarios: [@ana.id, @bruno.id],
+                                                       datos: { nombre: "equipo", anio: 2026 })
 
     assert_equal [[solicitud, @bruno.id], [solicitud, @ana.id], [@de_bruno, @bruno.id], [@de_ana, @ana.id]],
                  filas.map { |fila| [fila.solicitud_id, fila.usuario_id] }
@@ -87,7 +87,7 @@ class HistorialTest < ActionDispatch::IntegrationTest
       "entregada" => "Entregada",
       "rebotada" => "Rebotada",
       "duplicada" => "Duplicada",
-      "retenida" => "Retenida: límite de frecuencia"
+      "descartada" => "Descartada: límite de frecuencia"
     }
     estados.each do |evento, texto|
       assert_equal texto, Notification::Historial.estado(Notification::Auditoria.new(evento: evento))

@@ -65,7 +65,7 @@ module Demo
 
       # Minera Los Robles apagó el email para lo opcional (R5).
       Notification::PoliticaCliente.create!(
-        empresa_id: 2, importancia: "opcional", canal: "email", habilitado: false
+        empresa_id: 2, criticidad: "opcional", canal: "email", habilitado: false
       )
     end
 
@@ -83,7 +83,7 @@ module Demo
       # 3. La acción llama dos veces a send() → una entregada y una duplicada.
       emitir_certificado(rosa, "Excel avanzado", llamar_dos_veces: true)
 
-      # 4. Cuatro avisos no críticos a la misma persona → tres entregadas y el cuarto retenido.
+      # 4. Cuatro avisos no críticos a la misma persona → tres entregadas y el cuarto descartado.
       pedido = { empresa_id: sergio.empresa_id, usuario_id: sergio.id }
       Cursos::EnviarRecordatorio.ejecutar(**pedido, curso: "Excel básico")
       despachar_todo

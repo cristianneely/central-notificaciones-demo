@@ -6,12 +6,9 @@ CREATE INDEX "index_usuarios_on_empresa_id" ON "usuarios" ("empresa_id") /*appli
 CREATE TABLE "certificados" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "empresa_id" integer NOT NULL, "usuario_id" integer NOT NULL, "curso" varchar NOT NULL, "creado_en" datetime(6) NOT NULL);
 CREATE TABLE "claves_unicas" ("clave" varchar NOT NULL, "expira_en" datetime(6) NOT NULL);
 CREATE UNIQUE INDEX "index_claves_unicas_on_clave" ON "claves_unicas" ("clave") /*application='CentralNotificaciones'*/;
-CREATE TABLE "pendientes" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "solicitud_id" varchar NOT NULL, "notificacion" varchar NOT NULL, "empresa_id" integer NOT NULL, "usuario_id" integer NOT NULL, "datos" json NOT NULL, "importancia" varchar NOT NULL, "prioridad" integer NOT NULL, "creado_en" datetime(6) NOT NULL);
-CREATE TABLE "politicas_cliente" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "empresa_id" integer NOT NULL, "importancia" varchar NOT NULL, "canal" varchar NOT NULL, "habilitado" boolean NOT NULL);
-CREATE UNIQUE INDEX "idx_on_empresa_id_importancia_canal_0d85e8558c" ON "politicas_cliente" ("empresa_id", "importancia", "canal") /*application='CentralNotificaciones'*/;
 CREATE TABLE "estado_canales" ("canal" varchar NOT NULL, "fallas_consecutivas" integer DEFAULT 0 NOT NULL, "proximo_intento_en" datetime(6));
 CREATE UNIQUE INDEX "index_estado_canales_on_canal" ON "estado_canales" ("canal") /*application='CentralNotificaciones'*/;
-CREATE TABLE "auditoria" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "solicitud_id" varchar NOT NULL, "empresa_id" integer NOT NULL, "usuario_id" integer NOT NULL, "notificacion" varchar NOT NULL, "importancia" varchar NOT NULL, "evento" varchar NOT NULL, "canal" varchar, "motivo" varchar, "detalle" json NOT NULL, "creado_en" datetime(6) NOT NULL);
+CREATE TABLE "auditoria" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "solicitud_id" varchar NOT NULL, "empresa_id" integer NOT NULL, "usuario_id" integer NOT NULL, "notificacion" varchar NOT NULL, "criticidad" varchar NOT NULL, "evento" varchar NOT NULL, "canal" varchar, "motivo" varchar, "detalle" json NOT NULL, "creado_en" datetime(6) NOT NULL);
 CREATE INDEX "index_auditoria_on_empresa_id_and_creado_en" ON "auditoria" ("empresa_id", "creado_en") /*application='CentralNotificaciones'*/;
 CREATE INDEX "index_auditoria_on_solicitud_id" ON "auditoria" ("solicitud_id") /*application='CentralNotificaciones'*/;
 CREATE INDEX "index_auditoria_on_usuario_id_and_creado_en" ON "auditoria" ("usuario_id", "creado_en") /*application='CentralNotificaciones'*/;
@@ -26,6 +23,10 @@ END;
 CREATE TABLE "correos_simulados" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "id_proveedor" varchar, "solicitud_id" varchar NOT NULL, "usuario_id" integer NOT NULL, "para" varchar NOT NULL, "asunto" varchar NOT NULL, "cuerpo" text NOT NULL, "accion_texto" varchar, "accion_link" varchar, "aceptado_en" datetime(6) NOT NULL, "aviso_enviado" boolean DEFAULT FALSE NOT NULL);
 CREATE TABLE "ajustes_demo" ("clave" varchar NOT NULL, "valor" varchar NOT NULL);
 CREATE UNIQUE INDEX "index_ajustes_demo_on_clave" ON "ajustes_demo" ("clave") /*application='CentralNotificaciones'*/;
+CREATE TABLE "pendientes" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "solicitud_id" varchar NOT NULL, "notificacion" varchar NOT NULL, "empresa_id" integer NOT NULL, "usuario_id" integer NOT NULL, "datos" json NOT NULL, "criticidad" varchar NOT NULL, "prioridad" integer NOT NULL, "creado_en" datetime(6) NOT NULL);
+CREATE TABLE "politicas_cliente" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "empresa_id" integer NOT NULL, "criticidad" varchar NOT NULL, "canal" varchar NOT NULL, "habilitado" boolean NOT NULL);
+CREATE UNIQUE INDEX "index_politicas_cliente_on_empresa_id_and_criticidad_and_canal" ON "politicas_cliente" ("empresa_id", "criticidad", "canal") /*application='CentralNotificaciones'*/;
 INSERT INTO "schema_migrations" (version) VALUES
+('20261118000001'),
 ('20261115000001');
 

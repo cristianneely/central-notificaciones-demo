@@ -1,16 +1,15 @@
 # Arranque de la central de notificaciones.
 
-# Las definiciones de los equipos (app/modulos/*/definiciones.rb) son llamadas a
-# Notification.define, no clases: se sacan de la carga automática de Rails y se cargan
-# aquí, a mano, al arrancar.
-definiciones = Rails.root.join("app/modulos/*/definiciones.rb")
-Rails.autoloaders.main.ignore(definiciones)
-
+# Cada notificación es una clase en app/modulos/<módulo>/notificaciones/ (esas carpetas
+# se declaran en config/application.rb). Aquí se validan todas al arrancar.
 Rails.application.config.to_prepare do
-  # Se parte de un catálogo vacío y se registran todas. Si una definición está mal
-  # escrita, Notification.define lanza un error aquí y la app no arranca (R8).
+  # Se parte de un catálogo vacío y se registra la clase de cada archivo, en orden. Si
+  # una definición está mal escrita, el catálogo lanza un error aquí, con todos sus
+  # problemas juntos, y la app no arranca (R8).
   Notification.catalogo.vaciar
-  Dir[definiciones].sort.each { |archivo| load archivo }
+  Dir[Rails.root.join("app/modulos/*/notificaciones/*.rb")].sort.each do |archivo|
+    Notification.catalogo.registrar(File.basename(archivo, ".rb").camelize.constantize)
+  end
 end
 
 # El despachador corre en segundo plano dentro del mismo proceso web: arranca con el

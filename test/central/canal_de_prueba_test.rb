@@ -1,7 +1,8 @@
 require "test_helper"
 
-# R7: agregar un canal no obliga a tocar ninguna definición. Un canal nuevo trae sus dos
-# operaciones (adaptar y entregar a su proveedor) y se habilita en la política.
+# R7: agregar un canal no obliga a tocar ninguna definición. Un canal nuevo declara su
+# nombre, qué dato de contacto necesita, cómo adapta el contenido y cómo lo entrega a su
+# proveedor, y se habilita en la política.
 class CanalDePruebaTest < ActiveSupport::TestCase
   # Un canal falso que, en vez de hablar con un proveedor, guarda lo que le llega.
   class CanalFalso < Notification::Canales::Base
@@ -14,6 +15,11 @@ class CanalDePruebaTest < ActiveSupport::TestCase
     def nombre
       "falso"
     end
+
+    def contacto
+      @contacto || :correo
+    end
+    attr_writer :contacto
 
     def adaptar(contenido)
       { texto: "#{contenido[:titulo]} / #{contenido[:cuerpo]}" }
@@ -55,11 +61,23 @@ class CanalDePruebaTest < ActiveSupport::TestCase
     assert_equal definiciones_antes, Notification.catalogo.todas
   end
 
+  test "41: el despachador busca el dato de contacto que pide el canal" do
+    @canal.contacto = :telefono # un dato que las personas de la demo no tienen
+    solicitud = enviar_certificado(Usuario.find(1))
+    despachar
+
+    assert_equal %w[recibida no_enviada], eventos(solicitud)
+    no_enviada = recorrido(solicitud).last
+    assert_equal ["sin_contacto", "falso"], [no_enviada.motivo, no_enviada.canal]
+    assert_empty @canal.recibidos
+    assert_equal 0, Notification::Pendiente.count
+  end
+
   test "29: al quitar el canal de prueba todo vuelve a salir por email" do
     Notification::Politicas.restablecer_por_defecto
     Notification::Canales.quitar("falso")
 
     assert_equal ["email"], Notification::Canales.nombres
-    assert_equal ["email"], Notification::Politicas.canales_efectivos(empresa_id: 1, importancia: "critica")
+    assert_equal ["email"], Notification::Politicas.canales_efectivos(empresa_id: 1, criticidad: "critica")
   end
 end

@@ -4,10 +4,10 @@ module Personas
     def self.ejecutar(empresa_id:, usuario_id:)
       persona = Usuario.find_by(id: usuario_id.to_i)
 
-      Notification.send "saludo_cumpleanos",
+      SaludoCumpleanos.send(
         empresa: empresa_id.to_i,
         destinatarios: [usuario_id.to_i],
-        datos: { nombre: persona&.nombre, anio: Date.current.year } # el año en curso, en hora de Chile
+        datos: { nombre: persona&.nombre, anio: Date.current.year }) # el año en curso, en hora de Chile
     end
   end
 end

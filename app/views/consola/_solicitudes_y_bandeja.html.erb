@@ -7,7 +7,7 @@
       <div class="encabezado">
         <span class="hora"><%= hora(solicitud.creado_en) %></span>
         <code><%= solicitud.notificacion %></code>
-        <%= etiqueta_importancia(solicitud.importancia) %>
+        <%= etiqueta_criticidad(solicitud.criticidad) %>
         <span><%= nombre_persona(solicitud.usuario_id) %></span>
         <span class="etiqueta <%= clase_estado(solicitud.estado) %>"><%= solicitud.estado %></span>
         <span class="id-solicitud">solicitud <%= solicitud.solicitud_id.first(8) %> ·

@@ -1,10 +1,15 @@
-module Notification
+class Notification
   module Canales
     # El canal email. Es el único lugar del código que habla con el proveedor de
     # correo (R1): nadie más puede enviar un correo sin pasar por la central.
     class Email < Base
       def nombre
         "email"
+      end
+
+      # El dato de la persona que este canal necesita para entregar.
+      def contacto
+        :correo
       end
 
       # Contenido neutro → correo: el título es el asunto, el cuerpo es el cuerpo y la

@@ -13,20 +13,20 @@ Para volver a los datos de ejemplo, usa "Reiniciar demo" al final de la consola.
 
 ## Qué demuestra
 
-- **Definición única y validada.** Cada equipo declara su notificación una vez, con
-  `Notification.define`: importancia, datos, qué la hace única y su contenido. Una definición
-  mal escrita impide arrancar la aplicación.
-- **Punto único de envío.** Las acciones de negocio piden el envío con `Notification.send`.
-  Nadie más habla con el proveedor de correo.
+- **Definición única y validada.** Cada equipo declara su notificación una vez, como una
+  clase que hereda de `Notification`: criticidad, datos, qué la hace única y su contenido.
+  Una definición mal escrita impide arrancar la aplicación.
+- **Punto único de envío.** Las acciones de negocio piden el envío con el `send()` de la
+  notificación (`CertificadoEmitido.send`). Nadie más habla con el proveedor de correo.
 - **Sin duplicados.** Una clave única por notificación y persona impide enviar dos veces lo
   mismo.
 - **Nada se pierde.** `send()` guarda el pendiente en la misma transacción que la acción de
   negocio: si la acción falla, no queda notificación; si el proveedor se cae, el pendiente
   espera y sale cuando el proveedor vuelve.
-- **Lo crítico primero.** El despachador saca los pendientes por importancia y antigüedad.
+- **Lo crítico primero.** El despachador saca los pendientes por criticidad y antigüedad.
 - **Políticas por cliente.** Una empresa puede apagar lo que no es crítico. Lo crítico
   siempre tiene canal.
-- **Frecuencia máxima.** Lo no crítico tiene un tope por persona; lo que excede se retiene y
+- **Frecuencia máxima.** Lo no crítico tiene un tope por persona; lo que excede se descarta y
   queda anotado.
 - **Historial completo.** Cada paso de cada notificación queda en una auditoría que solo se
   puede agregar: la propia base rechaza modificarla o borrarla.
@@ -36,42 +36,49 @@ Para volver a los datos de ejemplo, usa "Reiniciar demo" al final de la consola.
 Son APIs de código, no endpoints HTTP.
 
 ```ruby
-# 1.1 — Definir: un equipo declara su notificación (app/modulos/certificados/definiciones.rb)
-Notification.define "certificado_emitido",
-  importancia: :critica,
-  datos: [:certificado_id, :curso, :link_certificado],
-  unica_por: [:certificado_id],
-  contenido: {
-    titulo: "Tu certificado de {curso} está listo",
-    cuerpo: "Felicitaciones, terminaste {curso}.",
-    accion: { texto: "Descargar", link: "{link_certificado}" }
-  }
+# 1.1 — Definir: una clase por notificación, en el módulo del equipo dueño
+# (app/modulos/certificados/notificaciones/certificado_emitido.rb)
+class CertificadoEmitido < Notification
+  criticidad  :critica
+  datos       :certificado_id, :curso, :link_certificado
+  unica_por   :certificado_id
+  contenido   titulo: "Tu certificado de {curso} está listo",
+              cuerpo: "Felicitaciones, terminaste {curso}.",
+              accion: { texto: "Descargar", link: "{link_certificado}" }
+end
 
 # 1.2 — Enviar: la acción de negocio pide el envío (app/modulos/certificados/emitir_certificado.rb)
-Notification.send "certificado_emitido",
+CertificadoEmitido.send(
   empresa: 1,
   destinatarios: [3],        # usuarios, no correos: la central busca el contacto
   datos: { certificado_id: 789, curso: "Excel avanzado", link_certificado: "https://..." }
+)
 # → devuelve el id de la solicitud (UUID)
 ```
 
+El nombre que queda en los pendientes y en la auditoría sale del nombre de la clase:
+`CertificadoEmitido` se guarda como `certificado_emitido`.
+
 Sobre el nombre `send`: el diseño lo llama así y se respetó; en producción se llamaría
 `deliver`, la convención de Rails, para no pisar un método del lenguaje (en Ruby todo objeto
-ya trae un `send`). Aquí es seguro porque `Notification` es un módulo propio y no un modelo de
-base de datos.
+ya trae un `send`). Aquí `send` con un símbolo sigue siendo el de Ruby, y el trabajo lo hace `deliver`.
 
 ## Recorrido de una solicitud
 
-1. La acción de negocio abre una transacción, hace lo suyo y llama a `Notification.send`.
+1. La acción de negocio abre una transacción, hace lo suyo y llama al `send()` de la
+   notificación.
 2. `send()` valida contra la definición y, por cada destinatario, guarda una clave única, un
    pendiente y la anotación `recibida`. Si la clave ya existía, anota `duplicada` y no crea
    pendiente. Devuelve el id de la solicitud.
 3. El despachador, en segundo plano, toma los pendientes (lo crítico primero) y por cada uno:
-   busca el contacto, aplica la política de la empresa, aplica el límite de frecuencia, anota
-   `decision_enviar` y entrega por el canal.
+   revisa que la persona sea de la empresa, aplica la política de la empresa para elegir el
+   canal, busca el dato de contacto que pide ese canal, aplica el límite de frecuencia, anota
+   `decision_enviar` y entrega por el canal. Lo que excede el límite queda `descartada`.
 4. El canal email adapta el contenido a un correo y lo entrega al proveedor. Si el proveedor
-   acepta, anota `enviada`; si rechaza ese correo, `fallo_definitivo`; si no responde,
-   `intento_fallido`, y el canal espera 5, 10 y 20 segundos antes de volver a probar.
+   acepta, anota `enviada`, con la dirección a la que salió y la versión del contenido; si
+   rechaza ese correo, `fallo_definitivo`; si no responde, `intento_fallido`, y el canal
+   espera 5, 10 y 20 segundos antes de volver a probar. Si lo rechazado es crítico y la
+   política tiene otro canal, se intenta por el siguiente.
 5. El proveedor avisa después al receptor en qué terminó el envío: `entregada` o `rebotada`.
 
 ## Qué probar
@@ -83,7 +90,7 @@ base de datos.
 | 3 | La acción llama dos veces a send() | Casilla "la acción llama dos veces a send()" | Una sola notificación; la segunda queda como duplicada |
 | 4 | La acción falla a la mitad | Casilla "la acción falla a la mitad" | Ni certificado ni notificación |
 | 5 | Política del cliente | Empresa Minera Los Robles → "Saludar cumpleaños"; botón "Intentar apagar lo crítico" | "No enviada: política del cliente"; el rechazo |
-| 6 | Límite de frecuencia | Cuatro avisos no críticos y un certificado a la misma persona | El cuarto queda retenido; el certificado pasa |
+| 6 | Límite de frecuencia | Cuatro avisos no críticos y un certificado a la misma persona | El cuarto queda descartado; el certificado pasa |
 | 7 | Caída del proveedor | "Apagar el proveedor", emitir varias, "Encender el proveedor" | Esperan, se reintenta y salen con lo crítico primero |
 | 8 | Historial | Pantalla Historial | Filtros y recorridos, con no enviadas y un rebote |
 
@@ -113,8 +120,8 @@ Cada prueba lleva al inicio de su nombre el número del caso que cubre (por ejem
 
 | Carpeta | Qué hay | Regla |
 |---|---|---|
-| `app/central/` | La central: `Notification` (`define` y `send`), catálogo, despachador, políticas, canales, proveedores, receptor, auditoría y configuración | Es la única que habla con el proveedor de correo |
-| `app/modulos/` | Los módulos de los equipos: sus definiciones y sus acciones de negocio | Solo usan `Notification.define` y `Notification.send` |
+| `app/central/` | La central: `Notification` (la clase base y su `send`), catálogo, despachador, políticas, canales, proveedores, receptor, auditoría y configuración | Es la única que habla con el proveedor de correo |
+| `app/modulos/` | Los módulos de los equipos: sus notificaciones (una clase por archivo, en `notificaciones/`) y sus acciones de negocio | Solo heredan de `Notification` y llaman a `send()` |
 | `app/controllers/` | Las entradas: pantallas y API | Llaman a las acciones; nunca a `send()` |
 | `test/` | Las pruebas | `test/chequeos/` revisa el código mismo: que ninguna entrada llame a `send()` y que solo el canal email hable con el proveedor |
 
@@ -128,11 +135,11 @@ Los valores de la central (límite de frecuencia, esperas, tiempos) están en un
 | R1 | Punto único de envío: nadie habla con el proveedor fuera de la central | Prueba automática 28, que revisa el código |
 | R2 | Sin duplicados | Consola: emitir con la casilla "la acción llama dos veces a send()". Pruebas 6 a 10 |
 | R3 | Frecuencia máxima para lo no crítico | Consola: cuatro avisos no críticos y uno crítico a la misma persona. Pruebas 19, 20, 32 y 33 |
-| R4 | Importancia declarada | Catálogo. Pruebas 1 y 2 |
+| R4 | Criticidad declarada | Catálogo. Pruebas 1 y 2 |
 | R5 | Política de envío configurable por cliente | Consola: un aviso opcional en Minera Los Robles. Prueba 17 |
-| R6 | Lo crítico siempre tiene canal | Consola: botón "Intentar apagar lo crítico". Prueba 18 |
-| R7 | Canales extensibles sin tocar definiciones | Prueba 29, con un canal de prueba |
-| R8 | Definición única, validada | Catálogo: botón "Probar una definición inválida". Pruebas 1 a 3 |
+| R6 | Lo crítico siempre tiene canal | Consola: botón "Intentar apagar lo crítico". Pruebas 18 y 42 |
+| R7 | Canales extensibles sin tocar definiciones | Pruebas 29 y 41, con un canal de prueba |
+| R8 | Definición única, validada: una clase por notificación | Catálogo: botón "Probar una definición inválida". Pruebas 1 a 3 y 38 |
 | R9 | Se dispara desde la acción de negocio, igual por web, API o carga masiva | Consola: emitir por la pantalla y por la API. Pruebas 24 y 27. Hay dos entradas (web y API); la carga masiva no se construye |
 | R10 | Historial completo e inmodificable | Los recorridos de la consola y del historial. Pruebas 12 y 13 |
 | R11 | Auditoría a escala (12 millones al día, plazo de conservación, cada empresa ve lo suyo) | No se demuestra. Solo quedan el filtro obligatorio por empresa y los índices por empresa y fecha |
@@ -149,10 +156,11 @@ La demo muestra la lógica y los flujos. Esto es lo que cambia respecto del dise
 | Postgres | SQLite (un archivo dentro de la app) |
 | SendGrid | Proveedor simulado; no sale ningún correo |
 | Servidores de segundo plano en máquinas aparte | Un proceso en segundo plano dentro de la misma app |
-| Varias máquinas toman pendientes; si una cae, otra sigue | Un solo despachador |
-| Reintentos con esperas cada vez más largas, de minutos | Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, salen todos por importancia |
+| Varios servidores toman pendientes sin pisarse (FOR UPDATE SKIP LOCKED); si uno cae, otro sigue | Un solo despachador |
+| Esperas de reintento que se duplican, de 1 a 15 minutos | Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, salen todos por criticidad |
 | Límite de frecuencia configurable; parte en 3 no críticas por persona y canal cada 24 h | El mismo valor, fijo en la configuración; cuenta la decisión de enviar |
-| Varios canales y respaldo para lo crítico (cuando exista un segundo canal) | Un solo canal por envío |
+| Respaldo de lo crítico por el canal siguiente | Hay un solo canal (email); el respaldo se demuestra con canales de prueba (prueba 42) |
+| Tope de destinatarios por llamada; lo que pase del tope lo reparte por lotes el equipo que envía | El tope existe (1.000); la central no ofrece el reparto por lotes |
 | Auditoría a escala (R11) | No se demuestra |
 | Tres entradas: web, API y carga masiva (R9) | Dos: web y API |
 | Quién originó la solicitud (R10) | Se anota la notificación, que identifica al módulo dueño, y la entrada (web, api o interno) |
@@ -165,7 +173,7 @@ La demo muestra la lógica y los flujos. Esto es lo que cambia respecto del dise
 | Contador de frecuencia propio | Se cuenta sobre la auditoría |
 | Cada empresa ve solo lo suyo (autenticación) | Sin login; la empresa se elige en un filtro obligatorio |
 | Clave única por notificación, persona y unica_por | Texto legible, sin resumir |
-| Agrupar lo excedente en un resumen (paso siguiente) | Solo retener |
+| Agrupar lo excedente en un resumen (paso siguiente) | Solo descartar |
 | Chequeos automáticos en la revisión de código | Dos pruebas automáticas que revisan el código |
 | Pantalla de políticas fuera de alcance | Políticas sembradas; un botón solo para mostrar el rechazo |
 | SQLite admite un solo escritor a la vez (propio de la demo) | No se muestran varias máquinas tomando pendientes |

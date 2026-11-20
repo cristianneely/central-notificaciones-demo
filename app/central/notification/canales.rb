@@ -1,4 +1,4 @@
-module Notification
+class Notification
   # Los canales por los que la central sabe entregar. Hoy hay uno: email.
   # Agregar otro es registrarlo aquí y habilitarlo en la política; las definiciones de
   # los equipos no cambian (R7).

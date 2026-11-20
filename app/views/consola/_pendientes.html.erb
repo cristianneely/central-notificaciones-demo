@@ -5,7 +5,7 @@
     primero y, después, lo más antiguo.</p>
   <table>
     <thead>
-      <tr><th>Notificación</th><th>Empresa</th><th>Persona</th><th>Importancia</th><th>Antigüedad</th></tr>
+      <tr><th>Notificación</th><th>Empresa</th><th>Persona</th><th>Criticidad</th><th>Antigüedad</th></tr>
     </thead>
     <tbody>
       <% @pendientes.each do |pendiente| %>
@@ -13,7 +13,7 @@
           <td><code><%= pendiente.notificacion %></code></td>
           <td><%= @nombres_empresas[pendiente.empresa_id] %></td>
           <td><%= nombre_persona(pendiente.usuario_id) %></td>
-          <td><%= etiqueta_importancia(pendiente.importancia) %></td>
+          <td><%= etiqueta_criticidad(pendiente.criticidad) %></td>
           <td><%= (Time.current - pendiente.creado_en).round %> s</td>
         </tr>
       <% end %>

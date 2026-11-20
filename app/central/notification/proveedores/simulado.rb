@@ -1,4 +1,4 @@
-module Notification
+class Notification
   module Proveedores
     # El proveedor de correo simulado: ocupa el lugar que tendría el proveedor real.
     # No sale ningún correo: lo que "acepta" queda guardado en su bandeja, y un rato
