@@ -3,7 +3,7 @@ class Notification
   # cerrado. Dice qué es cada parte (un título, un botón), no cómo se ve: eso lo decide
   # cada canal al dibujarla.
   module Contenido
-    VOCABULARIO = %i[titulo resumen parrafo destacado lista imagen boton].freeze
+    VOCABULARIO = %i[titulo resumen parrafo destacado lista imagen boton personas].freeze
     # Las piezas que son solo un texto.
     DE_TEXTO = %i[titulo resumen parrafo destacado].freeze
 
@@ -45,6 +45,13 @@ class Notification
         @piezas << (bien ? { tipo: :imagen, url: argumentos.first, alt: opciones[:alt] } : { tipo: :imagen, mal_escrita: true })
       end
 
+      # personas "{dato}": el texto es solo el marcador del dato que trae la lista.
+      def personas(*argumentos, **opciones)
+        bien = argumentos.size == 1 && opciones.empty? && argumentos.first.is_a?(::String) &&
+               argumentos.first.match?(/\A\{\w+\}\z/)
+        @piezas << (bien ? { tipo: :personas, dato: argumentos.first } : { tipo: :personas, mal_escrita: true })
+      end
+
       def boton(*argumentos, **opciones)
         bien = argumentos.size <= 1 && (opciones.keys - [:link]).empty?
         @piezas << (bien ? { tipo: :boton, texto: argumentos.first, link: opciones[:link] } : { tipo: :boton, mal_escrita: true })
@@ -67,7 +74,8 @@ class Notification
     end
 
     # Rellena las piezas de una definición con los datos de un envío: cada {marcador}
-    # se reemplaza por el valor de ese dato, como texto.
+    # se reemplaza por el valor de ese dato, como texto. La pieza personas no es texto:
+    # recibe la lista del dato tal cual, con el nombre y la foto de cada persona.
     def self.rellenar(definicion, datos)
       datos = datos.to_h.transform_keys(&:to_sym)
       rellenar = ->(valor) do
@@ -78,8 +86,27 @@ class Notification
         end
       end
 
-      Relleno.new(notificacion: definicion.nombre,
-                  piezas: definicion.contenido.map { |pieza| pieza.transform_values(&rellenar) })
+      piezas = definicion.contenido.map do |pieza|
+        next pieza.transform_values(&rellenar) unless pieza[:tipo] == :personas
+
+        dato = pieza[:dato][ValidadorDefinicion::MARCADOR, 1].to_sym
+        { tipo: :personas, gente: personas_de(datos[dato]) }
+      end
+
+      Relleno.new(notificacion: definicion.nombre, piezas: piezas)
+    end
+
+    # [{ "nombre" => …, "foto" => … }] → [{ nombre:, foto: }]. Lo que no sea una lista de
+    # personas queda como lista vacía: send() ya lo rechazó antes de llegar aquí.
+    def self.personas_de(valor)
+      return [] unless valor.is_a?(Array)
+
+      valor.filter_map do |persona|
+        next unless persona.respond_to?(:to_h)
+
+        persona = persona.to_h.transform_keys(&:to_s)
+        { nombre: persona["nombre"].to_s, foto: persona["foto"].to_s }
+      end
     end
   end
 end

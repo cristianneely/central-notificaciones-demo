@@ -15,7 +15,8 @@ class Notification
         destacado: "Destacado: se omite",
         lista: "Lista: se omite",
         imagen: "Imagen: se omite",
-        boton: "Botón: pasa a link corto"
+        boton: "Botón: pasa a link corto",
+        personas: "Personas: se omite"
       }.freeze
 
       def nombre = "sms"

@@ -6,7 +6,7 @@ class Notification
     #   nombre                 — cómo se llama ("email").
     #   contacto               — qué dato de la persona necesita (:correo).
     #   adaptar(contenido)     — dibuja cada pieza del contenido (título, resumen,
-    #                            párrafo, destacado, lista, imagen, botón) con el formato
+    #                            párrafo, destacado, lista, imagen, botón, personas) con el formato
     #                            del canal, y devuelve el mensaje para su proveedor.
     #   entregar_al_proveedor  — se lo pasa a su proveedor y devuelve qué respondió.
     #

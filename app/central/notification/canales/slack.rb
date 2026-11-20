@@ -10,7 +10,7 @@ class Notification
       def contacto = :slack
 
       def adaptar(contenido)
-        { text: escapar(contenido.resumen), blocks: contenido.piezas.filter_map { |pieza| bloque(pieza) } }
+        { text: escapar(contenido.resumen), blocks: contenido.piezas.flat_map { |pieza| Array.wrap(bloque(pieza)) } }
       end
 
       def entregar_al_proveedor(mensaje, pendiente:, para:)
@@ -29,8 +29,17 @@ class Notification
         when :boton
           { type: "actions",
             elements: [{ type: "button", text: { type: "plain_text", text: pieza[:texto] }, url: pieza[:link] }] }
+        when :personas then personas(pieza[:gente])
         end
         # el resumen ya va como texto del aviso
+      end
+
+      # Un bloque de contexto por persona: su foto chica y su nombre.
+      def personas(gente)
+        gente.map do |persona|
+          { type: "context", elements: [{ type: "image", image_url: persona[:foto], alt_text: persona[:nombre] },
+                                        { type: "mrkdwn", text: escapar(persona[:nombre]) }] }
+        end
       end
 
       def seccion(texto) = { type: "section", text: { type: "mrkdwn", text: texto } }

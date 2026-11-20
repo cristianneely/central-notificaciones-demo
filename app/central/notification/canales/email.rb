@@ -54,8 +54,17 @@ class Notification
         when :lista then "<ul>#{pieza[:items].map { |item| "<li>#{h item}</li>" }.join}</ul>"
         when :imagen then %(<img src="#{h pieza[:url]}" alt="#{h pieza[:alt]}">)
         when :boton then %(<p><a class="boton" href="#{h pieza[:link]}">#{h pieza[:texto]}</a></p>)
+        when :personas then personas_html(pieza[:gente])
         else "" # el resumen ya va como vista previa
         end
+      end
+
+      # Una fila de fotos con el nombre debajo.
+      def personas_html(gente)
+        celdas = gente.map do |persona|
+          %(<td><img src="#{h persona[:foto]}" alt="#{h persona[:nombre]}" width="64"><br>#{h persona[:nombre]}</td>)
+        end
+        %(<table class="personas"><tr>#{celdas.join}</tr></table>)
       end
 
       def texto(contenido)
@@ -68,6 +77,7 @@ class Notification
         when :lista then pieza[:items].map { |item| "- #{item}" }.join("\n")
         when :imagen then "#{pieza[:alt]}: #{pieza[:url]}"
         when :boton then "#{pieza[:texto]}: #{pieza[:link]}"
+        when :personas then pieza[:gente].map { |persona| "- #{persona[:nombre]}" }.join("\n")
         end
       end
     end
