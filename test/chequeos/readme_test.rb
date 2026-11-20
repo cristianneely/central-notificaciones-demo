@@ -61,7 +61,7 @@ class ReadmeTest < ActiveSupport::TestCase
       ["Agrupar lo excedente en un resumen (paso siguiente)", "Solo descartar"]
     ]
     nuevas.each { |fila| assert_includes Demo::Declaraciones::SIMPLIFICACIONES, fila }
-    assert_equal 28, Demo::Declaraciones::SIMPLIFICACIONES.size
+    assert_equal 31, Demo::Declaraciones::SIMPLIFICACIONES.size
 
     viejas = ["N y período del límite de frecuencia", "fuera del documento", "el documento no fija formato",
               "Resumen para lo excedente (opcional)", "Reintentos con esperas de minutos",
@@ -81,10 +81,30 @@ class ReadmeTest < ActiveSupport::TestCase
       ["Plantillas de WhatsApp aprobadas por Meta; sin plantilla, sigue por el canal siguiente",
        "Simuladas: solo el certificado tiene plantilla; sin ella, el simulador muestra el botón como link en el texto"],
       ["Links cortos en el SMS", "Simulados (https://nj.test/...); no llevan a ninguna parte"],
-      ["Imágenes con una dirección pública", "La tarjeta de cumpleaños es una ruta de la demo: se ve dentro de la demo, no fuera"]
+      ["Imágenes con una dirección pública",
+       "Las portadas, la ilustración y los avatares son rutas de la demo: se ven dentro de la demo, no fuera"]
     ]
     nuevas.each { |fila| assert_includes Demo::Declaraciones::SIMPLIFICACIONES, fila }
     assert_includes README, "| Respaldo de lo crítico por el canal siguiente | Hay un solo canal en la política (email)"
+  end
+
+  test "74: el README y la demo declaran las fotos, los cumpleaños y el aviso a toda la empresa" do
+    [["Fotos de las personas", "Avatares dibujados con las iniciales; quien no tiene foto lleva una de respaldo"],
+     ["Fechas de nacimiento de las personas",
+      "Relativas al día en que se siembra la demo: si pasa un día sin reiniciarla, nadie cumple hoy. " \
+      "Quien nació un 29 de febrero no aparece los años que no son bisiestos"],
+     ["Avisar a una empresa de cualquier tamaño",
+      "Más de 1.000 personas superaría el tope de send(); el módulo tendría que partir el envío en tandas. " \
+      "Las empresas de la demo tienen ocho"]].each do |fila|
+      assert_includes Demo::Declaraciones::SIMPLIFICACIONES, fila
+    end
+    assert_includes README, "| Personas | Fila de fotos con el nombre debajo | Foto chica y nombre por persona | " \
+                            "Nombres en el texto; adjunta la foto de la primera | Se omite | Foto de la primera como imagen |"
+    ["`personas`", "Cumpleaños de hoy: {nombres}", %(personas  "{cumpleaneros}")].each do |texto|
+      assert_includes README, texto
+    end
+    escenario = Demo::Declaraciones::ESCENARIOS.find { |fila| fila[0] == 10 }
+    assert_equal "Cumpleaños a toda la empresa", escenario[1]
   end
 
   test "65: el README muestra el contenido por piezas y cómo lo dibuja cada canal" do
