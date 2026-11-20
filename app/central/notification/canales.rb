@@ -1,10 +1,11 @@
 class Notification
-  # Los canales por los que la central sabe entregar. Hoy hay uno: email.
-  # Agregar otro es registrarlo aquí y habilitarlo en la política; las definiciones de
-  # los equipos no cambian (R7).
+  # Los canales por los que la central sabe entregar. Agregar uno es registrarlo aquí y
+  # habilitarlo en la política; las definiciones de los equipos no cambian (R7).
+  # Email es el único real. Slack, WhatsApp y SMS son simulados y no están en la política
+  # por defecto: el simulador los usa para mostrar cómo dibuja cada uno las mismas piezas.
   module Canales
     def self.registro
-      @registro ||= { "email" => Email.new }
+      @registro ||= [Email.new, Slack.new, Whatsapp.new, Sms.new].to_h { |canal| [canal.nombre, canal] }
     end
 
     def self.registrar(canal)
