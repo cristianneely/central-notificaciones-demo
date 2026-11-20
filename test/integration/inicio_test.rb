@@ -5,9 +5,9 @@ require "test_helper"
 class InicioTest < ActionDispatch::IntegrationTest
   PROPUESTA = Demo::Declaraciones::PROPUESTA_URL
   CODIGO = Demo::Declaraciones::CODIGO_URL
-  PANTALLAS = %w[/ /consola /catalogo /historial /acerca].freeze
+  PANTALLAS = %w[/ /consola /catalogo /simulador /historial /acerca].freeze
 
-  test "el inicio tiene solo el título, la autoría, la frase, los tres accesos y el pie" do
+  test "el inicio tiene solo el título, la autoría, la frase, los cuatro accesos y el pie" do
     sembrar
     get "/"
 
@@ -23,16 +23,18 @@ class InicioTest < ActionDispatch::IntegrationTest
     assert_select ".inicio .pie a[href='/acerca']", text: "Acerca"
   end
 
-  test "el inicio tiene los tres accesos como links de texto, con su descripción" do
+  test "el inicio tiene los cuatro accesos como links de texto, con su descripción" do
     get "/"
 
-    assert_select ".accesos li", count: 3
+    assert_select ".accesos li", count: 4
     assert_select ".accesos li:nth-child(1) a[href='#{PROPUESTA}'][target=_blank]", text: "Leer la propuesta"
     assert_select ".accesos li:nth-child(1) .descripcion", text: "Requisitos, solución y riesgos."
     assert_select ".accesos li:nth-child(2) a[href='/consola']", text: "Abrir la demo"
     assert_select ".accesos li:nth-child(2) .descripcion", text: "Definir, enviar y seguir una notificación."
-    assert_select ".accesos li:nth-child(3) a[href='#{CODIGO}'][target=_blank]", text: "Ver el código"
-    assert_select ".accesos li:nth-child(3) .descripcion", count: 0
+    assert_select ".accesos li:nth-child(3) a[href='/simulador']", text: "Probar el simulador"
+    assert_select ".accesos li:nth-child(3) .descripcion", text: "Una notificación, cuatro canales."
+    assert_select ".accesos li:nth-child(4) a[href='#{CODIGO}'][target=_blank]", text: "Ver el código"
+    assert_select ".accesos li:nth-child(4) .descripcion", count: 0
   end
 
   test "el inicio ya no tiene el recorrido, el ejemplo, tarjetas ni botones" do
@@ -58,13 +60,13 @@ class InicioTest < ActionDispatch::IntegrationTest
     assert_select ".aviso-demo", count: 0
   end
 
-  test "el menú está en las cinco pantallas, con la propuesta y el código en pestaña nueva" do
+  test "el menú está en las seis pantallas, con la propuesta y el código en pestaña nueva" do
     sembrar
 
     PANTALLAS.each do |ruta|
       get ruta
 
-      { "Inicio" => "/", "Consola" => "/consola", "Catálogo" => "/catalogo",
+      { "Inicio" => "/", "Consola" => "/consola", "Catálogo" => "/catalogo", "Simulador" => "/simulador",
         "Historial" => "/historial", "Acerca" => "/acerca" }.each do |texto, destino|
         assert_select "nav.menu a[href='#{destino}']", { text: texto }, "#{ruta}: falta #{texto} en el menú"
       end

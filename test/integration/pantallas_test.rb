@@ -31,6 +31,14 @@ class PantallasTest < ActionDispatch::IntegrationTest
                     "Todos los datos son ficticios y no sale ningún correo real"
   end
 
+  test "65: acerca explica el contenido por piezas y lleva al simulador" do
+    get "/acerca"
+
+    assert_select "section#contenido-por-piezas h2", text: "Una definición, varios canales"
+    assert_select "section#contenido-por-piezas a[href='/simulador']", text: "Simulador"
+    assert_select "table.requisitos td", text: /\ASimulador: una definición dibujada por email, Slack, WhatsApp y SMS/
+  end
+
   test "acerca declara las simplificaciones, los requisitos y la nota sobre send" do
     get "/acerca"
 

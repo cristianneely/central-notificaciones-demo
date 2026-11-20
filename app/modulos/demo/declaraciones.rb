@@ -23,7 +23,9 @@ module Demo
        "El cuarto queda descartado; el certificado pasa"],
       [7, "Caída del proveedor", "\"Apagar el proveedor\", emitir varias, \"Encender el proveedor\"",
        "Esperan, se reintenta y salen con lo crítico primero"],
-      [8, "Historial", "Pantalla Historial", "Filtros y recorridos, con no enviadas y un rebote"]
+      [8, "Historial", "Pantalla Historial", "Filtros y recorridos, con no enviadas y un rebote"],
+      [9, "Una definición, cuatro canales", "Pantalla Simulador",
+       "Cómo dibujan email, Slack, WhatsApp y SMS las mismas piezas, qué degrada cada uno y el mensaje crudo"]
     ].freeze
 
     # [En el documento, En la demo]
@@ -38,7 +40,7 @@ module Demo
       ["Límite de frecuencia configurable; parte en 3 no críticas por persona y canal cada 24 h",
        "El mismo valor, fijo en la configuración; cuenta la decisión de enviar"],
       ["Respaldo de lo crítico por el canal siguiente",
-       "Hay un solo canal (email); el respaldo se demuestra con canales de prueba (prueba 42)"],
+       "Hay un solo canal en la política (email); el respaldo se demuestra con canales de prueba (prueba 42)"],
       ["Tope de destinatarios por llamada; lo que pase del tope lo reparte por lotes el equipo que envía",
        "El tope existe (1.000); la central no ofrece el reparto por lotes"],
       ["Auditoría a escala (R11)", "No se demuestra"],
@@ -62,7 +64,14 @@ module Demo
       ["Chequeos automáticos en la revisión de código", "Dos pruebas automáticas que revisan el código"],
       ["Pantalla de políticas fuera de alcance", "Políticas sembradas; un botón solo para mostrar el rechazo"],
       ["SQLite admite un solo escritor a la vez (propio de la demo)",
-       "No se muestran varias máquinas tomando pendientes"]
+       "No se muestran varias máquinas tomando pendientes"],
+      ["Slack, WhatsApp y SMS, cada uno con su proveedor",
+       "Canales simulados, fuera de la política: solo los usa el simulador y no envían nada"],
+      ["Plantillas de WhatsApp aprobadas por Meta; sin plantilla, sigue por el canal siguiente",
+       "Simuladas: solo el certificado tiene plantilla; sin ella, el simulador muestra el botón como link en el texto"],
+      ["Links cortos en el SMS", "Simulados (https://nj.test/...); no llevan a ninguna parte"],
+      ["Imágenes con una dirección pública",
+       "La tarjeta de cumpleaños es una ruta de la demo: se ve dentro de la demo, no fuera"]
     ].freeze
 
     # [Requisito, Qué pide, Dónde se ve en la demo]
@@ -77,7 +86,9 @@ module Demo
       ["R5", "Política de envío configurable por cliente",
        "Consola: un aviso opcional en Minera Los Robles. Prueba 17"],
       ["R6", "Lo crítico siempre tiene canal", "Consola: botón \"Intentar apagar lo crítico\". Pruebas 18 y 42"],
-      ["R7", "Canales extensibles sin tocar definiciones", "Pruebas 29 y 41, con un canal de prueba"],
+      ["R7", "Canales extensibles sin tocar definiciones",
+       "Simulador: una definición dibujada por email, Slack, WhatsApp y SMS. Pruebas 29, 41 y 56, " \
+       "con un canal de prueba y tres simulados"],
       ["R8", "Definición única, validada: una clase por notificación",
        "Catálogo: botón \"Probar una definición inválida\". Pruebas 1 a 3 y 38"],
       ["R9", "Se dispara desde la acción de negocio, igual por web, API o carga masiva",

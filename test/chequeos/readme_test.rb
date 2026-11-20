@@ -49,7 +49,7 @@ class ReadmeTest < ActiveSupport::TestCase
       ["Tope de destinatarios por llamada; lo que pase del tope lo reparte por lotes el equipo que envía",
        "El tope existe (1.000); la central no ofrece el reparto por lotes"],
       ["Respaldo de lo crítico por el canal siguiente",
-       "Hay un solo canal (email); el respaldo se demuestra con canales de prueba (prueba 42)"],
+       "Hay un solo canal en la política (email); el respaldo se demuestra con canales de prueba (prueba 42)"],
       ["Límite de frecuencia configurable; parte en 3 no críticas por persona y canal cada 24 h",
        "El mismo valor, fijo en la configuración; cuenta la decisión de enviar"],
       ["Tres entradas: web, API y carga masiva (R9)", "Dos: web y API"],
@@ -61,7 +61,7 @@ class ReadmeTest < ActiveSupport::TestCase
       ["Agrupar lo excedente en un resumen (paso siguiente)", "Solo descartar"]
     ]
     nuevas.each { |fila| assert_includes Demo::Declaraciones::SIMPLIFICACIONES, fila }
-    assert_equal 24, Demo::Declaraciones::SIMPLIFICACIONES.size
+    assert_equal 28, Demo::Declaraciones::SIMPLIFICACIONES.size
 
     viejas = ["N y período del límite de frecuencia", "fuera del documento", "el documento no fija formato",
               "Resumen para lo excedente (opcional)", "Reintentos con esperas de minutos",
@@ -72,6 +72,29 @@ class ReadmeTest < ActiveSupport::TestCase
       assert_not_includes README, texto
       assert_not Demo::Declaraciones::SIMPLIFICACIONES.flatten.any? { |celda| celda.include?(texto) }, texto
     end
+  end
+
+  test "65: el README declara los canales simulados, las plantillas, los links cortos y la imagen" do
+    nuevas = [
+      ["Slack, WhatsApp y SMS, cada uno con su proveedor",
+       "Canales simulados, fuera de la política: solo los usa el simulador y no envían nada"],
+      ["Plantillas de WhatsApp aprobadas por Meta; sin plantilla, sigue por el canal siguiente",
+       "Simuladas: solo el certificado tiene plantilla; sin ella, el simulador muestra el botón como link en el texto"],
+      ["Links cortos en el SMS", "Simulados (https://nj.test/...); no llevan a ninguna parte"],
+      ["Imágenes con una dirección pública", "La tarjeta de cumpleaños es una ruta de la demo: se ve dentro de la demo, no fuera"]
+    ]
+    nuevas.each { |fila| assert_includes Demo::Declaraciones::SIMPLIFICACIONES, fila }
+    assert_includes README, "| Respaldo de lo crítico por el canal siguiente | Hay un solo canal en la política (email)"
+  end
+
+  test "65: el README muestra el contenido por piezas y cómo lo dibuja cada canal" do
+    ["contenido do", %(titulo  "Tu certificado de {curso} está listo"), %(resumen "Terminaste {curso}. Descarga tu certificado."),
+     %(boton   "Descargar", link: "{link_certificado}"), "## Contenido por piezas",
+     "| Pieza | Email | Slack | WhatsApp | SMS |", "| Botón | Botón | Botón | Botón de la plantilla | Link corto |",
+     "`/simulador`"].each do |texto|
+      assert_includes README, texto
+    end
+    assert_no_match(/cuerpo:|accion:/, README)
   end
 
   test "los textos visibles dicen entrada, no puerta" do

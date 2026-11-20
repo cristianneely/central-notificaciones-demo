@@ -28,6 +28,9 @@ Para volver a los datos de ejemplo, usa "Reiniciar demo" al final de la consola.
   siempre tiene canal.
 - **Frecuencia máxima.** Lo no crítico tiene un tope por persona; lo que excede se descarta y
   queda anotado.
+- **Un contenido, varios canales.** El contenido se escribe una vez, con piezas (título,
+  resumen, párrafo, destacado, lista, imagen y botón), y cada canal las dibuja a su manera.
+  El simulador lo muestra por email, Slack, WhatsApp y SMS.
 - **Historial completo.** Cada paso de cada notificación queda en una auditoría que solo se
   puede agregar: la propia base rechaza modificarla o borrarla.
 
@@ -42,9 +45,13 @@ class CertificadoEmitido < Notification
   criticidad  :critica
   datos       :certificado_id, :curso, :link_certificado
   unica_por   :certificado_id
-  contenido   titulo: "Tu certificado de {curso} está listo",
-              cuerpo: "Felicitaciones, terminaste {curso}.",
-              accion: { texto: "Descargar", link: "{link_certificado}" }
+
+  contenido do
+    titulo  "Tu certificado de {curso} está listo"
+    resumen "Terminaste {curso}. Descarga tu certificado."
+    parrafo "Felicitaciones, terminaste {curso}."
+    boton   "Descargar", link: "{link_certificado}"
+  end
 end
 
 # 1.2 — Enviar: la acción de negocio pide el envío (app/modulos/certificados/emitir_certificado.rb)
@@ -63,6 +70,33 @@ Sobre el nombre `send`: el diseño lo llama así y se respetó; en producción s
 `deliver`, la convención de Rails, para no pisar un método del lenguaje (en Ruby todo objeto
 ya trae un `send`). Aquí `send` con un símbolo sigue siendo el de Ruby, y el trabajo lo hace `deliver`.
 
+## Contenido por piezas
+
+El contenido de una definición es una lista de piezas de un vocabulario cerrado: `titulo`,
+`resumen`, `parrafo`, `destacado`, `lista`, `imagen` (URL y texto alternativo) y `boton`
+(texto y link). Título y resumen son obligatorios; cualquier otra pieza se rechaza al
+arrancar, y todo marcador `{dato}` tiene que ser un dato declarado, también en links, listas
+e imágenes. La versión del contenido que se anota al enviar se calcula sobre las piezas.
+
+Cada canal sabe dibujar cada pieza y define cómo degrada lo que no puede mostrar:
+
+| Pieza | Email | Slack | WhatsApp | SMS |
+|---|---|---|---|---|
+| Título | Asunto y encabezado | Encabezado | Primera línea en negrita | Se omite |
+| Resumen | Vista previa en la bandeja | Texto del aviso | Se omite | El mensaje |
+| Párrafo y destacado | HTML con negrita | Texto con negrita | Texto con negrita | Se omite |
+| Lista | Viñetas | Viñetas | Líneas con guion | Se omite |
+| Imagen | Imagen | Imagen | Imagen adjunta | Se omite |
+| Botón | Botón | Botón | Botón de la plantilla | Link corto |
+
+Email es el único canal de la política: arma HTML, una versión en texto plano y la vista
+previa. Slack, WhatsApp y SMS son canales simulados, fuera de la política; existen para el
+simulador (`/simulador`), que muestra una misma definición por los cuatro canales, qué
+degradó cada uno y el mensaje crudo que recibiría cada proveedor. El simulador no pasa por
+`send()` ni escribe nada en la base. En WhatsApp solo el certificado tiene plantilla
+(simulada); sin plantilla, el botón pasa a link en el texto. El SMS lleva el resumen y un
+link corto en 160 caracteres como máximo.
+
 ## Recorrido de una solicitud
 
 1. La acción de negocio abre una transacción, hace lo suyo y llama al `send()` de la
@@ -74,7 +108,8 @@ ya trae un `send`). Aquí `send` con un símbolo sigue siendo el de Ruby, y el t
    revisa que la persona sea de la empresa, aplica la política de la empresa para elegir el
    canal, busca el dato de contacto que pide ese canal, aplica el límite de frecuencia, anota
    `decision_enviar` y entrega por el canal. Lo que excede el límite queda `descartada`.
-4. El canal email adapta el contenido a un correo y lo entrega al proveedor. Si el proveedor
+4. El canal email dibuja las piezas en un correo (HTML, texto plano y vista previa) y lo
+   entrega al proveedor. Si el proveedor
    acepta, anota `enviada`, con la dirección a la que salió y la versión del contenido; si
    rechaza ese correo, `fallo_definitivo`; si no responde, `intento_fallido`, y el canal
    espera 5, 10 y 20 segundos antes de volver a probar. Si lo rechazado es crítico y la
@@ -93,6 +128,7 @@ ya trae un `send`). Aquí `send` con un símbolo sigue siendo el de Ruby, y el t
 | 6 | Límite de frecuencia | Cuatro avisos no críticos y un certificado a la misma persona | El cuarto queda descartado; el certificado pasa |
 | 7 | Caída del proveedor | "Apagar el proveedor", emitir varias, "Encender el proveedor" | Esperan, se reintenta y salen con lo crítico primero |
 | 8 | Historial | Pantalla Historial | Filtros y recorridos, con no enviadas y un rebote |
+| 9 | Una definición, cuatro canales | Pantalla Simulador | Cómo dibujan email, Slack, WhatsApp y SMS las mismas piezas, qué degrada cada uno y el mensaje crudo |
 
 Personas de prueba en Andes Capacitación: una con un correo que rebota, una con un correo
 inválido (el proveedor lo rechaza) y una sin correo (la central no tiene a dónde enviar).
@@ -120,10 +156,10 @@ Cada prueba lleva al inicio de su nombre el número del caso que cubre (por ejem
 
 | Carpeta | Qué hay | Regla |
 |---|---|---|
-| `app/central/` | La central: `Notification` (la clase base y su `send`), catálogo, despachador, políticas, canales, proveedores, receptor, auditoría y configuración | Es la única que habla con el proveedor de correo |
+| `app/central/` | La central: `Notification` (la clase base y su `send`), el contenido por piezas, catálogo, despachador, políticas, canales (email, y Slack, WhatsApp y SMS simulados), proveedores, receptor, auditoría y configuración | Es la única que habla con un proveedor |
 | `app/modulos/` | Los módulos de los equipos: sus notificaciones (una clase por archivo, en `notificaciones/`) y sus acciones de negocio | Solo heredan de `Notification` y llaman a `send()` |
 | `app/controllers/` | Las entradas: pantallas y API | Llaman a las acciones; nunca a `send()` |
-| `test/` | Las pruebas | `test/chequeos/` revisa el código mismo: que ninguna entrada llame a `send()` y que solo el canal email hable con el proveedor |
+| `test/` | Las pruebas | `test/chequeos/` revisa el código mismo: que ninguna entrada llame a `send()` y que solo los canales hablen con un proveedor |
 
 Los valores de la central (límite de frecuencia, esperas, tiempos) están en un solo lugar:
 `app/central/notification/configuracion.rb`.
@@ -138,7 +174,7 @@ Los valores de la central (límite de frecuencia, esperas, tiempos) están en un
 | R4 | Criticidad declarada | Catálogo. Pruebas 1 y 2 |
 | R5 | Política de envío configurable por cliente | Consola: un aviso opcional en Minera Los Robles. Prueba 17 |
 | R6 | Lo crítico siempre tiene canal | Consola: botón "Intentar apagar lo crítico". Pruebas 18 y 42 |
-| R7 | Canales extensibles sin tocar definiciones | Pruebas 29 y 41, con un canal de prueba |
+| R7 | Canales extensibles sin tocar definiciones | Simulador: una definición dibujada por email, Slack, WhatsApp y SMS. Pruebas 29, 41 y 56, con un canal de prueba y tres simulados |
 | R8 | Definición única, validada: una clase por notificación | Catálogo: botón "Probar una definición inválida". Pruebas 1 a 3 y 38 |
 | R9 | Se dispara desde la acción de negocio, igual por web, API o carga masiva | Consola: emitir por la pantalla y por la API. Pruebas 24 y 27. Hay dos entradas (web y API); la carga masiva no se construye |
 | R10 | Historial completo e inmodificable | Los recorridos de la consola y del historial. Pruebas 12 y 13 |
@@ -159,7 +195,7 @@ La demo muestra la lógica y los flujos. Esto es lo que cambia respecto del dise
 | Varios servidores toman pendientes sin pisarse (FOR UPDATE SKIP LOCKED); si uno cae, otro sigue | Un solo despachador |
 | Esperas de reintento que se duplican, de 1 a 15 minutos | Esperas de 5, 10 y 20 segundos, por canal: se prueba con el pendiente más crítico y, cuando pasa, salen todos por criticidad |
 | Límite de frecuencia configurable; parte en 3 no críticas por persona y canal cada 24 h | El mismo valor, fijo en la configuración; cuenta la decisión de enviar |
-| Respaldo de lo crítico por el canal siguiente | Hay un solo canal (email); el respaldo se demuestra con canales de prueba (prueba 42) |
+| Respaldo de lo crítico por el canal siguiente | Hay un solo canal en la política (email); el respaldo se demuestra con canales de prueba (prueba 42) |
 | Tope de destinatarios por llamada; lo que pase del tope lo reparte por lotes el equipo que envía | El tope existe (1.000); la central no ofrece el reparto por lotes |
 | Auditoría a escala (R11) | No se demuestra |
 | Tres entradas: web, API y carga masiva (R9) | Dos: web y API |
@@ -177,6 +213,10 @@ La demo muestra la lógica y los flujos. Esto es lo que cambia respecto del dise
 | Chequeos automáticos en la revisión de código | Dos pruebas automáticas que revisan el código |
 | Pantalla de políticas fuera de alcance | Políticas sembradas; un botón solo para mostrar el rechazo |
 | SQLite admite un solo escritor a la vez (propio de la demo) | No se muestran varias máquinas tomando pendientes |
+| Slack, WhatsApp y SMS, cada uno con su proveedor | Canales simulados, fuera de la política: solo los usa el simulador y no envían nada |
+| Plantillas de WhatsApp aprobadas por Meta; sin plantilla, sigue por el canal siguiente | Simuladas: solo el certificado tiene plantilla; sin ella, el simulador muestra el botón como link en el texto |
+| Links cortos en el SMS | Simulados (https://nj.test/...); no llevan a ninguna parte |
+| Imágenes con una dirección pública | La tarjeta de cumpleaños es una ruta de la demo: se ve dentro de la demo, no fuera |
 
 ## Riesgos declarados
 
