@@ -1,6 +1,17 @@
 module SimuladorHelper
   NOMBRES_CANALES = { "email" => "Email", "slack" => "Slack", "whatsapp" => "WhatsApp", "sms" => "SMS", "push" => "Push" }.freeze
 
+  # Cómo se llama, para una persona, el dato de contacto que pide cada canal.
+  CONTACTOS = { slack: "su usuario de Slack", telefono: "su teléfono", dispositivo: "un dispositivo registrado" }.freeze
+
+  # A quién iría el mensaje de un canal: el contacto leído de la base, o qué dato pediría.
+  def para_del_canal(canal)
+    return "Para: #{canal[:para]}" if canal[:para]
+    return "Sin correo: el email no se enviaría" if canal[:contacto] == :correo
+
+    "Pediría #{CONTACTOS.fetch(canal[:contacto])} (:#{canal[:contacto]}): las personas de la demo no lo tienen"
+  end
+
   # Lo que recibiría el proveedor de cada canal, tal cual.
   def mensaje_crudo(canal, mensaje)
     case canal

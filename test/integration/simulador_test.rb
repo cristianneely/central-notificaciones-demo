@@ -118,6 +118,53 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     assert_select ".canal-sms .crudo", text: %r{Terminaste Excel avanzado\. Descarga tu certificado\. https://nj\.test/}
   end
 
+  test "73: se elige a quién va entre las personas de Andes, y su foto y su correo salen de la base" do
+    get "/simulador", params: { notificacion: "certificado_emitido", para: 2 }
+
+    assert_select "select[name=para] option", count: 8
+    assert_select "select[name=para] option[selected]", text: "Bruno Díaz"
+    assert_select ".destinatario img[src='/personas/bruno-diaz.svg'][alt='Bruno Díaz']"
+    assert_select ".destinatario .correo", text: "bruno.diaz@ejemplo.test"
+    assert_select ".canal-email .para", text: "Para: bruno.diaz@ejemplo.test"
+    assert_select ".canal-slack .para", text: "Pediría su usuario de Slack (:slack): las personas de la demo no lo tienen"
+    assert_select ".canal-push .para", text: /:dispositivo/
+  end
+
+  test "73: sin correo ni foto, el simulador lo dice y usa la foto de respaldo" do
+    get "/simulador", params: { para: 8 }
+
+    assert_select ".destinatario img[src='/personas/sin-foto.svg']"
+    assert_select ".destinatario .correo", text: "Sin correo"
+    assert_select ".canal-email .para", text: "Sin correo: el email no se enviaría"
+  end
+
+  test "73: una persona de otra empresa o un id raro vuelve a la primera de Andes" do
+    [9, "abc", { a: 1 }].each do |para|
+      get "/simulador", params: { para: para }
+
+      assert_response :ok
+      assert_select "select[name=para] option[selected]", text: "Ana Soto"
+    end
+  end
+
+  test "73: en el cumpleaños, quienes cumplen hoy y sus fotos salen de la base y no se editan" do
+    Usuario.find(3).update!(nacimiento: Date.current.prev_year(30))
+    get "/simulador", params: { notificacion: "saludo_cumpleanos", datos: { nombres: "Otro" } }
+
+    assert_select ".canal-email .asunto-bandeja", text: "Cumpleaños de hoy: Ana Soto, Bruno Díaz y Carla Muñoz"
+    assert_select "input[name='datos[nombres]']", count: 0
+    assert_select "input[name='datos[cumpleaneros]']", count: 0
+    assert_select ".dato-de-la-base", text: /Ana Soto, Bruno Díaz y Carla Muñoz/
+    assert_select ".canal-slack .slack-persona img[src='/personas/carla-munoz.svg']"
+    assert_select "input[name='datos[fecha]']"
+  end
+
+  test "73: si hoy nadie cumple años en Andes, el simulador usa a Ana y a Bruno de ejemplo" do
+    Usuario.update_all(nacimiento: Date.current - 1)
+
+    assert_equal "Ana Soto y Bruno Díaz", Demo::Simulador.simular("saludo_cumpleanos", {})[:datos][:nombres]
+  end
+
   test "el menú lleva al simulador" do
     get "/consola"
 

@@ -11,6 +11,16 @@
           <div class="slack-texto"><%= mrkdwn_a_html(bloque[:text][:text]) %></div>
         <% elsif bloque[:type] == "image" %>
           <img class="slack-imagen" src="<%= bloque[:image_url] %>" alt="<%= bloque[:alt_text] %>">
+        <% elsif bloque[:type] == "context" %>
+          <div class="slack-persona">
+            <% bloque[:elements].each do |elemento| %>
+              <% if elemento[:type] == "image" %>
+                <img src="<%= elemento[:image_url] %>" alt="<%= elemento[:alt_text] %>">
+              <% else %>
+                <span><%= mrkdwn_a_html(elemento[:text]) %></span>
+              <% end %>
+            <% end %>
+          </div>
         <% elsif bloque[:type] == "actions" %>
           <% bloque[:elements].each do |boton| %><span class="slack-boton"><%= boton[:text][:text] %></span><% end %>
         <% end %>

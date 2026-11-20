@@ -247,3 +247,14 @@ body.pagina-simulador main { max-width: 1320px; }
 .push-titulo { margin-top: 0.2rem; font-weight: 700; }
 .push-notificacion img { display: block; width: 100%; margin-top: 0.4rem; border-radius: 8px; }
 .push-link { margin: 0.4rem 0 0; text-align: center; font-size: 0.78rem; color: var(--tenue); word-break: break-all; }
+
+/* Simulador: la persona elegida, leída de la base, y a quién iría cada canal. */
+.destinatario { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; }
+.destinatario img { border-radius: 50%; flex: none; }
+.destinatario div { display: flex; flex-direction: column; }
+.destinatario .correo { font-family: ui-monospace, monospace; font-size: 0.9rem; }
+.destinatario small, .dato-de-la-base small { color: var(--tenue); }
+.dato-de-la-base { display: flex; flex-direction: column; gap: 0.15rem; margin-bottom: 0.75rem; }
+.canal .para { margin: -0.25rem 0 0.6rem; font-size: 0.85rem; color: var(--tenue); }
+.slack-persona { display: flex; align-items: center; gap: 0.4rem; margin: 0.25rem 0; font-size: 0.85rem; color: var(--tenue); }
+.slack-persona img { width: 20px; height: 20px; border-radius: 4px; }

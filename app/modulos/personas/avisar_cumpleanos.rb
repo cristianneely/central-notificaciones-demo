@@ -12,18 +12,27 @@ module Personas
       # Una empresa que no existe la rechaza la central, con su propio mensaje.
       return SaludoCumpleanos.send(empresa: empresa_id.to_i, destinatarios: [], datos: {}) unless empresa
 
-      personas = Usuario.where(empresa_id: empresa.id).order(:id).to_a
-      hoy = Date.current # en hora de Chile
-      cumplen = personas.select { |p| p.nacimiento && [p.nacimiento.month, p.nacimiento.day] == [hoy.month, hoy.day] }
-      raise Invalida, "Hoy no hay cumpleaños en #{empresa.nombre}" if cumplen.empty?
+      datos = datos_de_hoy(empresa.id) or raise Invalida, "Hoy no hay cumpleaños en #{empresa.nombre}"
 
       SaludoCumpleanos.send(
         empresa: empresa.id,
-        destinatarios: personas.map(&:id), # toda la empresa, también quienes cumplen
-        datos: { fecha: hoy.strftime("%d-%m-%Y"),
-                 nombres: cumplen.map(&:nombre).to_sentence(words_connector: ", ", last_word_connector: " y ",
-                                                            two_words_connector: " y "),
-                 cumpleaneros: cumplen.map { |p| { nombre: p.nombre, foto: p.foto.presence || SIN_FOTO } } })
+        destinatarios: Usuario.where(empresa_id: empresa.id).order(:id).ids, # toda la empresa, también quienes cumplen
+        datos: datos)
+    end
+
+    # Los datos del aviso de hoy en una empresa, o nil si nadie está de cumpleaños. El
+    # simulador los usa también, para mostrar a quienes cumplen hoy sin enviar nada.
+    def self.datos_de_hoy(empresa_id)
+      hoy = Date.current # en hora de Chile
+      cumplen = Usuario.where(empresa_id: empresa_id).order(:id).select do |persona|
+        persona.nacimiento && [persona.nacimiento.month, persona.nacimiento.day] == [hoy.month, hoy.day]
+      end
+      return nil if cumplen.empty?
+
+      { fecha: hoy.strftime("%d-%m-%Y"),
+        nombres: cumplen.map(&:nombre).to_sentence(words_connector: ", ", last_word_connector: " y ",
+                                                   two_words_connector: " y "),
+        cumpleaneros: cumplen.map { |persona| { nombre: persona.nombre, foto: persona.foto.presence || SIN_FOTO } } }
     end
   end
 end
