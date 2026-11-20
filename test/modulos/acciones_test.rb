@@ -33,6 +33,7 @@ class AccionesTest < ActiveSupport::TestCase
     assert_equal resultado.solicitud_id, pendiente.solicitud_id
     assert_equal "certificado_emitido", pendiente.notificacion
     assert_equal({ "certificado_id" => certificado.id, "curso" => "Excel avanzado",
+                   "imagen_curso" => "/cursos/excel-avanzado.svg",
                    "link_certificado" => "https://ejemplo.test/certificados/#{certificado.id}" },
                  pendiente.datos)
   end

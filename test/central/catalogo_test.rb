@@ -61,8 +61,10 @@ class CatalogoTest < ActiveSupport::TestCase
     assert_equal :critica, definicion.criticidad
     assert_equal %i[solicitud_id solicitante desde hasta dias_habiles link_solicitud], definicion.datos
     assert_equal [:solicitud_id], definicion.unica_por
-    assert_equal %i[titulo resumen parrafo lista boton], definicion.contenido.map { |pieza| pieza[:tipo] }
-    assert_equal ["Desde: {desde}", "Hasta: {hasta}", "Días hábiles: {dias_habiles}"], definicion.contenido[3][:items]
+    assert_equal %i[titulo resumen imagen parrafo lista boton], definicion.contenido.map { |pieza| pieza[:tipo] }
+    assert_equal({ tipo: :imagen, url: "/vacaciones.svg", alt: "Ilustración de vacaciones" }, definicion.contenido[2])
+    assert Rails.root.join("public/vacaciones.svg").exist?, "la ilustración vive en public/"
+    assert_equal ["Desde: {desde}", "Hasta: {hasta}", "Días hábiles: {dias_habiles}"], definicion.contenido[4][:items]
     assert_equal({ tipo: :boton, texto: "Revisar solicitud", link: "{link_solicitud}" }, definicion.contenido.last)
   end
 
@@ -84,11 +86,12 @@ class CatalogoTest < ActiveSupport::TestCase
   test "1: la definición guarda lo declarado" do
     definicion = Notification.catalogo.buscar("certificado_emitido")
 
-    assert_equal [:certificado_id, :curso, :link_certificado], definicion.datos
+    assert_equal [:certificado_id, :curso, :imagen_curso, :link_certificado], definicion.datos
     assert_equal [:certificado_id], definicion.unica_por
     assert_equal [
       { tipo: :titulo, texto: "Tu certificado de {curso} está listo" },
       { tipo: :resumen, texto: "Terminaste {curso}. Descarga tu certificado." },
+      { tipo: :imagen, url: "{imagen_curso}", alt: "Portada de {curso}" },
       { tipo: :parrafo, texto: "Felicitaciones, terminaste {curso}." },
       { tipo: :boton, texto: "Descargar", link: "{link_certificado}" }
     ], definicion.contenido

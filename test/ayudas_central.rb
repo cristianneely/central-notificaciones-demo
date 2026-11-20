@@ -30,7 +30,8 @@ module AyudasCentral
     CertificadoEmitido.send(
       empresa: usuario.empresa_id,
       destinatarios: [usuario.id],
-      datos: { certificado_id: certificado_id, curso: curso, link_certificado: link })
+      datos: { certificado_id: certificado_id, curso: curso, imagen_curso: "/cursos/curso.svg",
+               link_certificado: link })
   end
 
   def enviar_recordatorio(usuario, curso: "Excel básico", fecha_limite: "22-11-2026")

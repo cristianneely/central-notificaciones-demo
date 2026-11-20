@@ -94,7 +94,8 @@ class DespachadorTest < ActiveSupport::TestCase
     solicitud = CertificadoEmitido.send(
       empresa: 1,
       destinatarios: [de_otra_empresa.id, 9999, sin_correo.id],
-      datos: { certificado_id: 789, curso: "Excel avanzado", link_certificado: "https://ejemplo.test/c/789" })
+      datos: { certificado_id: 789, curso: "Excel avanzado", imagen_curso: "/cursos/excel-avanzado.svg",
+               link_certificado: "https://ejemplo.test/c/789" })
 
     assert_equal 3, despachar
     [de_otra_empresa.id, 9999, sin_correo.id].each do |usuario_id|
