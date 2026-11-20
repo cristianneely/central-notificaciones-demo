@@ -9,7 +9,7 @@ class SendTest < ActiveSupport::TestCase
     sembrar
     @ana = Usuario.find(1)
     @bruno = Usuario.find(2)
-    @datos = { certificado_id: 789, curso: "Excel avanzado",
+    @datos = { certificado_id: 789, curso: "Excel avanzado", imagen_curso: "/cursos/excel-avanzado.svg",
                link_certificado: "https://ejemplo.test/certificados/789" }
   end
 

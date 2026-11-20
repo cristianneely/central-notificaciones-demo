@@ -26,7 +26,7 @@ class PoliticasTest < ActiveSupport::TestCase
   end
 
   test "18: canal desconocido" do
-    assert_rechaza "canal desconocido: push", canal: "push"
+    assert_rechaza "canal desconocido: fax", canal: "fax"
   end
 
   test "18: apagar lo que no es crítico sí se guarda" do

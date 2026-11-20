@@ -77,7 +77,7 @@ class CanalDePruebaTest < ActiveSupport::TestCase
     Notification::Politicas.restablecer_por_defecto
     Notification::Canales.quitar("falso")
 
-    assert_equal %w[email slack whatsapp sms], Notification::Canales.nombres
+    assert_equal %w[email slack whatsapp sms push], Notification::Canales.nombres
     assert_equal ["email"], Notification::Politicas.canales_efectivos(empresa_id: 1, criticidad: "critica")
   end
 end

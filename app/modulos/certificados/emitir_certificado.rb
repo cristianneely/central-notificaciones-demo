@@ -34,6 +34,7 @@ module Certificados
             datos: {
               certificado_id: certificado.id,
               curso: curso,
+              imagen_curso: Cursos.imagen(curso),
               link_certificado: "https://ejemplo.test/certificados/#{certificado.id}"
             }
           )

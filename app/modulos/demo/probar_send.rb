@@ -28,7 +28,7 @@ module Demo
     def self.datos_de_ejemplo(notificacion)
       case notificacion
       when "certificado_emitido"
-        { certificado_id: 1001, curso: "Excel avanzado",
+        { certificado_id: 1001, curso: "Excel avanzado", imagen_curso: "/cursos/excel-avanzado.svg",
           link_certificado: "https://ejemplo.test/certificados/1001" }
       when "recordatorio_curso"
         { curso: "Excel básico", fecha_limite: (Date.current + 7).strftime("%d-%m-%Y"),

@@ -8,7 +8,8 @@ class CatalogoPantallaTest < ActionDispatch::IntegrationTest
   setup { sembrar }
 
   def probar_send(**cambios)
-    datos = { certificado_id: 1001, curso: "Excel avanzado", link_certificado: "https://ejemplo.test/c/1001" }
+    datos = { certificado_id: 1001, curso: "Excel avanzado", imagen_curso: "/cursos/excel-avanzado.svg",
+              link_certificado: "https://ejemplo.test/c/1001" }
     post "/catalogo/probar_send", params: {
       notificacion: "certificado_emitido", empresa_id: 1, destinatarios: "1", datos: datos.to_json
     }.merge(cambios)
@@ -61,7 +62,8 @@ class CatalogoPantallaTest < ActionDispatch::IntegrationTest
 
   test "36: probar send() sin un dato" do
     assert_send_rechaza "falta el dato: curso",
-                        datos: { certificado_id: 1001, link_certificado: "https://ejemplo.test/c/1001" }.to_json
+                        datos: { certificado_id: 1001, imagen_curso: "/cursos/curso.svg",
+                                 link_certificado: "https://ejemplo.test/c/1001" }.to_json
   end
 
   test "36: probar send() con una notificación que no existe" do

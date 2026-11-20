@@ -96,6 +96,23 @@ class CanalesNuevosTest < ActiveSupport::TestCase
     assert texto.end_with?("…")
   end
 
+  test "67: push: el título, el resumen como texto, la imagen grande y el link al tocar" do
+    mensaje = canal("push").adaptar(contenido)
+
+    assert_equal({ titulo: "Ana pidió vacaciones", cuerpo: "Ana pidió vacaciones del 2 al 6 de diciembre.",
+                   imagen: "https://ejemplo.test/i.png", link: "https://ejemplo.test/solicitudes/55" }, mensaje)
+    assert_equal ["Párrafo: se omite", "Destacado: se omite", "Lista: se omite",
+                  "Botón: tocar la notificación abre el link"], canal("push").notas(contenido)
+    assert_equal :dispositivo, canal("push").contacto
+  end
+
+  test "67: push sin imagen ni botón" do
+    corto = [{ tipo: :titulo, texto: "t" }, { tipo: :resumen, texto: "r" }]
+
+    assert_equal({ titulo: "t", cuerpo: "r", imagen: nil, link: nil }, canal("push").adaptar(contenido(corto)))
+    assert_equal [], canal("push").notas(contenido(corto))
+  end
+
   test "55: las notas solo nombran las piezas que trae el contenido" do
     corto = [{ tipo: :titulo, texto: "t" }, { tipo: :resumen, texto: "r" }]
 
@@ -107,7 +124,7 @@ class CanalesNuevosTest < ActiveSupport::TestCase
     sembrar
     definiciones_antes = Notification.catalogo.todas.dup
 
-    assert_equal %w[email slack whatsapp sms], Notification::Canales.nombres
+    assert_equal %w[email slack whatsapp sms push], Notification::Canales.nombres
     Notification::Configuracion::POLITICA_POR_DEFECTO.each_value { |canales| assert_equal ["email"], canales }
 
     solicitud = enviar_certificado(Usuario.find(1))

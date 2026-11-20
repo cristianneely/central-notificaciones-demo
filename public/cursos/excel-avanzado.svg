@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300" role="img" aria-label="Portada del curso Excel avanzado">
+  <rect width="600" height="300" rx="16" fill="#e8f0fa"/>
+  <rect x="0" y="230" width="600" height="70" fill="#164f8a" opacity="0.12"/>
+  <g transform="translate(220 40)">
+    <rect width="160" height="150" rx="10" fill="#ffffff" stroke="#164f8a" stroke-width="4"/>
+    <rect width="160" height="34" rx="10" fill="#164f8a"/>
+    <line x1="0" y1="68" x2="160" y2="68" stroke="#164f8a" stroke-opacity="0.4" stroke-width="2"/>
+    <line x1="0" y1="102" x2="160" y2="102" stroke="#164f8a" stroke-opacity="0.4" stroke-width="2"/>
+    <line x1="0" y1="136" x2="160" y2="136" stroke="#164f8a" stroke-opacity="0.4" stroke-width="2"/>
+    <line x1="54" y1="34" x2="54" y2="150" stroke="#164f8a" stroke-opacity="0.4" stroke-width="2"/>
+    <line x1="108" y1="34" x2="108" y2="150" stroke="#164f8a" stroke-opacity="0.4" stroke-width="2"/>
+  </g>
+  <text x="300" y="268" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="700" fill="#164f8a">Excel avanzado</text>
+</svg>

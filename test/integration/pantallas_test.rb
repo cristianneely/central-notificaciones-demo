@@ -36,7 +36,7 @@ class PantallasTest < ActionDispatch::IntegrationTest
 
     assert_select "section#contenido-por-piezas h2", text: "Una definición, varios canales"
     assert_select "section#contenido-por-piezas a[href='/simulador']", text: "Simulador"
-    assert_select "table.requisitos td", text: /\ASimulador: una definición dibujada por email, Slack, WhatsApp y SMS/
+    assert_select "table.requisitos td", text: /\ASimulador: una definición dibujada por email, Slack, WhatsApp, SMS y push/
   end
 
   test "acerca declara las simplificaciones, los requisitos y la nota sobre send" do

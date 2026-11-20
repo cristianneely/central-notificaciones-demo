@@ -32,7 +32,7 @@ class InicioTest < ActionDispatch::IntegrationTest
     assert_select ".accesos li:nth-child(2) a[href='/consola']", text: "Abrir la demo"
     assert_select ".accesos li:nth-child(2) .descripcion", text: "Definir, enviar y seguir una notificación."
     assert_select ".accesos li:nth-child(3) a[href='/simulador']", text: "Probar el simulador"
-    assert_select ".accesos li:nth-child(3) .descripcion", text: "Una notificación, cuatro canales."
+    assert_select ".accesos li:nth-child(3) .descripcion", text: "Una notificación, cinco canales."
     assert_select ".accesos li:nth-child(4) a[href='#{CODIGO}'][target=_blank]", text: "Ver el código"
     assert_select ".accesos li:nth-child(4) .descripcion", count: 0
   end

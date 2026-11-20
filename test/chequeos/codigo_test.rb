@@ -31,7 +31,7 @@ class CodigoTest < ActiveSupport::TestCase
   test "28: chequeo R1, solo los canales invocan la entrega de un proveedor" do
     entrega_del_proveedor = /(Proveedores::\w+|Simulado|MensajeriaSimulada)\.entregar\b/
 
-    assert_equal %w[email slack sms whatsapp].map { |canal| "app/central/notification/canales/#{canal}.rb" },
+    assert_equal %w[email push slack sms whatsapp].map { |canal| "app/central/notification/canales/#{canal}.rb" },
                  archivos_con(entrega_del_proveedor)
   end
 end

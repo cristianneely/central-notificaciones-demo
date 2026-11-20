@@ -8,6 +8,7 @@ class SolicitudVacaciones < Notification
   contenido do
     titulo  "{solicitante} pidió vacaciones"
     resumen "{solicitante} pidió vacaciones del {desde} al {hasta}."
+    imagen  "/vacaciones.svg", alt: "Ilustración de vacaciones"
     parrafo "{solicitante} envió una solicitud de vacaciones y espera tu respuesta."
     lista   "Desde: {desde}", "Hasta: {hasta}", "Días hábiles: {dias_habiles}"
     boton   "Revisar solicitud", link: "{link_solicitud}"

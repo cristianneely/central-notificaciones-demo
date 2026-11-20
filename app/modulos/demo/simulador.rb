@@ -4,7 +4,7 @@ module Demo
   module Simulador
     NOTIFICACIONES = %w[solicitud_vacaciones saludo_cumpleanos certificado_emitido].freeze
     # Los canales de la tabla de la sección 2.1.5, en ese orden.
-    CANALES = %w[email slack whatsapp sms].freeze
+    CANALES = %w[email slack whatsapp sms push].freeze
 
     # Si la notificación no es una de las tres, se usa la primera.
     def self.simular(nombre, editados)

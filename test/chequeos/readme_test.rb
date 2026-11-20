@@ -76,7 +76,7 @@ class ReadmeTest < ActiveSupport::TestCase
 
   test "65: el README declara los canales simulados, las plantillas, los links cortos y la imagen" do
     nuevas = [
-      ["Slack, WhatsApp y SMS, cada uno con su proveedor",
+      ["Slack, WhatsApp, SMS y push, cada uno con su proveedor",
        "Canales simulados, fuera de la política: solo los usa el simulador y no envían nada"],
       ["Plantillas de WhatsApp aprobadas por Meta; sin plantilla, sigue por el canal siguiente",
        "Simuladas: solo el certificado tiene plantilla; sin ella, el simulador muestra el botón como link en el texto"],
@@ -89,8 +89,10 @@ class ReadmeTest < ActiveSupport::TestCase
 
   test "65: el README muestra el contenido por piezas y cómo lo dibuja cada canal" do
     ["contenido do", %(titulo  "Tu certificado de {curso} está listo"), %(resumen "Terminaste {curso}. Descarga tu certificado."),
+     %(imagen  "{imagen_curso}", alt: "Portada de {curso}"), "datos       :certificado_id, :curso, :imagen_curso, :link_certificado",
      %(boton   "Descargar", link: "{link_certificado}"), "## Contenido por piezas",
-     "| Pieza | Email | Slack | WhatsApp | SMS |", "| Botón | Botón | Botón | Botón de la plantilla | Link corto |",
+     "| Pieza | Email | Slack | WhatsApp | SMS | Push |",
+     "| Botón | Botón | Botón | Botón de la plantilla | Link corto | Tocar la notificación abre el link |",
      "`/simulador`"].each do |texto|
       assert_includes README, texto
     end

@@ -1,6 +1,6 @@
 class Notification
   module Proveedores
-    # El proveedor simulado de Slack, WhatsApp y SMS. Ocupa el lugar que tendría cada
+    # El proveedor simulado de Slack, WhatsApp, SMS y push. Ocupa el lugar que tendría cada
     # proveedor real: acepta todo y no guarda nada. Estos canales no están en la política
     # por defecto, así que el despachador no los usa; existen para el simulador.
     module MensajeriaSimulada
