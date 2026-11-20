@@ -15,7 +15,7 @@ class CodigoTest < ActiveSupport::TestCase
 
   test "27: chequeo R9, ninguna puerta llama a send(): solo las acciones de negocio" do
     clases = Notification.catalogo.todas.map { |definicion| definicion.clase.name }
-    assert_equal 4, clases.size
+    assert_equal 5, clases.size
     # Ni el nombre de una notificación ni una llamada a send() o a sus equivalentes.
     llamada_a_send = /\b(#{clases.join("|")})\b|\.\s*(send|deliver|public_send|__send__)\b/
 

@@ -79,7 +79,7 @@ class SendTest < ActiveSupport::TestCase
   test "38: un método desconocido sobre una clase ya validada es un error de Ruby" do
     assert_raises(NoMethodError) { CertificadoEmitido.sennd(empresa: 1) }
     assert_raises(NoMethodError) { CertificadoEmitido.canales [:email] }
-    assert_equal 4, Notification.catalogo.todas.size
+    assert_equal 5, Notification.catalogo.todas.size
     assert_equal %i[contenido criticidad datos unica_por], CertificadoEmitido.declarado.keys.sort
   end
 

@@ -23,16 +23,16 @@ class CatalogoPantallaTest < ActionDispatch::IntegrationTest
     assert_equal antes, conteos_de_send, "un send() rechazado no guarda nada"
   end
 
-  test "la pantalla lista las cuatro definiciones con su versión" do
+  test "la pantalla lista las cinco definiciones con su versión" do
     get "/catalogo"
 
-    assert_select ".definicion", count: 4
+    assert_select ".definicion", count: 5
     Notification.catalogo.todas.each do |definicion|
       assert_includes response.body, definicion.nombre
       assert_includes response.body, definicion.version
     end
     assert_includes response.body, "Tu certificado de {curso} está listo"
-    assert_select "select[name=notificacion] option", count: 5
+    assert_select "select[name=notificacion] option", count: 6
     assert_select "select[name=notificacion] option", text: "una_que_no_existe"
     assert_select "input[name=destinatarios][value='1']"
   end
@@ -46,7 +46,7 @@ class CatalogoPantallaTest < ActionDispatch::IntegrationTest
      "clave no permitida: canales"].each do |mensaje|
       assert_select ".errores-definicion li", text: mensaje
     end
-    assert_equal 4, Notification.catalogo.todas.size
+    assert_equal 5, Notification.catalogo.todas.size
   end
 
   test "36: probar send() con datos válidos devuelve la solicitud y deja un pendiente" do

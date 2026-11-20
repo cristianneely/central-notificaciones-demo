@@ -41,11 +41,11 @@ class CatalogoTest < ActiveSupport::TestCase
     error.errores
   end
 
-  test "1: catálogo válido, con las cuatro definiciones, su criticidad y su versión" do
+  test "1: catálogo válido, con las cinco definiciones, su criticidad y su versión" do
     catalogo = Notification.catalogo
 
-    assert_equal %w[certificado_emitido encuesta_satisfaccion recordatorio_curso saludo_cumpleanos],
-                 catalogo.nombres
+    assert_equal %w[certificado_emitido encuesta_satisfaccion recordatorio_curso saludo_cumpleanos
+                    solicitud_vacaciones], catalogo.nombres
     assert_equal :critica, catalogo.buscar("certificado_emitido").criticidad
     assert_equal :informativa, catalogo.buscar("recordatorio_curso").criticidad
     assert_equal :opcional, catalogo.buscar("encuesta_satisfaccion").criticidad
@@ -53,6 +53,26 @@ class CatalogoTest < ActiveSupport::TestCase
     catalogo.todas.each do |definicion|
       assert_match(/\A[0-9a-f]{8}\z/, definicion.version)
     end
+  end
+
+  test "57: la solicitud de vacaciones es crítica, única por solicitud y trae lista y botón" do
+    definicion = Notification.catalogo.buscar("solicitud_vacaciones")
+
+    assert_equal :critica, definicion.criticidad
+    assert_equal %i[solicitud_id solicitante desde hasta dias_habiles link_solicitud], definicion.datos
+    assert_equal [:solicitud_id], definicion.unica_por
+    assert_equal %i[titulo resumen parrafo lista boton], definicion.contenido.map { |pieza| pieza[:tipo] }
+    assert_equal ["Desde: {desde}", "Hasta: {hasta}", "Días hábiles: {dias_habiles}"], definicion.contenido[3][:items]
+    assert_equal({ tipo: :boton, texto: "Revisar solicitud", link: "{link_solicitud}" }, definicion.contenido.last)
+  end
+
+  test "57: el saludo de cumpleaños trae un destacado y una imagen propia de la demo" do
+    piezas = Notification.catalogo.buscar("saludo_cumpleanos").contenido
+
+    assert_equal %i[titulo resumen parrafo destacado imagen], piezas.map { |pieza| pieza[:tipo] }
+    imagen = piezas.last
+    assert_equal "/tarjeta-cumpleanos.svg", imagen[:url]
+    assert Rails.root.join("public/tarjeta-cumpleanos.svg").exist?, "la tarjeta vive en public/"
   end
 
   test "1: el identificador sale del nombre de la clase" do
