@@ -26,13 +26,29 @@ class Notification
         @piezas = []
       end
 
+      # Cada pieza recibe cualquier cosa: si no viene en su forma (un argumento de más, una
+      # clave que no es suya), se anota como mal escrita y el catálogo dice cómo se escribe,
+      # en vez de que la clase reviente al cargar con un error de Ruby.
       DE_TEXTO.each do |tipo|
-        define_method(tipo) { |texto = nil| @piezas << { tipo: tipo, texto: texto } }
+        define_method(tipo) do |*argumentos, **opciones|
+          bien = argumentos.size <= 1 && opciones.empty?
+          @piezas << (bien ? { tipo: tipo, texto: argumentos.first } : { tipo: tipo, mal_escrita: true })
+        end
       end
 
-      def lista(*items) = @piezas << { tipo: :lista, items: items.flatten }
-      def imagen(url = nil, alt: nil) = @piezas << { tipo: :imagen, url: url, alt: alt }
-      def boton(texto = nil, link: nil) = @piezas << { tipo: :boton, texto: texto, link: link }
+      def lista(*items, **opciones)
+        @piezas << (opciones.empty? ? { tipo: :lista, items: items.flatten } : { tipo: :lista, mal_escrita: true })
+      end
+
+      def imagen(*argumentos, **opciones)
+        bien = argumentos.size <= 1 && (opciones.keys - [:alt]).empty?
+        @piezas << (bien ? { tipo: :imagen, url: argumentos.first, alt: opciones[:alt] } : { tipo: :imagen, mal_escrita: true })
+      end
+
+      def boton(*argumentos, **opciones)
+        bien = argumentos.size <= 1 && (opciones.keys - [:link]).empty?
+        @piezas << (bien ? { tipo: :boton, texto: argumentos.first, link: opciones[:link] } : { tipo: :boton, mal_escrita: true })
+      end
 
       # Una pieza que no es del vocabulario no rompe la carga: se anota, y el catálogo
       # la informa junto con los demás errores.

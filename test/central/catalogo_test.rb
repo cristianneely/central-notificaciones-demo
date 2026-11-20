@@ -223,6 +223,27 @@ class CatalogoTest < ActiveSupport::TestCase
                  errores_con(contenido: { titulo: "Hola", cuerpo: "Texto" })
   end
 
+  test "43: una pieza mal escrita da un error claro, no una excepción de Ruby" do
+    assert_equal [%(imagen se escribe: imagen "url", alt: "texto")],
+                 errores_con(contenido: proc { titulo "Hola"; resumen "Texto"; imagen "/u.png", "alt" })
+    assert_equal [%(boton se escribe: boton "texto", link: "url")],
+                 errores_con(contenido: proc { titulo "Hola"; resumen "Texto"; boton "Ir", url: "{link}" })
+    assert_equal [%(boton se escribe: boton "texto", link: "url")],
+                 errores_con(contenido: proc { titulo "Hola"; resumen "Texto"; boton "Ir", "{link}" })
+    assert_equal [%(titulo se escribe: titulo "texto")],
+                 errores_con(contenido: proc { titulo "Hola", "Otra"; resumen "Texto" })
+    assert_equal [%(lista se escribe: lista "uno", "dos")],
+                 errores_con(contenido: proc { titulo "Hola"; resumen "Texto"; lista "a", estilo: :numerada })
+  end
+
+  test "43: el contenido como un hash entre paréntesis también se rechaza con un error claro" do
+    nueva = clase(**VALIDA.except(:contenido))
+    nueva.contenido({ titulo: "Hola", cuerpo: "Texto" })
+
+    error = assert_raises(Notification::DefinicionInvalida) { @catalogo.registrar(nueva) }
+    assert_equal ["contenido se declara con un bloque de piezas"], error.errores
+  end
+
   test "43: un bloque de contenido vacío" do
     assert_equal ["contenido necesita titulo y resumen"], errores_con(contenido: proc {})
   end

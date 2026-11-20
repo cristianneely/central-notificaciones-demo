@@ -36,10 +36,13 @@ class CanalesNuevosTest < ActiveSupport::TestCase
     assert_equal [], canal("slack").notas(contenido)
   end
 
-  test "50: Slack escapa los caracteres que su formato usa para links" do
-    piezas = [{ tipo: :titulo, texto: "t" }, { tipo: :resumen, texto: "r" }, { tipo: :parrafo, texto: "a < b & c > d" }]
+  test "50: Slack escapa los caracteres que su formato usa para links, también en el texto del aviso" do
+    piezas = [{ tipo: :titulo, texto: "t" }, { tipo: :resumen, texto: "<!channel> pidió" },
+              { tipo: :parrafo, texto: "a < b & c > d" }]
+    mensaje = canal("slack").adaptar(contenido(piezas))
 
-    assert_equal "a &lt; b &amp; c &gt; d", canal("slack").adaptar(contenido(piezas))[:blocks][1][:text][:text]
+    assert_equal "a &lt; b &amp; c &gt; d", mensaje[:blocks][1][:text][:text]
+    assert_equal "&lt;!channel&gt; pidió", mensaje[:text]
   end
 
   test "51: WhatsApp con plantilla aprobada: texto con negrita, imagen adjunta y botón de la plantilla" do

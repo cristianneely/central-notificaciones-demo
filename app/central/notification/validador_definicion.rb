@@ -5,6 +5,12 @@ class Notification
     CLAVES = %i[criticidad datos unica_por contenido].freeze
     FORMATO_NOMBRE = /\A[a-z][a-z0-9_]*\z/
     MARCADOR = /\{(\w+)\}/
+    # Cómo se escribe cada pieza, para el error de una pieza mal escrita.
+    FORMAS = {
+      titulo: 'titulo "texto"', resumen: 'resumen "texto"', parrafo: 'parrafo "texto"',
+      destacado: 'destacado "texto"', lista: 'lista "uno", "dos"',
+      imagen: 'imagen "url", alt: "texto"', boton: 'boton "texto", link: "url"'
+    }.freeze
 
     # Devuelve la lista de mensajes de error; vacía si la definición es válida.
     def self.errores(nombre, opciones, nombres_existentes: [])
@@ -75,6 +81,11 @@ class Notification
       errores << "titulo y resumen van una sola vez" if cuantas.values_at(:titulo, :resumen).compact.any? { |n| n > 1 }
 
       piezas.each do |pieza|
+        if pieza[:mal_escrita]
+          errores << "#{pieza[:tipo]} se escribe: #{FORMAS.fetch(pieza[:tipo])}"
+          next
+        end
+
         case pieza[:tipo]
         when *Contenido::DE_TEXTO
           errores << "#{pieza[:tipo]} necesita un texto" unless texto?(pieza[:texto])

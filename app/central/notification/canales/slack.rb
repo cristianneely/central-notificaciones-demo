@@ -10,7 +10,7 @@ class Notification
       def contacto = :slack
 
       def adaptar(contenido)
-        { text: contenido.resumen, blocks: contenido.piezas.filter_map { |pieza| bloque(pieza) } }
+        { text: escapar(contenido.resumen), blocks: contenido.piezas.filter_map { |pieza| bloque(pieza) } }
       end
 
       def entregar_al_proveedor(mensaje, pendiente:, para:)

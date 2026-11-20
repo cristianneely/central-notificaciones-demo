@@ -33,8 +33,8 @@ class Notification
 
     # El contenido se escribe como un bloque de piezas (`contenido do ... end`). La forma
     # antigua, con claves, se anota tal cual para que el catálogo la rechace.
-    def contenido(**campos, &bloque)
-      declarar(:contenido, bloque ? Contenido.declarar(&bloque) : campos)
+    def contenido(*posicionales, **campos, &bloque)
+      declarar(:contenido, bloque ? Contenido.declarar(&bloque) : posicionales.first || campos)
     end
 
     # Lo declarado en la clase, tal cual, para que el catálogo lo valide.
