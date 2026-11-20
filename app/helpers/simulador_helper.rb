@@ -1,5 +1,5 @@
 module SimuladorHelper
-  NOMBRES_CANALES = { "email" => "Email", "slack" => "Slack", "whatsapp" => "WhatsApp", "sms" => "SMS" }.freeze
+  NOMBRES_CANALES = { "email" => "Email", "slack" => "Slack", "whatsapp" => "WhatsApp", "sms" => "SMS", "push" => "Push" }.freeze
 
   # Lo que recibiría el proveedor de cada canal, tal cual.
   def mensaje_crudo(canal, mensaje)

@@ -1,0 +1,33 @@
+class Notification
+  module Canales
+    # Notificación push en el teléfono (simulada). Tiene espacio para un título y una o dos
+    # líneas: el título va como título, el resumen como texto y la imagen se ve al
+    # expandirla. No tiene botones propios: tocar la notificación abre el link del botón.
+    class Push < Base
+      DEGRADA = {
+        parrafo: "Párrafo: se omite",
+        destacado: "Destacado: se omite",
+        lista: "Lista: se omite",
+        boton: "Botón: tocar la notificación abre el link"
+      }.freeze
+
+      def nombre = "push"
+
+      # El dispositivo registrado de la persona. Las personas de la demo no lo tienen.
+      def contacto = :dispositivo
+
+      def adaptar(contenido)
+        {
+          titulo: contenido.titulo,
+          cuerpo: contenido.resumen,
+          imagen: contenido.de(:imagen).first&.fetch(:url),
+          link: contenido.de(:boton).first&.fetch(:link)
+        }
+      end
+
+      def entregar_al_proveedor(mensaje, pendiente:, para:)
+        Proveedores::MensajeriaSimulada.entregar(canal: nombre, mensaje: mensaje, para: para)
+      end
+    end
+  end
+end

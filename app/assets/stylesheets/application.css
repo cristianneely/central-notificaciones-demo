@@ -237,3 +237,13 @@ body.pagina-simulador main { max-width: 1320px; }
 .telefono-pantalla { min-height: 140px; padding: 0.6rem 0.2rem; }
 .burbuja-sms { padding: 0.45rem 0.6rem; background: #e9e9eb; border-radius: 14px; font-size: 0.85rem; word-break: break-word; }
 .largo-sms { margin: 0.4rem 0 0; text-align: center; font-size: 0.8rem; color: var(--tenue); }
+
+/* Push: la notificación sobre la pantalla de bloqueo. */
+.pantalla-bloqueo { max-width: 280px; margin: 0 auto; padding: 0.8rem 0.6rem 1rem; border: 2px solid #3a3f45; border-radius: 22px; background: linear-gradient(160deg, #3e5f7a, #7a5f8a); }
+.bloqueo-hora { margin-bottom: 0.6rem; text-align: center; color: #ffffff; font-size: 1.8rem; font-weight: 300; }
+.push-notificacion { padding: 0.55rem 0.65rem; background: rgba(255, 255, 255, 0.88); border-radius: 14px; font-size: 0.82rem; }
+.push-cabecera { display: flex; gap: 0.35rem; align-items: center; color: var(--tenue); font-size: 0.72rem; }
+.push-icono { width: 16px; height: 16px; display: grid; place-items: center; background: #5b4b8a; color: #ffffff; border-radius: 4px; font-size: 0.6rem; font-weight: 700; }
+.push-titulo { margin-top: 0.2rem; font-weight: 700; }
+.push-notificacion img { display: block; width: 100%; margin-top: 0.4rem; border-radius: 8px; }
+.push-link { margin: 0.4rem 0 0; text-align: center; font-size: 0.78rem; color: var(--tenue); word-break: break-all; }

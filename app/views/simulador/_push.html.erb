@@ -1,0 +1,12 @@
+<div class="pantalla-bloqueo">
+  <div class="bloqueo-hora">9:41</div>
+  <div class="push-notificacion">
+    <div class="push-cabecera"><span class="push-icono">C</span> Central · ahora</div>
+    <div class="push-titulo"><%= mensaje[:titulo] %></div>
+    <div class="push-cuerpo"><%= mensaje[:cuerpo] %></div>
+    <% if mensaje[:imagen] %><img src="<%= mensaje[:imagen] %>" alt=""><% end %>
+  </div>
+</div>
+<p class="push-link">
+  <% if mensaje[:link] %>Al tocarla abre: <code><%= mensaje[:link] %></code><% else %>Al tocarla abre la app.<% end %>
+</p>

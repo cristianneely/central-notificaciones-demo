@@ -13,17 +13,18 @@ class SimuladorTest < ActionDispatch::IntegrationTest
      Notification::Proveedores::CorreoSimulado.count]
   end
 
-  test "58: cada una de las tres notificaciones se ve en los cuatro canales" do
+  test "58: cada una de las tres notificaciones se ve en los cinco canales" do
     NOTIFICACIONES.each do |nombre|
       get "/simulador", params: { notificacion: nombre }
 
       assert_response :ok
-      assert_select ".canal", count: 4
+      assert_select ".canal", count: 5
       assert_select ".canal-email .asunto-bandeja", text: Demo::Simulador.simular(nombre, {})[:canales].first[:mensaje][:asunto]
       assert_select ".canal-email iframe[srcdoc]"
       assert_select ".canal-slack .slack-encabezado"
       assert_select ".canal-whatsapp .burbuja-whatsapp"
       assert_select ".canal-sms .largo-sms", text: /\A\d+ de 160 caracteres\z/
+      assert_select ".canal-push .push-notificacion .push-titulo"
     end
   end
 
@@ -31,7 +32,7 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     simulacion = Demo::Simulador.simular("solicitud_vacaciones", {})
 
     assert_equal "solicitud_vacaciones", simulacion[:definicion].nombre
-    assert_equal %w[email slack whatsapp sms], simulacion[:canales].map { |canal| canal[:nombre] }
+    assert_equal %w[email slack whatsapp sms push], simulacion[:canales].map { |canal| canal[:nombre] }
     assert_includes simulacion[:codigo], "class SolicitudVacaciones < Notification"
     assert_equal "Ana Soto", simulacion[:datos][:solicitante]
   end
@@ -53,6 +54,7 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     assert_select ".canal-slack .slack-encabezado", text: "Tu certificado de Power BI está listo"
     assert_select ".canal-whatsapp .burbuja-whatsapp", text: /Power BI/
     assert_select ".canal-sms .burbuja-sms", text: /Terminaste Power BI\./
+    assert_select ".canal-push .push-titulo", text: "Tu certificado de Power BI está listo"
     assert_select "input[name='datos[curso]'][value='Power BI']"
   end
 
@@ -60,6 +62,8 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     get "/simulador", params: { notificacion: "solicitud_vacaciones" }
 
     assert_select ".canal-sms .notas li", text: "Lista: se omite"
+    assert_select ".canal-push .notas li", text: "Lista: se omite"
+    assert_select ".canal-push .push-notificacion img[src='/vacaciones.svg']"
     assert_select ".canal-whatsapp .notas li", text: "Botón: pasa a link (sin plantilla aprobada)"
     assert_select ".canal-whatsapp .boton-plantilla", count: 0
     assert_select ".canal-email .notas", text: /Sin degradación/
@@ -110,6 +114,7 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     assert_select ".canal-email .crudo", text: /<h1>Tu certificado de Excel avanzado está listo<\/h1>/
     assert_select ".canal-slack .crudo", text: /"type": "header"/
     assert_select ".canal-whatsapp .crudo", text: /"plantilla": "certificado_emitido"/
+    assert_select ".canal-push .crudo", text: /"link": "https:\/\/ejemplo\.test\/certificados\/1001"/
     assert_select ".canal-sms .crudo", text: %r{Terminaste Excel avanzado\. Descarga tu certificado\. https://nj\.test/}
   end
 
