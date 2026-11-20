@@ -24,8 +24,8 @@ module Demo
       [7, "Caída del proveedor", "\"Apagar el proveedor\", emitir varias, \"Encender el proveedor\"",
        "Esperan, se reintenta y salen con lo crítico primero"],
       [8, "Historial", "Pantalla Historial", "Filtros y recorridos, con no enviadas y un rebote"],
-      [9, "Una definición, cuatro canales", "Pantalla Simulador",
-       "Cómo dibujan email, Slack, WhatsApp y SMS las mismas piezas, qué degrada cada uno y el mensaje crudo"]
+      [9, "Una definición, cinco canales", "Pantalla Simulador",
+       "Cómo dibujan email, Slack, WhatsApp, SMS y push las mismas piezas, qué degrada cada uno y el mensaje crudo"]
     ].freeze
 
     # [En el documento, En la demo]
@@ -65,7 +65,7 @@ module Demo
       ["Pantalla de políticas fuera de alcance", "Políticas sembradas; un botón solo para mostrar el rechazo"],
       ["SQLite admite un solo escritor a la vez (propio de la demo)",
        "No se muestran varias máquinas tomando pendientes"],
-      ["Slack, WhatsApp y SMS, cada uno con su proveedor",
+      ["Slack, WhatsApp, SMS y push, cada uno con su proveedor",
        "Canales simulados, fuera de la política: solo los usa el simulador y no envían nada"],
       ["Plantillas de WhatsApp aprobadas por Meta; sin plantilla, sigue por el canal siguiente",
        "Simuladas: solo el certificado tiene plantilla; sin ella, el simulador muestra el botón como link en el texto"],
@@ -87,8 +87,8 @@ module Demo
        "Consola: un aviso opcional en Minera Los Robles. Prueba 17"],
       ["R6", "Lo crítico siempre tiene canal", "Consola: botón \"Intentar apagar lo crítico\". Pruebas 18 y 42"],
       ["R7", "Canales extensibles sin tocar definiciones",
-       "Simulador: una definición dibujada por email, Slack, WhatsApp y SMS. Pruebas 29, 41 y 56, " \
-       "con un canal de prueba y tres simulados"],
+       "Simulador: una definición dibujada por email, Slack, WhatsApp, SMS y push. Pruebas 29, 41, 56 y 67, " \
+       "con un canal de prueba y cuatro simulados"],
       ["R8", "Definición única, validada: una clase por notificación",
        "Catálogo: botón \"Probar una definición inválida\". Pruebas 1 a 3 y 38"],
       ["R9", "Se dispara desde la acción de negocio, igual por web, API o carga masiva",
