@@ -77,7 +77,7 @@ class Notification
 
       # 6. El canal adapta el contenido a su formato y lo entrega a su proveedor.
       definicion = Notification.catalogo.buscar(pendiente.notificacion)
-      contenido = Contenido.rellenar(definicion.contenido, pendiente.datos)
+      contenido = Contenido.rellenar(definicion, pendiente.datos)
 
       loop do
         resultado = canal.entregar(canal.adaptar(contenido), pendiente: pendiente, para: contacto,

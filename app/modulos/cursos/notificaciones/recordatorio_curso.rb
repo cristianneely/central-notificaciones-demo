@@ -3,7 +3,11 @@ class RecordatorioCurso < Notification
   criticidad  :informativa
   datos       :curso, :fecha_limite, :link_curso
   unica_por   :curso, :fecha_limite
-  contenido   titulo: "Recuerda terminar {curso}",
-              cuerpo: "Tienes hasta el {fecha_limite} para completar {curso}.",
-              accion: { texto: "Ir al curso", link: "{link_curso}" }
+
+  contenido do
+    titulo  "Recuerda terminar {curso}"
+    resumen "Tienes hasta el {fecha_limite} para completar {curso}."
+    parrafo "Tienes hasta el {fecha_limite} para completar {curso}."
+    boton   "Ir al curso", link: "{link_curso}"
+  end
 end

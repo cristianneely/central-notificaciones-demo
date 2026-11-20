@@ -21,7 +21,7 @@ class SegundoPlanoTest < ActiveSupport::TestCase
       @llamadas += 1
       raise "error inesperado en el canal" if @llamadas == 1
 
-      { texto: contenido[:titulo] }
+      { texto: contenido.titulo }
     end
 
     def entregar_al_proveedor(mensaje, pendiente:, para:)

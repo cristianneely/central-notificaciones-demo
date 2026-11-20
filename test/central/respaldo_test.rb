@@ -17,7 +17,7 @@ class RespaldoTest < ActiveSupport::TestCase
     end
 
     def adaptar(contenido)
-      { texto: contenido[:titulo] }
+      { texto: contenido.titulo }
     end
 
     def entregar_al_proveedor(mensaje, pendiente:, para:)

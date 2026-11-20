@@ -3,8 +3,6 @@ class Notification
   # juntos (no se detiene en el primero), en el orden de la tabla de validaciones.
   module ValidadorDefinicion
     CLAVES = %i[criticidad datos unica_por contenido].freeze
-    CLAVES_CONTENIDO = %i[titulo cuerpo accion].freeze
-    CLAVES_ACCION = %i[texto link].freeze
     FORMATO_NOMBRE = /\A[a-z][a-z0-9_]*\z/
     MARCADOR = /\{(\w+)\}/
 
@@ -13,8 +11,7 @@ class Notification
       errores = []
       datos = opciones[:datos]
       unica_por = opciones[:unica_por]
-      contenido = opciones[:contenido].is_a?(Hash) ? opciones[:contenido] : {}
-      accion = contenido[:accion]
+      piezas = opciones[:contenido].is_a?(Array) ? opciones[:contenido] : []
 
       # El nombre sale del nombre de la clase: minúsculas_con_guion_bajo y único en el
       # catálogo.
@@ -44,25 +41,22 @@ class Notification
         end
       end
 
-      # El contenido es neutro: título y cuerpo obligatorios, acción opcional.
-      unless texto?(contenido[:titulo]) && texto?(contenido[:cuerpo])
-        errores << "contenido necesita titulo y cuerpo"
-      end
-      if contenido.key?(:accion)
-        completa = accion.is_a?(Hash) && texto?(accion[:texto]) && texto?(accion[:link])
-        errores << "accion necesita texto y link" unless completa
+      # El contenido es una lista de piezas del vocabulario (título, resumen, párrafo,
+      # destacado, lista, imagen y botón), sin formato de ningún canal.
+      if opciones[:contenido].is_a?(Hash) && opciones[:contenido].any?
+        errores << "contenido se declara con un bloque de piezas"
+      else
+        errores.concat(errores_de_piezas(piezas))
       end
 
       # Todo {marcador} del contenido tiene que ser un dato declarado.
-      (marcadores(contenido) - declarados).each do |dato|
+      (marcadores(piezas) - declarados).each do |dato|
         errores << "el contenido usa un dato no declarado: #{dato}"
       end
 
       # Cualquier otra clave se rechaza. Por ejemplo `canales:`: la definición no elige
       # canales, eso lo deciden las políticas (R7).
       sobrantes = opciones.keys - CLAVES
-      sobrantes += contenido.keys - CLAVES_CONTENIDO
-      sobrantes += accion.keys - CLAVES_ACCION if accion.is_a?(Hash)
       sobrantes.each { |clave| errores << "clave no permitida: #{clave}" }
 
       errores
@@ -72,10 +66,37 @@ class Notification
       valor.is_a?(String) && !valor.strip.empty?
     end
 
-    # Los nombres entre llaves que aparecen en el título, el cuerpo y la acción.
-    def self.marcadores(contenido)
-      accion = contenido[:accion].is_a?(Hash) ? contenido[:accion] : {}
-      textos = [contenido[:titulo], contenido[:cuerpo], accion[:texto], accion[:link]]
+    # Título y resumen son obligatorios y van una sola vez: el resumen es lo que sale
+    # donde el canal tiene una sola línea. Cada pieza trae lo que su tipo necesita.
+    def self.errores_de_piezas(piezas)
+      errores = []
+      cuantas = piezas.map { |pieza| pieza[:tipo] }.tally
+      errores << "contenido necesita titulo y resumen" unless cuantas[:titulo] && cuantas[:resumen]
+      errores << "titulo y resumen van una sola vez" if cuantas.values_at(:titulo, :resumen).compact.any? { |n| n > 1 }
+
+      piezas.each do |pieza|
+        case pieza[:tipo]
+        when *Contenido::DE_TEXTO
+          errores << "#{pieza[:tipo]} necesita un texto" unless texto?(pieza[:texto])
+        when :lista
+          completa = pieza[:items].any? && pieza[:items].all? { |item| texto?(item) }
+          errores << "lista necesita al menos un elemento" unless completa
+        when :imagen
+          errores << "imagen necesita url y alt" unless texto?(pieza[:url]) && texto?(pieza[:alt])
+        when :boton
+          errores << "boton necesita texto y link" unless texto?(pieza[:texto]) && texto?(pieza[:link])
+        else
+          errores << "pieza no permitida: #{pieza[:tipo]}"
+        end
+      end
+
+      errores
+    end
+
+    # Los nombres entre llaves que aparecen en cualquier texto de las piezas: también en
+    # los links, las listas y las imágenes.
+    def self.marcadores(piezas)
+      textos = piezas.flat_map { |pieza| pieza.except(:tipo).values.flatten }
       textos.grep(String).flat_map { |texto| texto.scan(MARCADOR).flatten }.map(&:to_sym).uniq
     end
   end

@@ -12,14 +12,15 @@ class Notification
         :correo
       end
 
-      # Contenido neutro → correo: el título es el asunto, el cuerpo es el cuerpo y la
-      # acción, si la hay, es un botón.
+      # Piezas → correo: el título es el asunto, los párrafos son el cuerpo y el botón,
+      # si lo hay, es un botón.
       def adaptar(contenido)
+        boton = contenido.de(:boton).first
         {
-          asunto: contenido[:titulo],
-          cuerpo: contenido[:cuerpo],
-          accion_texto: contenido.dig(:accion, :texto),
-          accion_link: contenido.dig(:accion, :link)
+          asunto: contenido.titulo,
+          cuerpo: contenido.de(:parrafo).map { |pieza| pieza[:texto] }.join("\n"),
+          accion_texto: boton&.fetch(:texto),
+          accion_link: boton&.fetch(:link)
         }
       end
 

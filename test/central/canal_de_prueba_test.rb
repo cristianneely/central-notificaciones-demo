@@ -22,7 +22,7 @@ class CanalDePruebaTest < ActiveSupport::TestCase
     attr_writer :contacto
 
     def adaptar(contenido)
-      { texto: "#{contenido[:titulo]} / #{contenido[:cuerpo]}" }
+      { texto: "#{contenido.titulo} / #{contenido.resumen}" }
     end
 
     def entregar_al_proveedor(mensaje, pendiente:, para:)
@@ -51,7 +51,7 @@ class CanalDePruebaTest < ActiveSupport::TestCase
     solicitud = enviar_certificado(Usuario.find(1), curso: "Excel avanzado")
     despachar
 
-    assert_equal [{ texto: "Tu certificado de Excel avanzado está listo / Felicitaciones, terminaste Excel avanzado.",
+    assert_equal [{ texto: "Tu certificado de Excel avanzado está listo / Terminaste Excel avanzado. Descarga tu certificado.",
                     para: "ana.soto@ejemplo.test" }], @canal.recibidos
     assert_equal %w[recibida decision_enviar enviada], eventos(solicitud)
     assert_equal ["falso", "falso"], recorrido(solicitud).last(2).map(&:canal)

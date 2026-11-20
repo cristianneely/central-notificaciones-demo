@@ -18,7 +18,7 @@ class Notification
       )
     end
 
-    # Versión del contenido: los primeros 8 caracteres del SHA-256 del contenido.
+    # Versión del contenido: los primeros 8 caracteres del SHA-256 de sus piezas.
     # Si alguien cambia el texto, cambia la versión, y la auditoría sabe con cuál se envió.
     def self.version_de(contenido)
       Digest::SHA256.hexdigest(contenido.to_json)[0, 8]

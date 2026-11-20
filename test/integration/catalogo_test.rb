@@ -42,7 +42,8 @@ class CatalogoPantallaTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
     ["criticidad debe ser :critica, :informativa u :opcional", "unica_por es obligatorio",
-     "el contenido usa un dato no declarado: dato_inexistente", "clave no permitida: canales"].each do |mensaje|
+     "pieza no permitida: video", "el contenido usa un dato no declarado: dato_inexistente",
+     "clave no permitida: canales"].each do |mensaje|
       assert_select ".errores-definicion li", text: mensaje
     end
     assert_equal 4, Notification.catalogo.todas.size

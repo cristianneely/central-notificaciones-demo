@@ -12,11 +12,15 @@
       <dl>
         <dt>Datos</dt><dd><code><%= definicion.datos.join(", ") %></code></dd>
         <dt>Única por</dt><dd><code><%= definicion.unica_por.join(", ") %></code></dd>
-        <dt>Título</dt><dd><%= definicion.contenido[:titulo] %></dd>
-        <dt>Cuerpo</dt><dd><%= definicion.contenido[:cuerpo] %></dd>
-        <% if definicion.contenido[:accion] %>
-          <dt>Acción</dt>
-          <dd><%= definicion.contenido[:accion][:texto] %> → <code><%= definicion.contenido[:accion][:link] %></code></dd>
+        <% definicion.contenido.each do |pieza| %>
+          <dt><%= pieza[:tipo].to_s.capitalize %></dt>
+          <dd>
+            <% if pieza[:tipo] == :lista %><%= pieza[:items].join(" · ") %>
+            <% elsif pieza[:tipo] == :imagen %><%= pieza[:alt] %> → <code><%= pieza[:url] %></code>
+            <% elsif pieza[:tipo] == :boton %><%= pieza[:texto] %> → <code><%= pieza[:link] %></code>
+            <% else %><%= pieza[:texto] %>
+            <% end %>
+          </dd>
         <% end %>
         <dt>Versión</dt><dd><code><%= definicion.version %></code></dd>
       </dl>
