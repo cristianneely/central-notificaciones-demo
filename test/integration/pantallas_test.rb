@@ -3,9 +3,9 @@ require "test_helper"
 # Las cuatro pantallas de la demo. Ninguna lleva barra de aviso: que los datos son ficticios y
 # que no sale ningún correo real lo dicen el inicio y la página Acerca.
 class PantallasTest < ActionDispatch::IntegrationTest
-  PANTALLAS = %w[/consola /catalogo /historial /acerca].freeze
+  PANTALLAS = %w[/consola /catalogo /simulador /historial /acerca].freeze
 
-  test "31: las cuatro pantallas cargan, sin barra de aviso" do
+  test "31: las pantallas cargan, sin barra de aviso" do
     sembrar
 
     PANTALLAS.each do |ruta|
@@ -29,6 +29,14 @@ class PantallasTest < ActionDispatch::IntegrationTest
 
     assert_includes css_select("main").text.squish,
                     "Todos los datos son ficticios y no sale ningún correo real"
+  end
+
+  test "65: acerca explica el contenido por piezas y lleva al simulador" do
+    get "/acerca"
+
+    assert_select "section#contenido-por-piezas h2", text: "Una definición, varios canales"
+    assert_select "section#contenido-por-piezas a[href='/simulador']", text: "Simulador"
+    assert_select "table.requisitos td", text: /\ASimulador: una definición dibujada por email, Slack, WhatsApp y SMS/
   end
 
   test "acerca declara las simplificaciones, los requisitos y la nota sobre send" do

@@ -58,6 +58,10 @@ class ConsolaTest < ActionDispatch::IntegrationTest
     assert_select "#pendientes tbody tr", count: 0
     assert_select "#solicitudes .recorrido", text: /recibida.*decision_enviar.*enviada.*entregada/m
     assert_select "#bandeja .correo", count: 1
+    # El correo se ve como llegaría: asunto, vista previa y el HTML con su botón.
+    assert_select "#bandeja .correo .vista-previa-bandeja"
+    assert_select "#bandeja .correo .html-correo h1"
+    assert_select "#bandeja .correo .html-correo a.boton"
     assert_includes response.body, "Tu certificado de Excel avanzado está listo"
     assert_select "#politicas td", text: "email"
   end
@@ -226,13 +230,13 @@ class ConsolaTest < ActionDispatch::IntegrationTest
     assert_select ".resultado a", count: 0
   end
 
-  test "qué probar está en la consola, plegado, con los ocho escenarios" do
+  test "qué probar está en la consola, plegado, con los nueve escenarios" do
     get "/consola"
 
     assert_select "details.que-probar:not([open])" do
-      assert_select "summary", text: "Qué probar (ocho escenarios)"
+      assert_select "summary", text: "Qué probar (nueve escenarios)"
       assert_equal ["Escenario", "Dónde", "Qué se ve"], css_select("details.que-probar th").map(&:text)
-      assert_select "tbody tr", count: 8
+      assert_select "tbody tr", count: 9
       Demo::Declaraciones::ESCENARIOS.each do |_numero, escenario, donde, que_se_ve|
         assert_select "td", text: escenario
         assert_select "td", text: donde

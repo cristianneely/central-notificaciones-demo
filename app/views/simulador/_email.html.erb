@@ -1,0 +1,8 @@
+<div class="bandeja-fila">
+  <span class="remitente">Central de notificaciones</span>
+  <span class="asunto-bandeja"><%= mensaje[:asunto] %></span>
+  <span class="vista-previa-fila"><%= mensaje[:vista_previa] %></span>
+</div>
+<%# Aislado y sin scripts. allow-same-origin deja que el correo cargue las imágenes de la demo:
+    sin él, el navegador le niega toda petición a este servidor. %>
+<iframe class="correo-abierto" sandbox="allow-same-origin" title="Correo abierto" srcdoc="<%= correo_srcdoc(mensaje[:html]) %>"></iframe>

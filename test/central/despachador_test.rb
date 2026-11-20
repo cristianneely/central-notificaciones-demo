@@ -18,9 +18,10 @@ class DespachadorTest < ActiveSupport::TestCase
     correo = bandeja.sole
     assert_equal "ana.soto@ejemplo.test", correo.para
     assert_equal "Tu certificado de Excel avanzado está listo", correo.asunto
-    assert_equal "Felicitaciones, terminaste Excel avanzado.", correo.cuerpo
-    assert_equal "Descargar", correo.accion_texto
-    assert_equal "https://ejemplo.test/certificados/789", correo.accion_link
+    assert_equal "Terminaste Excel avanzado. Descarga tu certificado.", correo.vista_previa
+    assert_includes correo.html, %(<a class="boton" href="https://ejemplo.test/certificados/789">Descargar</a>)
+    assert_includes correo.cuerpo, "Felicitaciones, terminaste Excel avanzado."
+    assert_includes correo.cuerpo, "Descargar: https://ejemplo.test/certificados/789"
     assert_match(/\Asim-\d{6}\z/, correo.id_proveedor)
 
     decision, enviada = recorrido(solicitud).last(2)
@@ -50,8 +51,7 @@ class DespachadorTest < ActiveSupport::TestCase
 
     correo = bandeja.sole
     assert_equal "¡Feliz cumpleaños, Ana!", correo.asunto
-    assert_nil correo.accion_texto
-    assert_nil correo.accion_link
+    assert_not_includes correo.html, "boton"
   end
 
   test "13: el proveedor simulado avisa el estado final 2 segundos después de aceptar" do

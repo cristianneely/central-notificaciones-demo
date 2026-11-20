@@ -1,0 +1,16 @@
+<div class="whatsapp">
+  <div class="whatsapp-cabecera">Central de notificaciones</div>
+  <div class="whatsapp-chat">
+    <div class="burbuja-whatsapp">
+      <% if mensaje[:imagen] %><img src="<%= mensaje[:imagen][:url] %>" alt="<%= mensaje[:imagen][:alt] %>"><% end %>
+      <div class="texto-whatsapp"><%= whatsapp_a_html(mensaje[:texto]) %></div>
+    </div>
+    <% if mensaje[:boton] %><div class="boton-plantilla"><%= mensaje[:boton][:texto] %></div><% end %>
+  </div>
+</div>
+<%# La plantilla solo importa si hay un botón. %>
+<% if mensaje[:boton] %>
+  <p class="plantilla-estado">Plantilla aprobada (simulada): <code><%= mensaje[:plantilla] %></code></p>
+<% elsif notas.include?(Notification::Canales::Whatsapp::SIN_PLANTILLA) %>
+  <p class="plantilla-estado">Sin plantilla aprobada (simulada): el botón va como link en el texto.</p>
+<% end %>

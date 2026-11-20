@@ -1,0 +1,21 @@
+<div class="slack">
+  <div class="slack-canal"># avisos</div>
+  <div class="slack-mensaje">
+    <div class="slack-avatar">C</div>
+    <div class="slack-cuerpo">
+      <div class="slack-autor">Central de notificaciones <span class="slack-app">APP</span></div>
+      <% mensaje[:blocks].each do |bloque| %>
+        <% if bloque[:type] == "header" %>
+          <div class="slack-encabezado"><%= bloque[:text][:text] %></div>
+        <% elsif bloque[:type] == "section" %>
+          <div class="slack-texto"><%= mrkdwn_a_html(bloque[:text][:text]) %></div>
+        <% elsif bloque[:type] == "image" %>
+          <img class="slack-imagen" src="<%= bloque[:image_url] %>" alt="<%= bloque[:alt_text] %>">
+        <% elsif bloque[:type] == "actions" %>
+          <% bloque[:elements].each do |boton| %><span class="slack-boton"><%= boton[:text][:text] %></span><% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+  <div class="slack-aviso">Aviso del sistema: <%= mensaje[:text] %></div>
+</div>

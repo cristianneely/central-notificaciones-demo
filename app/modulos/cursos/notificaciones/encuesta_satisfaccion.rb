@@ -3,7 +3,11 @@ class EncuestaSatisfaccion < Notification
   criticidad  :opcional
   datos       :curso, :link_encuesta
   unica_por   :curso
-  contenido   titulo: "¿Qué te pareció {curso}?",
-              cuerpo: "Cuéntanos tu experiencia en {curso}. Te toma dos minutos.",
-              accion: { texto: "Responder encuesta", link: "{link_encuesta}" }
+
+  contenido do
+    titulo  "¿Qué te pareció {curso}?"
+    resumen "Cuéntanos tu experiencia en {curso}."
+    parrafo "Cuéntanos tu experiencia en {curso}. Te toma dos minutos."
+    boton   "Responder encuesta", link: "{link_encuesta}"
+  end
 end

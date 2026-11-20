@@ -159,9 +159,13 @@ td.detalle { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-s
 .correo { padding: 0.75rem; border: 1px solid var(--borde); border-radius: 4px; background: var(--fondo); }
 .correo .para { color: var(--tenue); font-size: 0.82rem; }
 .correo .asunto { margin: 0.2rem 0; font-weight: 600; }
-.correo .cuerpo { margin-bottom: 0.5rem; }
-.boton-correo { display: inline-block; padding: 0.2rem 0.7rem; color: #ffffff; background: var(--azul); border-radius: 4px; font-size: 0.85rem; }
-.correo .link { margin-left: 0.4rem; color: var(--tenue); font-size: 0.78rem; word-break: break-all; }
+.correo .vista-previa-bandeja { color: var(--tenue); font-size: 0.85rem; margin-bottom: 0.5rem; }
+.html-correo { padding-top: 0.5rem; border-top: 1px solid var(--borde); }
+.html-correo .vista-previa { display: none; }
+.html-correo h1 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+.html-correo p, .html-correo ul { margin: 0 0 0.5rem; }
+.html-correo img { max-width: 100%; height: auto; border-radius: 4px; }
+.html-correo a.boton { display: inline-block; padding: 0.25rem 0.8rem; color: #ffffff; background: var(--azul); border-radius: 4px; font-size: 0.85rem; text-decoration: none; }
 
 /* Catálogo */
 .definiciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
@@ -175,3 +179,61 @@ dd { margin: 0; }
 .fila-historial { padding: 0.5rem 0; border-bottom: 1px solid var(--borde); }
 .fila-historial summary { cursor: pointer; }
 .recorrido-detalle { margin: 0.5rem 0 0.25rem; background: var(--fondo); }
+
+/* Simulador: la definición a la izquierda y cada canal a la derecha. Las maquetas imitan la
+   forma de cada canal con colores neutros, sin logos ni marcas. */
+body.pagina-simulador main { max-width: 1320px; }
+.aviso-simulador { margin: 0 0 1rem; padding: 0.5rem 0.75rem; background: #ffffff; border: 1px solid var(--borde); border-left: 3px solid var(--azul); border-radius: 4px; font-size: 0.9rem; max-width: 90ch; }
+.simulador { display: grid; grid-template-columns: minmax(280px, 2fr) 3fr; gap: 1rem; align-items: start; }
+@media (max-width: 960px) { .simulador { grid-template-columns: 1fr; } }
+.definicion-simulada .formulario { max-width: none; }
+.definicion-simulada input[type=text] { width: 100%; }
+.definicion-codigo { margin: 0; padding: 0.75rem; overflow-x: auto; background: var(--fondo); border: 1px solid var(--borde); border-radius: 4px; font-size: 0.8rem; line-height: 1.45; }
+.salida > .interruptor { display: inline-block; margin-bottom: 0.75rem; cursor: pointer; }
+#ver-crudo { margin-right: 0.4rem; }
+.canales { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+.canal { margin-bottom: 0; }
+.canal h2 { margin-top: 0; }
+.canal .notas { margin-top: 0.6rem; font-size: 0.85rem; color: var(--tenue); }
+.canal .notas p { margin: 0; }
+.canal .notas ul { margin: 0; padding-left: 1.1rem; }
+.canal .crudo { display: none; margin: 0.6rem 0 0; padding: 0.6rem; max-height: 280px; overflow: auto; white-space: pre-wrap; word-break: break-word; background: #1f2328; color: #e6edf3; border-radius: 4px; font-size: 0.75rem; }
+#ver-crudo:checked ~ .canales .crudo { display: block; }
+
+/* Email: la fila en la bandeja y el correo abierto. */
+.bandeja-fila { display: grid; gap: 0.1rem; padding: 0.5rem 0.6rem; background: #eef3fb; border: 1px solid var(--borde); border-radius: 4px 4px 0 0; font-size: 0.85rem; }
+.bandeja-fila .remitente { font-weight: 600; }
+.bandeja-fila .asunto-bandeja { font-weight: 600; }
+.bandeja-fila .vista-previa-fila { color: var(--tenue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.correo-abierto { display: block; width: 100%; height: 300px; border: 1px solid var(--borde); border-top: 0; border-radius: 0 0 4px 4px; background: #ffffff; }
+
+/* Slack: un mensaje en un canal. */
+.slack { border: 1px solid var(--borde); border-radius: 6px; background: #ffffff; font-size: 0.88rem; }
+.slack-canal { padding: 0.4rem 0.7rem; border-bottom: 1px solid var(--borde); font-weight: 700; }
+.slack-mensaje { display: flex; gap: 0.6rem; padding: 0.7rem; }
+.slack-avatar { flex: none; width: 34px; height: 34px; display: grid; place-items: center; background: #5b4b8a; color: #ffffff; border-radius: 6px; font-weight: 700; }
+.slack-cuerpo { min-width: 0; }
+.slack-autor { font-weight: 700; }
+.slack-app { padding: 0 0.25rem; font-size: 0.65rem; color: var(--tenue); background: var(--fondo); border-radius: 3px; }
+.slack-encabezado { margin: 0.3rem 0; font-size: 1.05rem; font-weight: 800; }
+.slack-texto { margin-bottom: 0.4rem; }
+.slack-imagen { display: block; max-width: 100%; margin-bottom: 0.4rem; border-radius: 6px; }
+.slack-boton { display: inline-block; padding: 0.2rem 0.7rem; border: 1px solid #b6bcc3; border-radius: 4px; font-weight: 600; }
+.slack-aviso { padding: 0.4rem 0.7rem; border-top: 1px dashed var(--borde); color: var(--tenue); font-size: 0.78rem; }
+
+/* WhatsApp: la burbuja en el chat. */
+.whatsapp { overflow: hidden; border: 1px solid var(--borde); border-radius: 6px; font-size: 0.88rem; }
+.whatsapp-cabecera { padding: 0.45rem 0.7rem; background: #2f6b5e; color: #ffffff; font-weight: 600; }
+.whatsapp-chat { padding: 0.8rem; background: #ece5dd; }
+.burbuja-whatsapp { max-width: 92%; padding: 0.35rem; background: #ffffff; border-radius: 0 8px 8px 8px; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+.burbuja-whatsapp img { display: block; width: 100%; border-radius: 6px; margin-bottom: 0.3rem; }
+.texto-whatsapp { padding: 0 0.3rem 0.2rem; word-break: break-word; }
+.boton-plantilla { max-width: 92%; margin-top: 2px; padding: 0.35rem; text-align: center; background: #ffffff; border-radius: 8px; color: #1d7bbf; font-weight: 600; }
+.plantilla-estado { margin: 0.4rem 0 0; font-size: 0.8rem; color: var(--tenue); }
+
+/* SMS: el mensaje en el teléfono. */
+.telefono { max-width: 260px; margin: 0 auto; padding: 0.6rem; border: 2px solid #3a3f45; border-radius: 22px; background: #ffffff; }
+.telefono-cabecera { padding-bottom: 0.4rem; text-align: center; font-size: 0.8rem; font-weight: 600; border-bottom: 1px solid var(--borde); }
+.telefono-pantalla { min-height: 140px; padding: 0.6rem 0.2rem; }
+.burbuja-sms { padding: 0.45rem 0.6rem; background: #e9e9eb; border-radius: 14px; font-size: 0.85rem; word-break: break-word; }
+.largo-sms { margin: 0.4rem 0 0; text-align: center; font-size: 0.8rem; color: var(--tenue); }

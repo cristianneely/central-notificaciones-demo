@@ -37,6 +37,9 @@ module Demo
         { curso: "Excel básico", link_encuesta: "https://ejemplo.test/encuesta" }
       when "saludo_cumpleanos"
         { nombre: "Ana", anio: Date.current.year }
+      when "solicitud_vacaciones"
+        { solicitud_id: 55, solicitante: "Ana Soto", desde: "02-12-2026", hasta: "06-12-2026",
+          dias_habiles: 5, link_solicitud: "https://ejemplo.test/vacaciones/55" }
       else
         {}
       end
