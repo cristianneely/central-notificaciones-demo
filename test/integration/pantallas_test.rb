@@ -3,9 +3,9 @@ require "test_helper"
 # Las cuatro pantallas de la demo. Ninguna lleva barra de aviso: que los datos son ficticios y
 # que no sale ningún correo real lo dicen el inicio y la página Acerca.
 class PantallasTest < ActionDispatch::IntegrationTest
-  PANTALLAS = %w[/consola /catalogo /historial /acerca].freeze
+  PANTALLAS = %w[/consola /catalogo /simulador /historial /acerca].freeze
 
-  test "31: las cuatro pantallas cargan, sin barra de aviso" do
+  test "31: las pantallas cargan, sin barra de aviso" do
     sembrar
 
     PANTALLAS.each do |ruta|

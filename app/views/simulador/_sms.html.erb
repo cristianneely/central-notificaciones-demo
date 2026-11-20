@@ -1,0 +1,5 @@
+<div class="telefono">
+  <div class="telefono-cabecera">Central</div>
+  <div class="telefono-pantalla"><div class="burbuja-sms"><%= mensaje[:texto] %></div></div>
+</div>
+<p class="largo-sms"><%= mensaje[:texto].length %> de <%= Notification::Canales::Sms::MAXIMO %> caracteres</p>

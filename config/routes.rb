@@ -26,6 +26,7 @@ Rails.application.routes.draw do
   # Si alguien recarga la página después de usar uno de esos botones, vuelve al catálogo.
   get "catalogo/definicion_invalida", to: redirect("/catalogo")
   get "catalogo/probar_send", to: redirect("/catalogo")
+  get "simulador" => "simulador#index" # una definición dibujada por cada canal; no guarda nada
   get "historial" => "historial#index"
   get "acerca" => "acerca#index"
 
