@@ -31,7 +31,11 @@
         <% if @simulacion[:de_la_base].include?(dato) %>
           <div class="dato-de-la-base"><code><%= dato %></code>
             <span><%= dato == :cumpleaneros ? @simulacion[:datos][dato].map { |p| p[:nombre] }.to_sentence(last_word_connector: " y ", two_words_connector: " y ") : @simulacion[:datos][dato] %></span>
-            <small>Sale de la base de usuarios: quienes cumplen hoy en Andes Capacitación.</small>
+            <% if @simulacion[:cumpleanos_de_ejemplo] %>
+              <small>Hoy nadie cumple años en Andes Capacitación: van Ana Soto y Bruno Díaz de ejemplo.</small>
+            <% else %>
+              <small>Sale de la base de usuarios: quienes cumplen hoy en Andes Capacitación.</small>
+            <% end %>
           </div>
         <% else %>
           <label><code><%= dato %></code>
@@ -56,7 +60,7 @@
         <img src="<%= destinatario[:foto] %>" alt="<%= destinatario[:nombre] %>" width="56" height="56">
         <div>
           <strong><%= destinatario[:nombre] %></strong>
-          <span class="correo"><%= destinatario[:correo] || "Sin correo" %></span>
+          <span class="correo"><%= destinatario[:correo] || "Sin correo: el email no se enviaría" %></span>
           <small>Leído de la base de usuarios. Quien pide el envío solo da el id de la persona: la central busca
             su contacto.</small>
         </div>

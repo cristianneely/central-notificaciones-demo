@@ -255,6 +255,15 @@ class ConsolaTest < ActionDispatch::IntegrationTest
                     "a toda la empresa."
   end
 
+  test "72: en la bandeja, el aviso de cumpleaños conserva la fila de fotos con el nombre debajo" do
+    post "/acciones/cumpleanos", params: { empresa_id: 1, usuario_id: 1 }
+    despachar
+    get "/consola", params: { empresa_id: 1 }
+
+    assert_select "#bandeja .html-correo table.personas td", minimum: 2
+    assert_select "#bandeja .html-correo table.personas td img[src='/personas/ana-soto.svg']"
+  end
+
   test "72: el botón de cumpleaños avisa a toda la empresa los cumpleaños de hoy" do
     get "/consola"
 

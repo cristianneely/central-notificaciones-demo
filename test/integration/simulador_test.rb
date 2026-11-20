@@ -134,7 +134,7 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     get "/simulador", params: { para: 8 }
 
     assert_select ".destinatario img[src='/personas/sin-foto.svg']"
-    assert_select ".destinatario .correo", text: "Sin correo"
+    assert_select ".destinatario .correo", text: "Sin correo: el email no se enviaría"
     assert_select ".canal-email .para", text: "Sin correo: el email no se enviaría"
   end
 
@@ -163,6 +163,9 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     Usuario.update_all(nacimiento: Date.current - 1)
 
     assert_equal "Ana Soto y Bruno Díaz", Demo::Simulador.simular("saludo_cumpleanos", {})[:datos][:nombres]
+    get "/simulador", params: { notificacion: "saludo_cumpleanos" }
+    assert_select ".dato-de-la-base small", text: /Hoy nadie cumple años en Andes Capacitación: van Ana Soto y Bruno Díaz de ejemplo/
+    assert_select ".dato-de-la-base small", text: /quienes cumplen hoy/, count: 0
   end
 
   test "el menú lleva al simulador" do

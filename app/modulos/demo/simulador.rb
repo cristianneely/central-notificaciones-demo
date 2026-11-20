@@ -25,6 +25,8 @@ module Demo
         definicion: definicion,
         datos: datos,
         de_la_base: DE_LA_BASE.fetch(nombre, []),
+        # Si hoy nadie cumple años en la empresa, los cumpleañeros son los de ejemplo.
+        cumpleanos_de_ejemplo: DE_LA_BASE.key?(nombre) && Personas::AvisarCumpleanos.datos_de_hoy(EMPRESA).nil?,
         codigo: codigo(definicion),
         personas: personas,
         destinatario: destinatario(persona),
