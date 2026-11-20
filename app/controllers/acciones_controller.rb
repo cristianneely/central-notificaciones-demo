@@ -2,7 +2,8 @@
 # acciones; nunca a send() (R9).
 class AccionesController < ApplicationController
   # Un pedido que la acción o la central rechazan vuelve a la consola con su mensaje.
-  rescue_from Certificados::EmitirCertificado::Invalida, Notification::SolicitudInvalida do |error|
+  rescue_from Certificados::EmitirCertificado::Invalida, Personas::AvisarCumpleanos::Invalida,
+              Notification::SolicitudInvalida do |error|
     volver error: error.message
   end
 
@@ -27,7 +28,8 @@ class AccionesController < ApplicationController
   end
 
   def cumpleanos
-    ejecutada Personas::SaludarCumpleanos.ejecutar(**pedido.except(:curso))
+    # El aviso va a toda la empresa: la persona elegida no cuenta.
+    ejecutada Personas::AvisarCumpleanos.ejecutar(empresa_id: pedido[:empresa_id])
   end
 
   private

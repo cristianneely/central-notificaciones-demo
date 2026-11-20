@@ -41,11 +41,12 @@ module AyudasCentral
       datos: { curso: curso, fecha_limite: fecha_limite, link_curso: "https://ejemplo.test/cursos" })
   end
 
-  def enviar_saludo(usuario, nombre: "Ana", anio: 2026)
+  # El aviso de cumpleaños a una sola persona, con un solo cumpleañero.
+  def enviar_saludo(usuario, nombre: "Ana", fecha: "20-11-2026")
     SaludoCumpleanos.send(
       empresa: usuario.empresa_id,
       destinatarios: [usuario.id],
-      datos: { nombre: nombre, anio: anio })
+      datos: { fecha: fecha, nombres: nombre, cumpleaneros: [{ nombre: nombre, foto: "/personas/sin-foto.svg" }] })
   end
 
   def enviar_encuesta(usuario, curso: "Excel básico")

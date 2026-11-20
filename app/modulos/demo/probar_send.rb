@@ -36,7 +36,9 @@ module Demo
       when "encuesta_satisfaccion"
         { curso: "Excel básico", link_encuesta: "https://ejemplo.test/encuesta" }
       when "saludo_cumpleanos"
-        { nombre: "Ana", anio: Date.current.year }
+        { fecha: Date.current.strftime("%d-%m-%Y"), nombres: "Ana Soto y Bruno Díaz",
+          cumpleaneros: [{ nombre: "Ana Soto", foto: "/personas/ana-soto.svg" },
+                         { nombre: "Bruno Díaz", foto: "/personas/bruno-diaz.svg" }] }
       when "solicitud_vacaciones"
         { solicitud_id: 55, solicitante: "Ana Soto", desde: "02-12-2026", hasta: "06-12-2026",
           dias_habiles: 5, link_solicitud: "https://ejemplo.test/vacaciones/55" }

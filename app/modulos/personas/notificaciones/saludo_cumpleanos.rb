@@ -1,14 +1,14 @@
-# Notificación del módulo de personas: el saludo de cumpleaños. Una vez al año.
+# Notificación del módulo de personas: el aviso de cumpleaños. Va a toda la empresa, una
+# vez al día, con el nombre y la foto de cada persona que está de cumpleaños.
 class SaludoCumpleanos < Notification
   criticidad  :opcional
-  datos       :nombre, :anio
-  unica_por   :anio
+  datos       :fecha, :nombres, :cumpleaneros
+  unica_por   :fecha
 
   contenido do
-    titulo  "¡Feliz cumpleaños, {nombre}!"
-    resumen "Todo el equipo te desea un gran día."
-    parrafo   "Todo el equipo te desea un gran día."
-    destacado "¡Que lo pases increíble, {nombre}!"
-    imagen    "/tarjeta-cumpleanos.svg", alt: "Tarjeta de saludo de cumpleaños"
+    titulo    "Cumpleaños de hoy: {nombres}"
+    resumen   "Hoy celebramos a {nombres}. ¡No olvides saludar!"
+    personas  "{cumpleaneros}"
+    destacado "¡Que lo pasen increíble!"
   end
 end

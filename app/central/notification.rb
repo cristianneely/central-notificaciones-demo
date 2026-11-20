@@ -167,7 +167,23 @@ class Notification
         raise SolicitudInvalida, "el dato #{dato} está vacío" if vacio
       end
 
+      # El dato de una pieza personas es una lista de personas, cada una con su nombre y su
+      # foto como texto: es lo único que la pieza sabe dibujar.
+      definicion.contenido.select { |pieza| pieza[:tipo] == :personas }.each do |pieza|
+        dato = pieza[:dato][ValidadorDefinicion::MARCADOR, 1].to_sym
+        next if lista_de_personas?(datos[dato])
+
+        raise SolicitudInvalida, "el dato #{dato} debe ser una lista de personas con nombre y foto"
+      end
+
       datos
+    end
+
+    def lista_de_personas?(valor)
+      valor.is_a?(Array) && valor.any? && valor.all? do |persona|
+        persona.is_a?(Hash) &&
+          %w[nombre foto].all? { |campo| ValidadorDefinicion.texto?(persona.transform_keys(&:to_s)[campo]) }
+      end
     end
 
     # Un id es un entero positivo que cabe en la base (64 bits).

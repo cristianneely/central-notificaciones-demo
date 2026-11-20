@@ -72,9 +72,9 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     assert_select ".canal-whatsapp .boton-plantilla", text: "Descargar"
 
     get "/simulador", params: { notificacion: "saludo_cumpleanos" }
-    assert_select ".canal-sms .notas li", text: "Imagen: se omite"
+    assert_select ".canal-sms .notas li", text: "Personas: se omite"
     assert_select ".canal-whatsapp .plantilla-estado", count: 0 # sin botón, la plantilla no importa
-    assert_select ".canal-whatsapp .burbuja-whatsapp img[alt='Tarjeta de saludo de cumpleaños']"
+    assert_select ".canal-whatsapp .burbuja-whatsapp img[alt='Ana Soto']"
   end
 
   test "62: una notificación que no existe o datos mal formados no rompen la pantalla" do
@@ -97,7 +97,7 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     # la imagen a la demo. allow-same-origin la deja pasar; sin allow-scripts, nada corre.
     iframe = css_select(".canal-email iframe").first
     assert_equal "allow-same-origin", iframe["sandbox"]
-    assert_includes iframe["srcdoc"], %(<img src="/tarjeta-cumpleanos.svg")
+    assert_includes iframe["srcdoc"], %(<img src="/personas/ana-soto.svg")
   end
 
   test "63: la pantalla muestra la definición tal como se escribe y dice que no guarda nada" do

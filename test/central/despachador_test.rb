@@ -50,7 +50,7 @@ class DespachadorTest < ActiveSupport::TestCase
     despachar
 
     correo = bandeja.sole
-    assert_equal "¡Feliz cumpleaños, Ana!", correo.asunto
+    assert_equal "Cumpleaños de hoy: Ana", correo.asunto
     assert_not_includes correo.html, "boton"
   end
 

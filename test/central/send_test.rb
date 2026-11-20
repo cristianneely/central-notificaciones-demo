@@ -50,10 +50,23 @@ class SendTest < ActiveSupport::TestCase
 
   test "4: la prioridad del pendiente sale de la criticidad de la definición" do
     enviar_recordatorio(@ana)
-    SaludoCumpleanos.send(empresa: 1, destinatarios: [@ana.id],
-                                           datos: { nombre: "Ana", anio: 2026 })
+    enviar_saludo(@ana)
 
     assert_equal [1, 2], Notification::Pendiente.order(:id).pluck(:prioridad)
+  end
+
+  test "71: el dato de una pieza personas tiene que ser una lista de personas con nombre y foto" do
+    mensaje = "el dato cumpleaneros debe ser una lista de personas con nombre y foto"
+    datos = { fecha: "20-11-2026", nombres: "Ana Soto" }
+
+    ["Ana Soto", [], [{ nombre: "Ana Soto" }], [{ nombre: " ", foto: "/f.svg" }], ["Ana Soto"],
+     [{ nombre: "Ana Soto", foto: 7 }]].each do |cumpleaneros|
+      assert_rechaza mensaje, clase: SaludoCumpleanos, datos: datos.merge(cumpleaneros: cumpleaneros)
+    end
+
+    enviar(clase: SaludoCumpleanos,
+           datos: datos.merge(cumpleaneros: [{ "nombre" => "Ana Soto", "foto" => "/personas/ana-soto.svg" }]))
+    assert_equal 1, Notification::Pendiente.count
   end
 
   test "4: acepta los datos con claves de texto" do

@@ -251,6 +251,13 @@ class ConsolaTest < ActionDispatch::IntegrationTest
 
     assert_includes css_select(".bajada").text.squish,
                     "El ejemplo es una plataforma de capacitación: la notificación principal es el certificado " \
-                    "de un curso. También están definidos un recordatorio, una encuesta y un saludo de cumpleaños."
+                    "de un curso. También están definidos un recordatorio, una encuesta y un aviso de cumpleaños " \
+                    "a toda la empresa."
+  end
+
+  test "72: el botón de cumpleaños avisa a toda la empresa los cumpleaños de hoy" do
+    get "/consola"
+
+    assert_select "button[formaction='/acciones/cumpleanos']", text: "Avisar los cumpleaños de hoy"
   end
 end
