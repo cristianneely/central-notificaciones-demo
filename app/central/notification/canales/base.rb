@@ -24,6 +24,16 @@ class Notification
         raise NotImplementedError
       end
 
+      # Lo que el canal no sabe mostrar y cómo lo degrada: { tipo de pieza => nota }.
+      # Un canal que dibuja todas las piezas no declara ninguna.
+      DEGRADA = {}.freeze
+
+      # Las notas de degradación de este contenido, solo de las piezas que trae, en el
+      # orden en que aparecen: ["Lista: se omite", "Imagen: pasa a link"].
+      def notas(contenido)
+        contenido.piezas.map { |pieza| pieza[:tipo] }.uniq.filter_map { |tipo| self.class::DEGRADA[tipo] }
+      end
+
       # Habla con el proveedor del canal y devuelve un Resultado.
       def entregar_al_proveedor(mensaje, pendiente:, para:)
         raise NotImplementedError

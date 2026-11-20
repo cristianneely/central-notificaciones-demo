@@ -33,11 +33,9 @@
       <div class="correo">
         <div class="para">Para: <%= correo.para %> <span class="id-solicitud"><%= correo.id_proveedor %></span></div>
         <div class="asunto"><%= correo.asunto %></div>
-        <div class="cuerpo"><%= correo.cuerpo %></div>
-        <% if correo.accion_texto.present? %>
-          <div><span class="boton-correo"><%= correo.accion_texto %></span>
-            <span class="link"><%= correo.accion_link %></span></div>
-        <% end %>
+        <div class="vista-previa-bandeja"><%= correo.vista_previa %></div>
+        <%# El HTML que armó el canal, filtrado: solo etiquetas y atributos inofensivos. %>
+        <div class="html-correo"><%= sanitize correo.html %></div>
       </div>
     <% end %>
   </div>

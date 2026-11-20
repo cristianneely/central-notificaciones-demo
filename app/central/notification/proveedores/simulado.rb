@@ -31,9 +31,9 @@ class Notification
           usuario_id: correo[:usuario_id],
           para: correo[:para],
           asunto: correo[:asunto],
-          cuerpo: correo[:cuerpo],
-          accion_texto: correo[:accion_texto],
-          accion_link: correo[:accion_link],
+          vista_previa: correo[:vista_previa],
+          html: correo[:html],
+          cuerpo: correo[:texto],
           aceptado_en: Time.current
         )
         # El id que da el proveedor: "sim-" y un número correlativo de 6 dígitos.

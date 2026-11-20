@@ -58,6 +58,10 @@ class ConsolaTest < ActionDispatch::IntegrationTest
     assert_select "#pendientes tbody tr", count: 0
     assert_select "#solicitudes .recorrido", text: /recibida.*decision_enviar.*enviada.*entregada/m
     assert_select "#bandeja .correo", count: 1
+    # El correo se ve como llegaría: asunto, vista previa y el HTML con su botón.
+    assert_select "#bandeja .correo .vista-previa-bandeja"
+    assert_select "#bandeja .correo .html-correo h1"
+    assert_select "#bandeja .correo .html-correo a.boton"
     assert_includes response.body, "Tu certificado de Excel avanzado está listo"
     assert_select "#politicas td", text: "email"
   end
