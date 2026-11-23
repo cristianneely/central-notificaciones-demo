@@ -38,6 +38,27 @@ module Demo
       ]
     }.freeze
 
+    # Quienes cumplen años el día de la siembra: dos en Andes, una en Minera y dos en Clínica.
+    CUMPLEN_HOY = ["Ana Soto", "Bruno Díaz", "Inés Castro", "Sergio Campos", "Teresa Vidal"].freeze
+    # Hugo no tiene correo ni foto: el aviso de cumpleaños usa una de respaldo.
+    SIN_FOTO = "Hugo Pinto (sin correo)".freeze
+
+    # La foto de cada persona es un avatar dibujado para la demo: /personas/ana-soto.svg.
+    def self.foto(nombre)
+      return nil if nombre == SIN_FOTO
+
+      "/personas/#{nombre.sub(/ \(.*\)\z/, '').parameterize}.svg"
+    end
+
+    # La fecha de nacimiento, relativa al día de la siembra. Los años son múltiplos de 4 para
+    # que quien cumple hoy un 29 de febrero también haya nacido un 29 de febrero.
+    def self.nacimiento(nombre, id)
+      hoy = Date.current
+      return hoy.prev_year(28 + 4 * (id % 5)) if CUMPLEN_HOY.include?(nombre)
+
+      (hoy + (15 + id * 13) % 330 + 10).prev_year(24 + id % 20)
+    end
+
     # Se llama al preparar la base (db/seeds.rb): siembra solo si no hay empresas.
     def self.sembrar_si_vacia
       ejecutar unless Empresa.exists?
@@ -59,7 +80,9 @@ module Demo
       id = 0
       PERSONAS.each do |empresa_id, personas|
         personas.each do |nombre, email|
-          Usuario.create!(id: id += 1, empresa_id: empresa_id, nombre: nombre, email: email)
+          id += 1
+          Usuario.create!(id: id, empresa_id: empresa_id, nombre: nombre, email: email,
+                          foto: foto(nombre), nacimiento: nacimiento(nombre, id))
         end
       end
 
@@ -91,11 +114,14 @@ module Demo
       despachar_todo
       Cursos::EnviarEncuesta.ejecutar(**pedido, curso: "Excel básico")
       despachar_todo
-      Personas::SaludarCumpleanos.ejecutar(**pedido)
+      # El cuarto es el aviso de cumpleaños, que va a toda Clínica Austral: a Sergio se le
+      # descarta y al resto le llega.
+      Personas::AvisarCumpleanos.ejecutar(empresa_id: sergio.empresa_id)
       despachar_todo
 
       # 5. Un aviso opcional en una empresa que lo apagó → no enviada por política del cliente.
-      Personas::SaludarCumpleanos.ejecutar(empresa_id: ines.empresa_id, usuario_id: ines.id)
+      # Es la encuesta y no el cumpleaños, para que el aviso de Minera quede libre en vivo.
+      Cursos::EnviarEncuesta.ejecutar(empresa_id: ines.empresa_id, usuario_id: ines.id, curso: "Excel básico")
       despachar_todo
     end
 

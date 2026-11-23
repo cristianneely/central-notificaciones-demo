@@ -9,7 +9,8 @@ class Notification
     FORMAS = {
       titulo: 'titulo "texto"', resumen: 'resumen "texto"', parrafo: 'parrafo "texto"',
       destacado: 'destacado "texto"', lista: 'lista "uno", "dos"',
-      imagen: 'imagen "url", alt: "texto"', boton: 'boton "texto", link: "url"'
+      imagen: 'imagen "url", alt: "texto"', boton: 'boton "texto", link: "url"',
+      personas: 'personas "{dato}"'
     }.freeze
 
     # Devuelve la lista de mensajes de error; vacía si la definición es válida.
@@ -48,7 +49,7 @@ class Notification
       end
 
       # El contenido es una lista de piezas del vocabulario (título, resumen, párrafo,
-      # destacado, lista, imagen y botón), sin formato de ningún canal.
+      # destacado, lista, imagen, botón y personas), sin formato de ningún canal.
       if opciones[:contenido].is_a?(Hash) && opciones[:contenido].any?
         errores << "contenido se declara con un bloque de piezas"
       else
@@ -96,6 +97,8 @@ class Notification
           errores << "imagen necesita url y alt" unless texto?(pieza[:url]) && texto?(pieza[:alt])
         when :boton
           errores << "boton necesita texto y link" unless texto?(pieza[:texto]) && texto?(pieza[:link])
+        when :personas
+          nil # su forma (un solo marcador) ya la revisó el constructor
         else
           errores << "pieza no permitida: #{pieza[:tipo]}"
         end

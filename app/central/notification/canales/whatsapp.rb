@@ -10,7 +10,8 @@ class Notification
 
       DEGRADA = {
         resumen: "Resumen: se omite",
-        lista: "Lista: pasa a líneas con guion"
+        lista: "Lista: pasa a líneas con guion",
+        personas: "Personas: pasan a nombres; se adjunta la foto de la primera"
       }.freeze
       SIN_PLANTILLA = "Botón: pasa a link (sin plantilla aprobada)".freeze
 
@@ -20,14 +21,14 @@ class Notification
       def adaptar(contenido)
         plantilla = plantilla(contenido)
         boton = contenido.de(:boton).first
-        imagen = contenido.de(:imagen).first
+        imagen = contenido.de(:imagen).first&.slice(:url, :alt) || primera_foto(contenido)
         lineas = contenido.piezas.filter_map { |pieza| linea(pieza) }
         lineas << "#{boton[:texto]}: #{boton[:link]}" if boton && !plantilla
 
         {
           plantilla: plantilla,
           texto: lineas.join("\n\n"),
-          imagen: imagen&.slice(:url, :alt),
+          imagen: imagen,
           boton: plantilla && boton&.slice(:texto, :link)
         }
       end
@@ -44,6 +45,12 @@ class Notification
 
       private
 
+      # Sin pieza imagen, se adjunta la foto de la primera persona.
+      def primera_foto(contenido)
+        persona = contenido.de(:personas).flat_map { |pieza| pieza[:gente] }.first
+        persona && { url: persona[:foto], alt: persona[:nombre] }
+      end
+
       def plantilla(contenido)
         contenido.notificacion if PLANTILLAS.include?(contenido.notificacion)
       end
@@ -53,6 +60,7 @@ class Notification
         when :titulo, :destacado then "*#{pieza[:texto]}*"
         when :parrafo then pieza[:texto]
         when :lista then pieza[:items].map { |item| "- #{item}" }.join("\n")
+        when :personas then pieza[:gente].map { |persona| "- #{persona[:nombre]}" }.join("\n")
         end
         # la imagen va adjunta y el botón, en la plantilla
       end

@@ -91,12 +91,42 @@ class AccionesTest < ActiveSupport::TestCase
     assert_equal({ "curso" => "Excel básico", "link_encuesta" => "https://ejemplo.test/encuesta" }, pendiente.datos)
   end
 
-  test "saludo de cumpleaños: lleva el nombre de la persona y el año en curso en Chile" do
-    travel_to Time.utc(2027, 1, 1, 1, 0) # en Chile todavía es 31 de diciembre de 2026
-    solicitud = Personas::SaludarCumpleanos.ejecutar(empresa_id: 1, usuario_id: @ana.id)
+  test "72: el aviso de cumpleaños va a toda la empresa, con los nombres y las fotos de quienes cumplen" do
+    solicitud = Personas::AvisarCumpleanos.ejecutar(empresa_id: 1)
 
-    pendiente = Notification::Pendiente.find_by!(solicitud_id: solicitud)
-    assert_equal "saludo_cumpleanos", pendiente.notificacion
-    assert_equal({ "nombre" => "Ana Soto", "anio" => 2026 }, pendiente.datos)
+    pendientes = Notification::Pendiente.where(solicitud_id: solicitud).order(:usuario_id)
+    assert_equal Usuario.where(empresa_id: 1).order(:id).ids, pendientes.map(&:usuario_id)
+    assert_equal "saludo_cumpleanos", pendientes.first.notificacion
+    assert_equal({ "fecha" => Date.current.strftime("%d-%m-%Y"), "nombres" => "Ana Soto y Bruno Díaz",
+                   "cumpleaneros" => [{ "nombre" => "Ana Soto", "foto" => "/personas/ana-soto.svg" },
+                                      { "nombre" => "Bruno Díaz", "foto" => "/personas/bruno-diaz.svg" }] },
+                 pendientes.first.datos)
+  end
+
+  test "72: la fecha es la de Chile, y con tres cumpleañeros los nombres van con comas" do
+    travel_to Time.utc(2027, 1, 1, 1, 0) # en Chile todavía es 31 de diciembre de 2026
+    Usuario.where(id: [1, 2, 8]).update_all(nacimiento: Date.new(1990, 12, 31))
+    solicitud = Personas::AvisarCumpleanos.ejecutar(empresa_id: 1)
+
+    datos = Notification::Pendiente.find_by!(solicitud_id: solicitud).datos
+    assert_equal "31-12-2026", datos["fecha"]
+    assert_equal "Ana Soto, Bruno Díaz y Hugo Pinto (sin correo)", datos["nombres"]
+    assert_equal "/personas/sin-foto.svg", datos["cumpleaneros"].last["foto"], "sin foto va la de respaldo"
+  end
+
+  test "72: si hoy nadie está de cumpleaños, la acción lo dice y no envía nada" do
+    Usuario.update_all(nacimiento: Date.current - 1)
+
+    error = assert_raises(Personas::AvisarCumpleanos::Invalida) { Personas::AvisarCumpleanos.ejecutar(empresa_id: 1) }
+    assert_equal "Hoy no hay cumpleaños en Andes Capacitación", error.message
+    assert_equal [0, 0, 0], conteos_de_send
+  end
+
+  test "72: avisar dos veces el mismo día deja el segundo como duplicado" do
+    Personas::AvisarCumpleanos.ejecutar(empresa_id: 1)
+    segunda = Personas::AvisarCumpleanos.ejecutar(empresa_id: 1)
+
+    assert_equal 8, Notification::Pendiente.count
+    assert_equal ["duplicada"], Notification::Auditoria.where(solicitud_id: segunda).pluck(:evento).uniq
   end
 end

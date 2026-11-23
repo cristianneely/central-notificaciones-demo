@@ -231,13 +231,13 @@ class ConsolaTest < ActionDispatch::IntegrationTest
     assert_select ".resultado a", count: 0
   end
 
-  test "qué probar está en la consola, plegado, con los nueve escenarios" do
+  test "qué probar está en la consola, plegado, con los diez escenarios" do
     get "/consola"
 
     assert_select "details.que-probar:not([open])" do
-      assert_select "summary", text: "Qué probar (nueve escenarios)"
+      assert_select "summary", text: "Qué probar (diez escenarios)"
       assert_equal ["Escenario", "Dónde", "Qué se ve"], css_select("details.que-probar th").map(&:text)
-      assert_select "tbody tr", count: 9
+      assert_select "tbody tr", count: 10
       Demo::Declaraciones::ESCENARIOS.each do |_numero, escenario, donde, que_se_ve|
         assert_select "td", text: escenario
         assert_select "td", text: donde
@@ -251,6 +251,22 @@ class ConsolaTest < ActionDispatch::IntegrationTest
 
     assert_includes css_select(".bajada").text.squish,
                     "El ejemplo es una plataforma de capacitación: la notificación principal es el certificado " \
-                    "de un curso. También están definidos un recordatorio, una encuesta y un saludo de cumpleaños."
+                    "de un curso. También están definidos un recordatorio, una encuesta y un aviso de cumpleaños " \
+                    "a toda la empresa."
+  end
+
+  test "72: en la bandeja, el aviso de cumpleaños conserva la fila de fotos con el nombre debajo" do
+    post "/acciones/cumpleanos", params: { empresa_id: 1, usuario_id: 1 }
+    despachar
+    get "/consola", params: { empresa_id: 1 }
+
+    assert_select "#bandeja .html-correo table.personas td", minimum: 2
+    assert_select "#bandeja .html-correo table.personas td img[src='/personas/ana-soto.svg']"
+  end
+
+  test "72: el botón de cumpleaños avisa a toda la empresa los cumpleaños de hoy" do
+    get "/consola"
+
+    assert_select "button[formaction='/acciones/cumpleanos']", text: "Avisar los cumpleaños de hoy"
   end
 end

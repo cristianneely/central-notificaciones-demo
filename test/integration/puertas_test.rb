@@ -116,7 +116,7 @@ class PuertasTest < ActionDispatch::IntegrationTest
 
     assert_response :redirect
     assert_match(/\AAcción ejecutada\. Solicitud \h{8}\.\z/, flash[:resultado])
-    assert_equal %w[recordatorio_curso encuesta_satisfaccion saludo_cumpleanos],
+    assert_equal %w[recordatorio_curso encuesta_satisfaccion] + ["saludo_cumpleanos"] * 8,
                  Notification::Pendiente.order(:id).pluck(:notificacion)
     assert_equal ["web"], Notification::Auditoria.all.map { |fila| fila.detalle["origen"] }.uniq
   end
@@ -124,7 +124,7 @@ class PuertasTest < ActionDispatch::IntegrationTest
   test "pantalla: ids enormes o con forma de objeto vuelven a la consola con un mensaje" do
     destinatarios = "destinatarios debe ser una lista de ids de usuario sin repetir"
 
-    %w[recordatorio encuesta cumpleanos].each do |accion|
+    %w[recordatorio encuesta].each do |accion|
       post "/acciones/#{accion}", params: { empresa_id: 1, usuario_id: "99999999999999999999", curso: "Excel básico" }
       assert_response :redirect
       assert_equal destinatarios, flash[:error]
@@ -137,6 +137,19 @@ class PuertasTest < ActionDispatch::IntegrationTest
     post "/acciones/emitir_certificado", params: { empresa_id: { a: 1 }, usuario_id: 1, curso: "Excel básico" }
     assert_response :redirect
     assert_equal "empresa desconocida", flash[:error]
+
+    assert_nada_guardado
+  end
+
+  test "72: el aviso de cumpleaños usa solo la empresa; sin cumpleañeros o sin empresa vuelve con un mensaje" do
+    post "/acciones/cumpleanos", params: { empresa_id: { a: 1 }, usuario_id: { a: 1 } }
+    assert_response :redirect
+    assert_equal "empresa desconocida: 0", flash[:error]
+
+    Usuario.update_all(nacimiento: Date.current - 1)
+    post "/acciones/cumpleanos", params: { empresa_id: 3, usuario_id: 1 }
+    assert_response :redirect
+    assert_equal "Hoy no hay cumpleaños en Clínica Austral", flash[:error]
 
     assert_nada_guardado
   end

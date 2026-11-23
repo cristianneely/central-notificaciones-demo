@@ -17,15 +17,17 @@ module Demo
       [4, "La acción falla a la mitad", "Casilla \"la acción falla a la mitad\"",
        "Ni certificado ni notificación"],
       [5, "Política del cliente",
-       "Empresa Minera Los Robles → \"Saludar cumpleaños\"; botón \"Intentar apagar lo crítico\"",
-       "\"No enviada: política del cliente\"; el rechazo"],
+       "Empresa Minera Los Robles → \"Avisar los cumpleaños de hoy\"; botón \"Intentar apagar lo crítico\"",
+       "\"No enviada: política del cliente\" para toda la empresa; el rechazo"],
       [6, "Límite de frecuencia", "Cuatro avisos no críticos y un certificado a la misma persona",
        "El cuarto queda descartado; el certificado pasa"],
       [7, "Caída del proveedor", "\"Apagar el proveedor\", emitir varias, \"Encender el proveedor\"",
        "Esperan, se reintenta y salen con lo crítico primero"],
       [8, "Historial", "Pantalla Historial", "Filtros y recorridos, con no enviadas y un rebote"],
       [9, "Una definición, cinco canales", "Pantalla Simulador",
-       "Cómo dibujan email, Slack, WhatsApp, SMS y push las mismas piezas, qué degrada cada uno y el mensaje crudo"]
+       "Cómo dibujan email, Slack, WhatsApp, SMS y push las mismas piezas, qué degrada cada uno y el mensaje crudo"],
+      [10, "Cumpleaños a toda la empresa", "Empresa Andes Capacitación → \"Avisar los cumpleaños de hoy\"",
+       "Un aviso a las ocho personas, con el nombre y la foto de quienes cumplen hoy; la segunda vez, duplicado"]
     ].freeze
 
     # [En el documento, En la demo]
@@ -71,7 +73,14 @@ module Demo
        "Simuladas: solo el certificado tiene plantilla; sin ella, el simulador muestra el botón como link en el texto"],
       ["Links cortos en el SMS", "Simulados (https://nj.test/...); no llevan a ninguna parte"],
       ["Imágenes con una dirección pública",
-       "La tarjeta de cumpleaños es una ruta de la demo: se ve dentro de la demo, no fuera"]
+       "Las portadas, la ilustración y los avatares son rutas de la demo: se ven dentro de la demo, no fuera"],
+      ["Fotos de las personas", "Avatares dibujados con las iniciales; quien no tiene foto lleva una de respaldo"],
+      ["Fechas de nacimiento de las personas",
+       "Relativas al día en que se siembra la demo: si pasa un día sin reiniciarla, nadie cumple hoy. " \
+       "Quien nació un 29 de febrero no aparece los años que no son bisiestos"],
+      ["Avisar a una empresa de cualquier tamaño",
+       "Más de 1.000 personas superaría el tope de send(); el módulo tendría que partir el envío en tandas. " \
+       "Las empresas de la demo tienen ocho"]
     ].freeze
 
     # [Requisito, Qué pide, Dónde se ve en la demo]

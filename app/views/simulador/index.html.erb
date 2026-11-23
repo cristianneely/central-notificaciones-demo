@@ -1,11 +1,13 @@
 <% content_for :title, "Simulador · Central de notificaciones" %>
 <% content_for :pagina, "simulador" %>
 <% definicion = @simulacion[:definicion] %>
+<% destinatario = @simulacion[:destinatario] %>
 
 <h1>Simulador</h1>
 <p class="bajada">Una notificación se define una sola vez, con piezas: título, resumen, párrafo, destacado,
-  lista, imagen y botón. Cada canal sabe dibujar cada pieza y, lo que no puede mostrar, lo degrada de una
-  forma definida en el propio canal. Elige una notificación, cambia sus datos y mira cómo llegaría.</p>
+  lista, imagen, botón y personas. Cada canal sabe dibujar cada pieza y, lo que no puede mostrar, lo degrada de una
+  forma definida en el propio canal. Elige una notificación y a quién va, cambia sus datos y mira cómo
+  llegaría. La persona, su correo y su foto salen de la base de usuarios.</p>
 <p class="aviso-simulador">El simulador usa <code>Contenido.rellenar</code> y el <code>adaptar</code> de cada
   canal, sin pasar por <code>send()</code>: no escribe nada en pendientes, claves ni auditoría, y no entrega
   nada. Slack, WhatsApp, SMS y push son canales simulados, fuera de la política de envío.</p>
@@ -20,10 +22,26 @@
           <% end %>
         </select>
       </label>
+      <label>Para
+        <select name="para" id="para-simulado">
+          <%= options_from_collection_for_select(@simulacion[:personas], :id, :nombre, destinatario&.dig(:id)) %>
+        </select>
+      </label>
       <% definicion.datos.each do |dato| %>
-        <label><code><%= dato %></code>
-          <input type="text" name="datos[<%= dato %>]" value="<%= @simulacion[:datos][dato] %>">
-        </label>
+        <% if @simulacion[:de_la_base].include?(dato) %>
+          <div class="dato-de-la-base"><code><%= dato %></code>
+            <span><%= dato == :cumpleaneros ? @simulacion[:datos][dato].map { |p| p[:nombre] }.to_sentence(last_word_connector: " y ", two_words_connector: " y ") : @simulacion[:datos][dato] %></span>
+            <% if @simulacion[:cumpleanos_de_ejemplo] %>
+              <small>Hoy nadie cumple años en Andes Capacitación: van Ana Soto y Bruno Díaz de ejemplo.</small>
+            <% else %>
+              <small>Sale de la base de usuarios: quienes cumplen hoy en Andes Capacitación.</small>
+            <% end %>
+          </div>
+        <% else %>
+          <label><code><%= dato %></code>
+            <input type="text" name="datos[<%= dato %>]" value="<%= @simulacion[:datos][dato] %>">
+          </label>
+        <% end %>
       <% end %>
       <button class="principal">Simular</button>
     </form>
@@ -37,10 +55,23 @@
     <input type="checkbox" id="ver-crudo">
     <label for="ver-crudo" class="interruptor">Ver el mensaje crudo que recibiría cada proveedor</label>
 
+    <% if destinatario %>
+      <article class="tarjeta destinatario">
+        <img src="<%= destinatario[:foto] %>" alt="<%= destinatario[:nombre] %>" width="56" height="56">
+        <div>
+          <strong><%= destinatario[:nombre] %></strong>
+          <span class="correo"><%= destinatario[:correo] || "Sin correo: el email no se enviaría" %></span>
+          <small>Leído de la base de usuarios. Quien pide el envío solo da el id de la persona: la central busca
+            su contacto.</small>
+        </div>
+      </article>
+    <% end %>
+
     <div class="canales">
       <% @simulacion[:canales].each do |canal| %>
         <article class="tarjeta canal canal-<%= canal[:nombre] %>">
           <h2><%= SimuladorHelper::NOMBRES_CANALES.fetch(canal[:nombre]) %></h2>
+          <% if destinatario %><p class="para"><%= para_del_canal(canal) %></p><% end %>
           <%= render "simulador/#{canal[:nombre]}", mensaje: canal[:mensaje], notas: canal[:notas] %>
 
           <div class="notas">
@@ -58,8 +89,10 @@
 </div>
 
 <script>
-  // Al elegir otra notificación, se simula con sus datos de ejemplo.
+  // Al elegir otra notificación, se simula con sus datos de ejemplo, para la misma persona.
   document.getElementById("notificacion-simulada").addEventListener("change", (evento) => {
-    window.location = "<%= simulador_path %>?notificacion=" + encodeURIComponent(evento.target.value);
+    const para = document.getElementById("para-simulado").value;
+    window.location = "<%= simulador_path %>?notificacion=" + encodeURIComponent(evento.target.value) +
+      "&para=" + encodeURIComponent(para);
   });
 </script>

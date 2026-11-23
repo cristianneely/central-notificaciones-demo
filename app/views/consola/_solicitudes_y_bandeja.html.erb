@@ -34,8 +34,11 @@
         <div class="para">Para: <%= correo.para %> <span class="id-solicitud"><%= correo.id_proveedor %></span></div>
         <div class="asunto"><%= correo.asunto %></div>
         <div class="vista-previa-bandeja"><%= correo.vista_previa %></div>
-        <%# El HTML que armó el canal, filtrado: solo etiquetas y atributos inofensivos. %>
-        <div class="html-correo"><%= sanitize correo.html %></div>
+        <%# El HTML que armó el canal, filtrado: solo etiquetas y atributos inofensivos, más la
+            tabla con que el email dibuja la fila de personas. %>
+        <div class="html-correo"><%= sanitize correo.html,
+                                              tags: Rails::HTML5::SafeListSanitizer.allowed_tags + %w[table tr td],
+                                              attributes: Rails::HTML5::SafeListSanitizer.allowed_attributes + %w[width] %></div>
       </div>
     <% end %>
   </div>

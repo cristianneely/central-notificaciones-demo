@@ -8,7 +8,8 @@ class Notification
         parrafo: "Párrafo: se omite",
         destacado: "Destacado: se omite",
         lista: "Lista: se omite",
-        boton: "Botón: tocar la notificación abre el link"
+        boton: "Botón: tocar la notificación abre el link",
+        personas: "Personas: solo la foto de la primera"
       }.freeze
 
       def nombre = "push"
@@ -20,9 +21,14 @@ class Notification
         {
           titulo: contenido.titulo,
           cuerpo: contenido.resumen,
-          imagen: contenido.de(:imagen).first&.fetch(:url),
+          imagen: contenido.de(:imagen).first&.fetch(:url) || primera_foto(contenido),
           link: contenido.de(:boton).first&.fetch(:link)
         }
+      end
+
+      # Sin pieza imagen, la foto de la primera persona.
+      def primera_foto(contenido)
+        contenido.de(:personas).flat_map { |pieza| pieza[:gente] }.first&.fetch(:foto)
       end
 
       def entregar_al_proveedor(mensaje, pendiente:, para:)

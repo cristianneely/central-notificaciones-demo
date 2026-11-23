@@ -19,12 +19,16 @@
 <section class="tarjeta" id="contenido-por-piezas">
   <h2>Una definición, varios canales</h2>
   <p>El contenido de una notificación se escribe una sola vez, con piezas de un vocabulario cerrado: título,
-    resumen, párrafo, destacado, lista, imagen y botón. La definición dice qué es cada parte, no cómo se ve.
+    resumen, párrafo, destacado, lista, imagen, botón y personas (una lista de personas con su nombre y su
+    foto, que crece según cuánta gente traiga el envío). La definición dice qué es cada parte, no cómo se ve.
     Cada canal sabe dibujar cada pieza y, lo que no puede mostrar, lo degrada de una forma definida en el
     propio canal: el SMS se queda con el resumen y un link corto; WhatsApp pasa la lista a líneas con guion.
     Agregar un canal no obliga a tocar ninguna notificación.</p>
   <p>El <%= link_to "Simulador", simulador_path %> muestra las mismas piezas por email, Slack, WhatsApp, SMS y
     push. Email es el único canal de la política; los otros cuatro son simulados.</p>
+  <p>Quien pide un envío solo da los ids de las personas: el correo y la foto salen de la base de usuarios.
+    En el simulador se elige a quién va y se ve qué contacto encontró la central. El aviso de cumpleaños va a
+    toda la empresa, una vez al día, con el nombre y la foto de quienes cumplen.</p>
 </section>
 
 <section class="tarjeta">

@@ -68,13 +68,15 @@ class CatalogoTest < ActiveSupport::TestCase
     assert_equal({ tipo: :boton, texto: "Revisar solicitud", link: "{link_solicitud}" }, definicion.contenido.last)
   end
 
-  test "57: el saludo de cumpleaños trae un destacado y una imagen propia de la demo" do
-    piezas = Notification.catalogo.buscar("saludo_cumpleanos").contenido
+  test "72: el aviso de cumpleaños es uno al día, con los nombres y las fotos de quienes cumplen" do
+    definicion = Notification.catalogo.buscar("saludo_cumpleanos")
 
-    assert_equal %i[titulo resumen parrafo destacado imagen], piezas.map { |pieza| pieza[:tipo] }
-    imagen = piezas.last
-    assert_equal "/tarjeta-cumpleanos.svg", imagen[:url]
-    assert Rails.root.join("public/tarjeta-cumpleanos.svg").exist?, "la tarjeta vive en public/"
+    assert_equal %i[fecha nombres cumpleaneros], definicion.datos
+    assert_equal [:fecha], definicion.unica_por
+    assert_equal %i[titulo resumen personas destacado], definicion.contenido.map { |pieza| pieza[:tipo] }
+    assert_equal "Cumpleaños de hoy: {nombres}", definicion.contenido.first[:texto]
+    assert_equal({ tipo: :personas, dato: "{cumpleaneros}" }, definicion.contenido[2])
+    assert_not Rails.root.join("public/tarjeta-cumpleanos.svg").exist?, "las fotos reemplazan a la tarjeta"
   end
 
   test "1: el identificador sale del nombre de la clase" do

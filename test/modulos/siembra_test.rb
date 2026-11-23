@@ -19,6 +19,30 @@ class SiembraTest < ActiveSupport::TestCase
     assert normales.all? { |persona| persona.email.match?(/\A[a-z]+\.[a-z]+@ejemplo\.test\z/) }
   end
 
+  test "70: cada persona tiene su foto y su fecha de nacimiento; cinco cumplen hoy" do
+    sembrar
+
+    sin_foto = Usuario.where(foto: [nil, ""]).pluck(:nombre)
+    assert_equal ["Hugo Pinto (sin correo)"], sin_foto
+    Usuario.where.not(foto: [nil, ""]).find_each do |persona|
+      assert_match %r{\A/personas/[a-z-]+\.svg\z}, persona.foto
+      assert Rails.root.join("public#{persona.foto}").exist?, "falta el avatar #{persona.foto}"
+    end
+    assert Rails.root.join("public/personas/sin-foto.svg").exist?
+    assert Usuario.all.all?(&:nacimiento)
+
+    hoy = Date.current
+    cumplen = Usuario.order(:id).select { |p| [p.nacimiento.month, p.nacimiento.day] == [hoy.month, hoy.day] }
+    assert_equal ["Ana Soto", "Bruno Díaz", "Inés Castro", "Sergio Campos", "Teresa Vidal"], cumplen.map(&:nombre)
+  end
+
+  test "70: un 29 de febrero también hay cumpleañeros" do
+    travel_to Time.zone.local(2028, 2, 29, 12)
+    sembrar
+
+    assert_equal 5, Usuario.all.count { |p| [p.nacimiento.month, p.nacimiento.day] == [2, 29] }
+  end
+
   test "datos base: Minera Los Robles tiene lo opcional por email apagado" do
     sembrar
 
@@ -43,8 +67,16 @@ class SiembraTest < ActiveSupport::TestCase
      "No enviada: política del cliente"].each do |estado|
       assert_includes estados, estado
     end
-    assert_equal({ "Entregada" => 5, "Rebotada" => 1, "Duplicada" => 1, "Descartada: límite de frecuencia" => 1,
+    assert_equal({ "Entregada" => 11, "Rebotada" => 2, "Duplicada" => 1, "Descartada: límite de frecuencia" => 1,
                    "No enviada: política del cliente" => 1 }, estados.tally)
+    # 4. El aviso de cumpleaños de Clínica Austral le llega a toda la empresa; a Sergio, que
+    # ya llevaba tres, se le descarta.
+    aviso = Notification::Historial.filas(empresa_id: 3).select { |f| f.notificacion == "saludo_cumpleanos" }
+    assert_equal 8, aviso.size
+    assert_equal "Descartada: límite de frecuencia", aviso.find { |f| f.usuario_id == 18 }.estado
+    # 5. La política del cliente se ve con la encuesta, así el cumpleaños de Minera queda libre.
+    politica = Notification::Historial.filas(empresa_id: 2).sole
+    assert_equal ["encuesta_satisfaccion", "No enviada: política del cliente"], [politica.notificacion, politica.estado]
 
     assert_equal 0, Notification::Auditoria.where(empresa_id: 1).count, "Andes Capacitación parte sin historial"
     assert_empty Notification::Historial.filas(empresa_id: 1)

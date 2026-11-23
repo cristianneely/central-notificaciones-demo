@@ -1,7 +1,7 @@
 CREATE TABLE "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY);
 CREATE TABLE "ar_internal_metadata" ("key" varchar NOT NULL PRIMARY KEY, "value" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
 CREATE TABLE "empresas" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "nombre" varchar NOT NULL);
-CREATE TABLE "usuarios" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "empresa_id" integer NOT NULL, "nombre" varchar NOT NULL, "email" varchar);
+CREATE TABLE "usuarios" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "empresa_id" integer NOT NULL, "nombre" varchar NOT NULL, "email" varchar, "foto" varchar, "nacimiento" date);
 CREATE INDEX "index_usuarios_on_empresa_id" ON "usuarios" ("empresa_id") /*application='CentralNotificaciones'*/;
 CREATE TABLE "certificados" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "empresa_id" integer NOT NULL, "usuario_id" integer NOT NULL, "curso" varchar NOT NULL, "creado_en" datetime(6) NOT NULL);
 CREATE TABLE "claves_unicas" ("clave" varchar NOT NULL, "expira_en" datetime(6) NOT NULL);
@@ -27,6 +27,7 @@ CREATE TABLE "politicas_cliente" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NUL
 CREATE UNIQUE INDEX "index_politicas_cliente_on_empresa_id_and_criticidad_and_canal" ON "politicas_cliente" ("empresa_id", "criticidad", "canal") /*application='CentralNotificaciones'*/;
 CREATE TABLE "correos_simulados" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "id_proveedor" varchar, "solicitud_id" varchar NOT NULL, "usuario_id" integer NOT NULL, "para" varchar NOT NULL, "asunto" varchar NOT NULL, "cuerpo" text NOT NULL, "aceptado_en" datetime(6) NOT NULL, "aviso_enviado" boolean DEFAULT FALSE NOT NULL, "vista_previa" varchar, "html" text);
 INSERT INTO "schema_migrations" (version) VALUES
+('20261120000001'),
 ('20261119000001'),
 ('20261118000001'),
 ('20261115000001');

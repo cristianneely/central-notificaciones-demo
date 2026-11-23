@@ -29,8 +29,10 @@ Para volver a los datos de ejemplo, usa "Reiniciar demo" al final de la consola.
 - **Frecuencia máxima.** Lo no crítico tiene un tope por persona; lo que excede se descarta y
   queda anotado.
 - **Un contenido, varios canales.** El contenido se escribe una vez, con piezas (título,
-  resumen, párrafo, destacado, lista, imagen y botón), y cada canal las dibuja a su manera.
-  El simulador lo muestra por email, Slack, WhatsApp, SMS y push.
+  resumen, párrafo, destacado, lista, imagen, botón y personas), y cada canal las dibuja a su
+  manera. El simulador lo muestra por email, Slack, WhatsApp, SMS y push.
+- **El contacto sale de la base.** Quien pide un envío da ids de personas; la central busca su
+  correo, y su foto, en la base de usuarios.
 - **Historial completo.** Cada paso de cada notificación queda en una auditoría que solo se
   puede agregar: la propia base rechaza modificarla o borrarla.
 
@@ -75,8 +77,8 @@ ya trae un `send`). Aquí `send` con un símbolo sigue siendo el de Ruby, y el t
 ## Contenido por piezas
 
 El contenido de una definición es una lista de piezas de un vocabulario cerrado: `titulo`,
-`resumen`, `parrafo`, `destacado`, `lista`, `imagen` (URL y texto alternativo) y `boton`
-(texto y link). Título y resumen son obligatorios; cualquier otra pieza se rechaza al
+`resumen`, `parrafo`, `destacado`, `lista`, `imagen` (URL y texto alternativo), `boton`
+(texto y link) y `personas` (un dato con una lista de personas, cada una con nombre y foto). Título y resumen son obligatorios; cualquier otra pieza se rechaza al
 arrancar, y todo marcador `{dato}` tiene que ser un dato declarado, también en links, listas
 e imágenes. La versión del contenido que se anota al enviar se calcula sobre las piezas.
 
@@ -90,6 +92,7 @@ Cada canal sabe dibujar cada pieza y define cómo degrada lo que no puede mostra
 | Lista | Viñetas | Viñetas | Líneas con guion | Se omite | Se omite |
 | Imagen | Imagen | Imagen | Imagen adjunta | Se omite | Imagen al expandir |
 | Botón | Botón | Botón | Botón de la plantilla | Link corto | Tocar la notificación abre el link |
+| Personas | Fila de fotos con el nombre debajo | Foto chica y nombre por persona | Nombres en el texto; adjunta la foto de la primera | Se omite | Foto de la primera como imagen |
 
 Email es el único canal de la política: arma HTML, una versión en texto plano y la vista
 previa. Slack, WhatsApp, SMS y push son canales simulados, fuera de la política; existen para
@@ -102,6 +105,29 @@ muestra la imagen al expandirla y, al tocarla, abre el link del botón.
 
 El certificado lleva la portada del curso: un dato (`imagen_curso`) que la acción de emitir toma
 del módulo de cursos. La solicitud de vacaciones lleva una ilustración fija.
+
+El aviso de cumpleaños va a toda la empresa, una vez al día, con quienes cumplen hoy:
+
+```ruby
+class SaludoCumpleanos < Notification
+  criticidad  :opcional
+  datos       :fecha, :nombres, :cumpleaneros
+  unica_por   :fecha
+
+  contenido do
+    titulo    "Cumpleaños de hoy: {nombres}"
+    resumen   "Hoy celebramos a {nombres}. ¡No olvides saludar!"
+    personas  "{cumpleaneros}"
+    destacado "¡Que lo pasen increíble!"
+  end
+end
+```
+
+La acción del módulo de personas busca en la base de usuarios a quienes cumplen hoy (cada
+persona tiene foto y fecha de nacimiento) y pide el envío para toda la empresa, incluidos
+ellos. `send()` rechaza un dato de `personas` que no sea una lista de personas con nombre y
+foto. En el simulador se elige a quién va el mensaje y se ve su foto y su correo, leídos de la
+base: el email dice a qué dirección saldría; los otros canales, qué dato pedirían.
 
 ## Recorrido de una solicitud
 
@@ -130,14 +156,16 @@ del módulo de cursos. La solicitud de vacaciones lleva una ilustración fija.
 | 2 | Emitirlo por la API | Consola → "Emitir certificado por la API" | El mismo recorrido, con origen api |
 | 3 | La acción llama dos veces a send() | Casilla "la acción llama dos veces a send()" | Una sola notificación; la segunda queda como duplicada |
 | 4 | La acción falla a la mitad | Casilla "la acción falla a la mitad" | Ni certificado ni notificación |
-| 5 | Política del cliente | Empresa Minera Los Robles → "Saludar cumpleaños"; botón "Intentar apagar lo crítico" | "No enviada: política del cliente"; el rechazo |
+| 5 | Política del cliente | Empresa Minera Los Robles → "Avisar los cumpleaños de hoy"; botón "Intentar apagar lo crítico" | "No enviada: política del cliente" para toda la empresa; el rechazo |
 | 6 | Límite de frecuencia | Cuatro avisos no críticos y un certificado a la misma persona | El cuarto queda descartado; el certificado pasa |
 | 7 | Caída del proveedor | "Apagar el proveedor", emitir varias, "Encender el proveedor" | Esperan, se reintenta y salen con lo crítico primero |
 | 8 | Historial | Pantalla Historial | Filtros y recorridos, con no enviadas y un rebote |
 | 9 | Una definición, cinco canales | Pantalla Simulador | Cómo dibujan email, Slack, WhatsApp, SMS y push las mismas piezas, qué degrada cada uno y el mensaje crudo |
+| 10 | Cumpleaños a toda la empresa | Empresa Andes Capacitación → "Avisar los cumpleaños de hoy" | Un aviso a las ocho personas, con el nombre y la foto de quienes cumplen hoy; la segunda vez, duplicado |
 
 Personas de prueba en Andes Capacitación: una con un correo que rebota, una con un correo
-inválido (el proveedor lo rechaza) y una sin correo (la central no tiene a dónde enviar).
+inválido (el proveedor lo rechaza) y una sin correo ni foto (la central no tiene a dónde
+enviar). Ana Soto y Bruno Díaz cumplen años el día en que se siembra la demo.
 
 ## Cómo se corre
 
@@ -222,7 +250,10 @@ La demo muestra la lógica y los flujos. Esto es lo que cambia respecto del dise
 | Slack, WhatsApp, SMS y push, cada uno con su proveedor | Canales simulados, fuera de la política: solo los usa el simulador y no envían nada |
 | Plantillas de WhatsApp aprobadas por Meta; sin plantilla, sigue por el canal siguiente | Simuladas: solo el certificado tiene plantilla; sin ella, el simulador muestra el botón como link en el texto |
 | Links cortos en el SMS | Simulados (https://nj.test/...); no llevan a ninguna parte |
-| Imágenes con una dirección pública | La tarjeta de cumpleaños es una ruta de la demo: se ve dentro de la demo, no fuera |
+| Imágenes con una dirección pública | Las portadas, la ilustración y los avatares son rutas de la demo: se ven dentro de la demo, no fuera |
+| Fotos de las personas | Avatares dibujados con las iniciales; quien no tiene foto lleva una de respaldo |
+| Fechas de nacimiento de las personas | Relativas al día en que se siembra la demo: si pasa un día sin reiniciarla, nadie cumple hoy. Quien nació un 29 de febrero no aparece los años que no son bisiestos |
+| Avisar a una empresa de cualquier tamaño | Más de 1.000 personas superaría el tope de send(); el módulo tendría que partir el envío en tandas. Las empresas de la demo tienen ocho |
 
 ## Riesgos declarados
 
