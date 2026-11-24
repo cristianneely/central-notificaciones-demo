@@ -57,7 +57,7 @@ class SendTest < ActiveSupport::TestCase
 
   test "71: el dato de una pieza personas tiene que ser una lista de personas con nombre y foto" do
     mensaje = "el dato cumpleaneros debe ser una lista de personas con nombre y foto"
-    datos = { fecha: "20-11-2026", nombres: "Ana Soto" }
+    datos = { fecha: "20-11-2026" }
 
     ["Ana Soto", [], [{ nombre: "Ana Soto" }], [{ nombre: " ", foto: "/f.svg" }], ["Ana Soto"],
      [{ nombre: "Ana Soto", foto: 7 }]].each do |cumpleaneros|

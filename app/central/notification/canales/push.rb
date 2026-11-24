@@ -11,6 +11,8 @@ class Notification
         boton: "Botón: tocar la notificación abre el link",
         personas: "Personas: solo la foto de la primera"
       }.freeze
+      # Con una pieza imagen, se muestra esa: las personas no aparecen.
+      PERSONAS_CON_IMAGEN = "Personas: se omite".freeze
 
       def nombre = "push"
 
@@ -24,6 +26,12 @@ class Notification
           imagen: contenido.de(:imagen).first&.fetch(:url) || primera_foto(contenido),
           link: contenido.de(:boton).first&.fetch(:link)
         }
+      end
+
+      def notas(contenido)
+        return super unless contenido.de(:imagen).any?
+
+        super.map { |nota| nota == DEGRADA[:personas] ? PERSONAS_CON_IMAGEN : nota }
       end
 
       # Sin pieza imagen, la foto de la primera persona.

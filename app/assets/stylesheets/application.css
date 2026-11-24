@@ -189,6 +189,14 @@ body.pagina-simulador main { max-width: 1320px; }
 .definicion-simulada .formulario { max-width: none; }
 .definicion-simulada input[type=text] { width: 100%; }
 .definicion-codigo { margin: 0; padding: 0.75rem; overflow-x: auto; background: var(--fondo); border: 1px solid var(--borde); border-radius: 4px; font-size: 0.8rem; line-height: 1.45; }
+.tabla-desplazable { overflow-x: auto; }
+.tabla-piezas { font-size: 0.72rem; line-height: 1.3; }
+.tabla-piezas th, .tabla-piezas td { padding: 0.3rem; }
+.tabla-piezas td { hyphens: auto; }
+.tabla-piezas thead th { font-size: 0.68rem; letter-spacing: 0; }
+.tabla-piezas tbody th { white-space: nowrap; text-transform: none; font-size: 0.72rem; letter-spacing: 0; color: var(--texto); }
+.tabla-piezas td.omite { color: var(--tenue); }
+.tabla-piezas tr.permite th, .tabla-piezas tr.permite td { font-weight: 600; }
 .salida > .interruptor { display: inline-block; margin-bottom: 0.75rem; cursor: pointer; }
 #ver-crudo { margin-right: 0.4rem; }
 .canales { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }

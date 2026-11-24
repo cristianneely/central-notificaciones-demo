@@ -97,7 +97,7 @@ class AccionesTest < ActiveSupport::TestCase
     pendientes = Notification::Pendiente.where(solicitud_id: solicitud).order(:usuario_id)
     assert_equal Usuario.where(empresa_id: 1).order(:id).ids, pendientes.map(&:usuario_id)
     assert_equal "saludo_cumpleanos", pendientes.first.notificacion
-    assert_equal({ "fecha" => Date.current.strftime("%d-%m-%Y"), "nombres" => "Ana Soto y Bruno Díaz",
+    assert_equal({ "fecha" => Date.current.strftime("%d-%m-%Y"),
                    "cumpleaneros" => [{ "nombre" => "Ana Soto", "foto" => "/personas/ana-soto.svg" },
                                       { "nombre" => "Bruno Díaz", "foto" => "/personas/bruno-diaz.svg" }] },
                  pendientes.first.datos)
@@ -110,7 +110,8 @@ class AccionesTest < ActiveSupport::TestCase
 
     datos = Notification::Pendiente.find_by!(solicitud_id: solicitud).datos
     assert_equal "31-12-2026", datos["fecha"]
-    assert_equal "Ana Soto, Bruno Díaz y Hugo Pinto (sin correo)", datos["nombres"]
+    contenido = Notification::Contenido.rellenar(Notification.catalogo.buscar("saludo_cumpleanos"), datos)
+    assert_equal "Cumpleaños de hoy: Ana Soto, Bruno Díaz y Hugo Pinto (sin correo)", contenido.titulo
     assert_equal "/personas/sin-foto.svg", datos["cumpleaneros"].last["foto"], "sin foto va la de respaldo"
   end
 

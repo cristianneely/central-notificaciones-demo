@@ -92,7 +92,7 @@ Cada canal sabe dibujar cada pieza y define cómo degrada lo que no puede mostra
 | Lista | Viñetas | Viñetas | Líneas con guion | Se omite | Se omite |
 | Imagen | Imagen | Imagen | Imagen adjunta | Se omite | Imagen al expandir |
 | Botón | Botón | Botón | Botón de la plantilla | Link corto | Tocar la notificación abre el link |
-| Personas | Fila de fotos con el nombre debajo | Foto chica y nombre por persona | Nombres en el texto; adjunta la foto de la primera | Se omite | Foto de la primera como imagen |
+| Personas | Fila de fotos con el nombre debajo | Foto chica y nombre por persona | Nombres en el texto; sin imagen, adjunta la foto de la primera | Se omite | Sin imagen, la foto de la primera |
 
 Email es el único canal de la política: arma HTML, una versión en texto plano y la vista
 previa. Slack, WhatsApp, SMS y push son canales simulados, fuera de la política; existen para
@@ -104,19 +104,21 @@ link corto en 160 caracteres como máximo. La notificación push lleva el títul
 muestra la imagen al expandirla y, al tocarla, abre el link del botón.
 
 El certificado lleva la portada del curso: un dato (`imagen_curso`) que la acción de emitir toma
-del módulo de cursos. La solicitud de vacaciones lleva una ilustración fija.
+del módulo de cursos. La solicitud de vacaciones y el aviso de cumpleaños llevan una ilustración
+fija.
 
 El aviso de cumpleaños va a toda la empresa, una vez al día, con quienes cumplen hoy:
 
 ```ruby
 class SaludoCumpleanos < Notification
   criticidad  :opcional
-  datos       :fecha, :nombres, :cumpleaneros
+  datos       :fecha, :cumpleaneros
   unica_por   :fecha
 
   contenido do
-    titulo    "Cumpleaños de hoy: {nombres}"
-    resumen   "Hoy celebramos a {nombres}. ¡No olvides saludar!"
+    titulo    "Cumpleaños de hoy: {cumpleaneros}"
+    resumen   "Hoy celebramos a {cumpleaneros}. ¡No olvides saludar!"
+    imagen    "/cumpleanos.svg", alt: "Ilustración de cumpleaños"
     personas  "{cumpleaneros}"
     destacado "¡Que lo pasen increíble!"
   end
@@ -125,7 +127,8 @@ end
 
 La acción del módulo de personas busca en la base de usuarios a quienes cumplen hoy (cada
 persona tiene foto y fecha de nacimiento) y pide el envío para toda la empresa, incluidos
-ellos. `send()` rechaza un dato de `personas` que no sea una lista de personas con nombre y
+ellos. Solo manda la lista de personas: en el título y el resumen, `{cumpleaneros}` se escribe
+con sus nombres ("Ana Soto, Bruno Díaz y Carla Muñoz"), y lo hace la central. `send()` rechaza un dato de `personas` que no sea una lista de personas con nombre y
 foto. En el simulador se elige a quién va el mensaje y se ve su foto y su correo, leídos de la
 base: el email dice a qué dirección saldría; los otros canales, qué dato pedirían.
 

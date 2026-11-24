@@ -46,7 +46,7 @@ module AyudasCentral
     SaludoCumpleanos.send(
       empresa: usuario.empresa_id,
       destinatarios: [usuario.id],
-      datos: { fecha: fecha, nombres: nombre, cumpleaneros: [{ nombre: nombre, foto: "/personas/sin-foto.svg" }] })
+      datos: { fecha: fecha, cumpleaneros: [{ nombre: nombre, foto: "/personas/sin-foto.svg" }] })
   end
 
   def enviar_encuesta(usuario, curso: "Excel básico")

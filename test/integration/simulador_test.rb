@@ -74,7 +74,8 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     get "/simulador", params: { notificacion: "saludo_cumpleanos" }
     assert_select ".canal-sms .notas li", text: "Personas: se omite"
     assert_select ".canal-whatsapp .plantilla-estado", count: 0 # sin botón, la plantilla no importa
-    assert_select ".canal-whatsapp .burbuja-whatsapp img[alt='Ana Soto']"
+    assert_select ".canal-whatsapp .burbuja-whatsapp img[alt='Ilustración de cumpleaños']"
+    assert_select ".canal-whatsapp .notas li", text: "Personas: pasan a nombres"
   end
 
   test "62: una notificación que no existe o datos mal formados no rompen la pantalla" do
@@ -149,7 +150,7 @@ class SimuladorTest < ActionDispatch::IntegrationTest
 
   test "73: en el cumpleaños, quienes cumplen hoy y sus fotos salen de la base y no se editan" do
     Usuario.find(3).update!(nacimiento: Date.current.prev_year(30))
-    get "/simulador", params: { notificacion: "saludo_cumpleanos", datos: { nombres: "Otro" } }
+    get "/simulador", params: { notificacion: "saludo_cumpleanos", datos: { cumpleaneros: "Otro" } }
 
     assert_select ".canal-email .asunto-bandeja", text: "Cumpleaños de hoy: Ana Soto, Bruno Díaz y Carla Muñoz"
     assert_select "input[name='datos[nombres]']", count: 0
@@ -157,15 +158,37 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     assert_select ".dato-de-la-base", text: /Ana Soto, Bruno Díaz y Carla Muñoz/
     assert_select ".canal-slack .slack-persona img[src='/personas/carla-munoz.svg']"
     assert_select "input[name='datos[fecha]']"
+    assert_select ".canal-push .push-notificacion img[src='/cumpleanos.svg']"
   end
 
   test "73: si hoy nadie cumple años en Andes, el simulador usa a Ana y a Bruno de ejemplo" do
     Usuario.update_all(nacimiento: Date.current - 1)
 
-    assert_equal "Ana Soto y Bruno Díaz", Demo::Simulador.simular("saludo_cumpleanos", {})[:datos][:nombres]
+    assert_equal ["Ana Soto", "Bruno Díaz"],
+                 Demo::Simulador.simular("saludo_cumpleanos", {})[:datos][:cumpleaneros].map { |persona| persona[:nombre] }
     get "/simulador", params: { notificacion: "saludo_cumpleanos" }
     assert_select ".dato-de-la-base small", text: /Hoy nadie cumple años en Andes Capacitación: van Ana Soto y Bruno Díaz de ejemplo/
     assert_select ".dato-de-la-base small", text: /quienes cumplen hoy/, count: 0
+  end
+
+  test "75: bajo la definición, una tabla dice qué hace cada canal con cada pieza y qué permite" do
+    get "/simulador"
+
+    assert_select ".tabla-piezas" do
+      assert_select "thead th", count: 6
+      assert_select "thead th", text: "Push"
+      # Una fila por pieza del vocabulario, más la de lo que permite cada canal.
+      assert_select "tbody tr", count: Notification::Contenido::VOCABULARIO.size + 1
+      assert_select "tbody tr", text: /Resumen.*Vista previa en la bandeja.*El mensaje/m
+      assert_select "tbody tr", text: /Permite.*160 caracteres/m
+    end
+  end
+
+  test "75: la tabla cubre todas las piezas y todos los canales del simulador" do
+    assert_equal Notification::Contenido::VOCABULARIO, SimuladorHelper::TABLA_PIEZAS.keys
+    SimuladorHelper::TABLA_PIEZAS.merge(permite: SimuladorHelper::PERMITE).each_value do |fila|
+      assert_equal Demo::Simulador::CANALES, fila.keys
+    end
   end
 
   test "el menú lleva al simulador" do

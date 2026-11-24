@@ -30,8 +30,6 @@ module Personas
       return nil if cumplen.empty?
 
       { fecha: hoy.strftime("%d-%m-%Y"),
-        nombres: cumplen.map(&:nombre).to_sentence(words_connector: ", ", last_word_connector: " y ",
-                                                   two_words_connector: " y "),
         cumpleaneros: cumplen.map { |persona| { nombre: persona.nombre, foto: persona.foto.presence || SIN_FOTO } } }
     end
   end
