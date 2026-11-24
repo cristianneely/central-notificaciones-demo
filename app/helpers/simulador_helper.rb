@@ -1,6 +1,41 @@
 module SimuladorHelper
   NOMBRES_CANALES = { "email" => "Email", "slack" => "Slack", "whatsapp" => "WhatsApp", "sms" => "SMS", "push" => "Push" }.freeze
 
+  # Qué hace cada canal con cada pieza: la tabla de la sección 2.1.5, en el orden del
+  # vocabulario y de los canales del simulador. Lo que un canal degrada lo declara también
+  # en su DEGRADA; esta tabla es la vista completa, para leerla de una vez.
+  TABLA_PIEZAS = {
+    titulo: { "email" => "Asunto y encabezado", "slack" => "Encabezado", "whatsapp" => "Primera línea en negrita",
+              "sms" => "Se omite", "push" => "Título de la notificación" },
+    resumen: { "email" => "Vista previa en la bandeja", "slack" => "Texto del aviso", "whatsapp" => "Se omite",
+               "sms" => "El mensaje", "push" => "El texto" },
+    parrafo: { "email" => "Párrafo en HTML", "slack" => "Texto", "whatsapp" => "Texto",
+               "sms" => "Se omite", "push" => "Se omite" },
+    destacado: { "email" => "Negrita", "slack" => "Negrita", "whatsapp" => "Negrita",
+                 "sms" => "Se omite", "push" => "Se omite" },
+    lista: { "email" => "Viñetas", "slack" => "Viñetas", "whatsapp" => "Líneas con guion",
+             "sms" => "Se omite", "push" => "Se omite" },
+    imagen: { "email" => "Imagen", "slack" => "Imagen", "whatsapp" => "Imagen adjunta",
+              "sms" => "Se omite", "push" => "Imagen al expandir" },
+    boton: { "email" => "Botón", "slack" => "Botón", "whatsapp" => "Botón de la plantilla; sin plantilla, link",
+             "sms" => "Link corto", "push" => "Tocar la notificación abre el link" },
+    personas: { "email" => "Fila de fotos con el nombre debajo", "slack" => "Foto chica y nombre por persona",
+                "whatsapp" => "Nombres en el texto; adjunta la foto de la primera", "sms" => "Se omite",
+                "push" => "Foto de la primera como imagen" }
+  }.freeze
+
+  # Qué permite cada canal, en una línea.
+  PERMITE = {
+    "email" => "Todas las piezas, en HTML y en texto plano",
+    "slack" => "Todas las piezas, con el formato de Slack",
+    "whatsapp" => "Texto con negrita y una imagen; el botón, solo con plantilla aprobada",
+    "sms" => "Solo texto: 160 caracteres como máximo",
+    "push" => "Un título, una o dos líneas y una imagen"
+  }.freeze
+
+  NOMBRES_PIEZAS = { titulo: "Título", resumen: "Resumen", parrafo: "Párrafo", destacado: "Destacado",
+                     lista: "Lista", imagen: "Imagen", boton: "Botón", personas: "Personas" }.freeze
+
   # Cómo se llama, para una persona, el dato de contacto que pide cada canal.
   CONTACTOS = { slack: "su usuario de Slack", telefono: "su teléfono", dispositivo: "un dispositivo registrado" }.freeze
 

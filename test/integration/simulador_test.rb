@@ -168,6 +168,26 @@ class SimuladorTest < ActionDispatch::IntegrationTest
     assert_select ".dato-de-la-base small", text: /quienes cumplen hoy/, count: 0
   end
 
+  test "75: bajo la definición, una tabla dice qué hace cada canal con cada pieza y qué permite" do
+    get "/simulador"
+
+    assert_select ".tabla-piezas" do
+      assert_select "thead th", count: 6
+      assert_select "thead th", text: "Push"
+      # Una fila por pieza del vocabulario, más la de lo que permite cada canal.
+      assert_select "tbody tr", count: Notification::Contenido::VOCABULARIO.size + 1
+      assert_select "tbody tr", text: /Resumen.*Vista previa en la bandeja.*El mensaje/m
+      assert_select "tbody tr", text: /Permite.*160 caracteres/m
+    end
+  end
+
+  test "75: la tabla cubre todas las piezas y todos los canales del simulador" do
+    assert_equal Notification::Contenido::VOCABULARIO, SimuladorHelper::TABLA_PIEZAS.keys
+    SimuladorHelper::TABLA_PIEZAS.merge(permite: SimuladorHelper::PERMITE).each_value do |fila|
+      assert_equal Demo::Simulador::CANALES, fila.keys
+    end
+  end
+
   test "el menú lleva al simulador" do
     get "/consola"
 

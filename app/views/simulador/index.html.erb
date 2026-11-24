@@ -49,6 +49,34 @@
     <h2>La definición, una sola</h2>
     <p class="nota">Así la escribe el equipo dueño. No dice por qué canal sale ni cómo se ve en cada uno.</p>
     <pre class="definicion-codigo"><%= @simulacion[:codigo] %></pre>
+
+    <h2>Cada pieza, en cada canal</h2>
+    <p class="nota">Lo que hace cada canal con cada pieza y lo que permite. Lo que un canal no puede mostrar lo
+      degrada él mismo; la definición no cambia.</p>
+    <div class="tabla-desplazable">
+      <table class="tabla-piezas">
+        <thead>
+          <tr>
+            <th>Pieza</th>
+            <% Demo::Simulador::CANALES.each do |canal| %><th><%= SimuladorHelper::NOMBRES_CANALES.fetch(canal) %></th><% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% SimuladorHelper::TABLA_PIEZAS.each do |pieza, fila| %>
+            <tr>
+              <th scope="row"><%= SimuladorHelper::NOMBRES_PIEZAS.fetch(pieza) %></th>
+              <% Demo::Simulador::CANALES.each do |canal| %>
+                <td class="<%= "omite" if fila.fetch(canal) == "Se omite" %>"><%= fila.fetch(canal) %></td>
+              <% end %>
+            </tr>
+          <% end %>
+          <tr class="permite">
+            <th scope="row">Permite</th>
+            <% Demo::Simulador::CANALES.each do |canal| %><td><%= SimuladorHelper::PERMITE.fetch(canal) %></td><% end %>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <section class="salida">
