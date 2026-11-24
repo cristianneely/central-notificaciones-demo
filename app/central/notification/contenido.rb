@@ -74,13 +74,15 @@ class Notification
     end
 
     # Rellena las piezas de una definición con los datos de un envío: cada {marcador}
-    # se reemplaza por el valor de ese dato, como texto. La pieza personas no es texto:
-    # recibe la lista del dato tal cual, con el nombre y la foto de cada persona.
+    # se reemplaza por el valor de ese dato, como texto. Un dato que es una lista de
+    # personas se escribe con sus nombres ("Ana, Bruno y Carla"): quien pide el envío no
+    # los repite en otro dato. La pieza personas no es texto: recibe la lista del dato tal
+    # cual, con el nombre y la foto de cada persona.
     def self.rellenar(definicion, datos)
       datos = datos.to_h.transform_keys(&:to_sym)
       rellenar = ->(valor) do
         case valor
-        when String then valor.gsub(ValidadorDefinicion::MARCADOR) { datos[$1.to_sym].to_s }
+        when String then valor.gsub(ValidadorDefinicion::MARCADOR) { como_texto(datos[$1.to_sym]) }
         when Array then valor.map(&rellenar)
         else valor
         end
@@ -94,6 +96,14 @@ class Notification
       end
 
       Relleno.new(notificacion: definicion.nombre, piezas: piezas)
+    end
+
+    # El valor de un dato dentro de un texto. Una lista de personas, con sus nombres.
+    def self.como_texto(valor)
+      return valor.to_s unless valor.is_a?(Array)
+
+      personas_de(valor).map { |persona| persona[:nombre] }
+                        .to_sentence(words_connector: ", ", two_words_connector: " y ", last_word_connector: " y ")
     end
 
     # [{ "nombre" => …, "foto" => … }] → [{ nombre:, foto: }]. Lo que no sea una lista de

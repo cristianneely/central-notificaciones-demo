@@ -20,8 +20,8 @@ module SimuladorHelper
     boton: { "email" => "Botón", "slack" => "Botón", "whatsapp" => "Botón de la plantilla; sin plantilla, link",
              "sms" => "Link corto", "push" => "Tocar la notificación abre el link" },
     personas: { "email" => "Fila de fotos con el nombre debajo", "slack" => "Foto chica y nombre por persona",
-                "whatsapp" => "Nombres en el texto; adjunta la foto de la primera", "sms" => "Se omite",
-                "push" => "Foto de la primera como imagen" }
+                "whatsapp" => "Nombres en el texto; sin imagen, adjunta la foto de la primera", "sms" => "Se omite",
+                "push" => "Sin imagen, la foto de la primera" }
   }.freeze
 
   # Qué permite cada canal, en una línea.

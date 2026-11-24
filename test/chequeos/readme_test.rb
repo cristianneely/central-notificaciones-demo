@@ -99,8 +99,8 @@ class ReadmeTest < ActiveSupport::TestCase
       assert_includes Demo::Declaraciones::SIMPLIFICACIONES, fila
     end
     assert_includes README, "| Personas | Fila de fotos con el nombre debajo | Foto chica y nombre por persona | " \
-                            "Nombres en el texto; adjunta la foto de la primera | Se omite | Foto de la primera como imagen |"
-    ["`personas`", "Cumpleaños de hoy: {nombres}", %(personas  "{cumpleaneros}")].each do |texto|
+                            "Nombres en el texto; sin imagen, adjunta la foto de la primera | Se omite | Sin imagen, la foto de la primera |"
+    ["`personas`", "Cumpleaños de hoy: {cumpleaneros}", %(personas  "{cumpleaneros}")].each do |texto|
       assert_includes README, texto
     end
     escenario = Demo::Declaraciones::ESCENARIOS.find { |fila| fila[0] == 10 }

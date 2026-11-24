@@ -55,7 +55,7 @@ class HistorialTest < ActionDispatch::IntegrationTest
 
   test "30: una fila por solicitud y persona, de la más reciente a la más antigua, con tope" do
     solicitud = SaludoCumpleanos.send(empresa: 1, destinatarios: [@ana.id, @bruno.id],
-                                      datos: { fecha: "20-11-2026", nombres: "Ana Soto",
+                                      datos: { fecha: "20-11-2026",
                                                cumpleaneros: [{ nombre: "Ana Soto", foto: "/personas/ana-soto.svg" }] })
 
     assert_equal [[solicitud, @bruno.id], [solicitud, @ana.id], [@de_bruno, @bruno.id], [@de_ana, @ana.id]],

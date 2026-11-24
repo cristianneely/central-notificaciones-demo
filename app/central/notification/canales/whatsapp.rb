@@ -14,6 +14,8 @@ class Notification
         personas: "Personas: pasan a nombres; se adjunta la foto de la primera"
       }.freeze
       SIN_PLANTILLA = "Botón: pasa a link (sin plantilla aprobada)".freeze
+      # Con una pieza imagen, se adjunta esa: de las personas quedan solo los nombres.
+      PERSONAS_CON_IMAGEN = "Personas: pasan a nombres".freeze
 
       def nombre = "whatsapp"
       def contacto = :telefono
@@ -35,6 +37,7 @@ class Notification
 
       def notas(contenido)
         notas = super
+        notas = notas.map { |nota| nota == DEGRADA[:personas] ? PERSONAS_CON_IMAGEN : nota } if contenido.de(:imagen).any?
         notas << SIN_PLANTILLA if contenido.de(:boton).any? && !plantilla(contenido)
         notas
       end

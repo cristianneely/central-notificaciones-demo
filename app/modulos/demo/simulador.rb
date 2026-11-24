@@ -9,7 +9,7 @@ module Demo
     # La empresa para probar en vivo: de ahí se eligen la persona y los cumpleañeros.
     EMPRESA = 1
     # Los datos que no se escriben a mano: salen de la base de usuarios.
-    DE_LA_BASE = { "saludo_cumpleanos" => %i[nombres cumpleaneros] }.freeze
+    DE_LA_BASE = { "saludo_cumpleanos" => %i[cumpleaneros] }.freeze
 
     # Si la notificación no es una de las tres, se usa la primera; si la persona no es de la
     # empresa, la primera de la empresa.

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300" role="img" aria-label="Ilustración de cumpleaños">
+  <rect width="600" height="300" rx="16" fill="#fdf0e6"/>
+  <path d="M60 0 L90 300 M540 0 L510 300" stroke="#fde3cf" stroke-width="40"/>
+  <circle cx="110" cy="40" r="6" fill="#e8594f"/>
+  <circle cx="490" cy="60" r="5" fill="#2f8f5b"/>
+  <circle cx="160" cy="250" r="5" fill="#f6c445"/>
+  <circle cx="450" cy="240" r="6" fill="#7fc1e8"/>
+  <rect x="80" y="110" width="8" height="18" rx="2" fill="#f6c445" transform="rotate(25 84 119)"/>
+  <rect x="510" y="140" width="8" height="18" rx="2" fill="#e8594f" transform="rotate(-20 514 149)"/>
+  <rect x="200" y="190" width="200" height="80" rx="10" fill="#e8594f"/>
+  <path d="M200 215 Q225 235 250 215 T300 215 T350 215 T400 215" stroke="#ffffff" stroke-width="8" fill="none"/>
+  <rect x="225" y="140" width="150" height="55" rx="8" fill="#f3dfb2"/>
+  <path d="M225 160 Q244 175 262 160 T300 160 T338 160 T375 160" stroke="#ffffff" stroke-width="6" fill="none"/>
+  <rect x="262" y="100" width="10" height="40" rx="3" fill="#7fc1e8"/>
+  <rect x="295" y="100" width="10" height="40" rx="3" fill="#2f8f5b"/>
+  <rect x="328" y="100" width="10" height="40" rx="3" fill="#f6c445"/>
+  <path d="M267 98 q-6 -10 0 -18 q6 8 0 18 Z M300 98 q-6 -10 0 -18 q6 8 0 18 Z M333 98 q-6 -10 0 -18 q6 8 0 18 Z" fill="#f6a623"/>
+  <text x="300" y="52" text-anchor="middle" font-family="Georgia, serif" font-size="30" fill="#8a3b2e">Cumpleaños</text>
+</svg>

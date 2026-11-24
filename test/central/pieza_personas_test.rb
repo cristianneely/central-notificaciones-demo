@@ -6,12 +6,12 @@ require "test_helper"
 class PiezaPersonasTest < ActiveSupport::TestCase
   class ConPersonas < Notification
     criticidad :opcional
-    datos      :fecha, :nombres, :gente
+    datos      :fecha, :gente
     unica_por  :fecha
 
     contenido do
-      titulo    "Cumpleaños de hoy: {nombres}"
-      resumen   "Hoy celebramos a {nombres}."
+      titulo    "Cumpleaños de hoy: {gente}"
+      resumen   "Hoy celebramos a {gente}."
       personas  "{gente}"
       destacado "¡Que lo pasen increíble!"
     end
@@ -23,7 +23,7 @@ class PiezaPersonasTest < ActiveSupport::TestCase
   setup do
     @definicion = Notification::Catalogo.new.registrar(ConPersonas)
     @contenido = Notification::Contenido.rellenar(
-      @definicion, { fecha: "20-11-2026", nombres: "Ana Soto y Bruno <Díaz>", gente: GENTE }
+      @definicion, { fecha: "20-11-2026", gente: GENTE }
     )
   end
 
@@ -47,6 +47,18 @@ class PiezaPersonasTest < ActiveSupport::TestCase
                            { nombre: "Bruno <Díaz>", foto: "/personas/bruno-diaz.svg" }] },
                  @contenido.de(:personas).first)
     assert_equal "Cumpleaños de hoy: Ana Soto y Bruno <Díaz>", @contenido.titulo
+  end
+
+  test "76: un {dato} con una lista de personas se escribe con sus nombres, en cualquier texto" do
+    nombres = ->(gente) { Notification::Contenido.rellenar(@definicion, { fecha: "x", gente: gente }).titulo }
+    ana = { "nombre" => "Ana Soto", "foto" => "/a.svg" }
+    bruno = { nombre: "Bruno Díaz", foto: "/b.svg" }
+    carla = { "nombre" => "Carla Muñoz", "foto" => "/c.svg" }
+
+    assert_equal "Cumpleaños de hoy: Ana Soto", nombres.([ana])
+    assert_equal "Cumpleaños de hoy: Ana Soto y Bruno Díaz", nombres.([ana, bruno])
+    assert_equal "Cumpleaños de hoy: Ana Soto, Bruno Díaz y Carla Muñoz", nombres.([ana, bruno, carla])
+    assert_equal "Hoy celebramos a Ana Soto y Bruno <Díaz>.", @contenido.resumen
   end
 
   test "68: el catálogo acepta personas con un dato declarado" do
@@ -107,6 +119,11 @@ class PiezaPersonasTest < ActiveSupport::TestCase
 
     assert_equal "/tarjeta.svg", canal("whatsapp").adaptar(contenido)[:imagen][:url]
     assert_equal "/tarjeta.svg", canal("push").adaptar(contenido)[:imagen]
+    # Y la nota de degradación lo dice: las personas no ponen la imagen.
+    assert_includes canal("whatsapp").notas(contenido), "Personas: pasan a nombres"
+    assert_not_includes canal("whatsapp").notas(contenido), "Personas: pasan a nombres; se adjunta la foto de la primera"
+    assert_includes canal("push").notas(contenido), "Personas: se omite"
+    assert_not_includes canal("push").notas(contenido), "Personas: solo la foto de la primera"
   end
 
   test "69: SMS omite las personas: el resumen ya trae los nombres" do
